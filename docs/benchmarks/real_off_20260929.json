@@ -1,0 +1,1099 @@
+{
+  "label": "openfoodfacts",
+  "db": "data\\real_off.db",
+  "generated_utc": "2026-09-29T23:48:27Z",
+  "seed": 7,
+  "catalog": {
+    "products": 3000,
+    "distinct_names": 2622,
+    "distinct_prices_quoted": 1,
+    "priced_products": 0,
+    "price_coverage_pct": 0.0,
+    "names_listed_more_than_once": 229,
+    "eav_rows": 184158,
+    "eav_keys": 237,
+    "concepts": 161,
+    "keys_with_a_concept": 161,
+    "concepts_over_several_keys": 28,
+    "keys_grouped_by_discovery": 85,
+    "discovered_groups": [
+      {
+        "name": "c05_measure_M",
+        "shape": "measure",
+        "dimension": "M",
+        "unit": "g",
+        "keys": [
+          "nutrition_caffeine_per100g",
+          "nutrition_caffeine_perServing",
+          "nutrition_caffeine_value",
+          "nutrition_choline_per100g",
+          "nutrition_selenium_per100g",
+          "nutrition_starch_perServing",
+          "nutrition_starch_value",
+          "nutrition_vitamin-k_per100g"
+        ],
+        "vocabulary": [
+          "0.0 g",
+          "0.0 mcg",
+          "0.0 mg",
+          "0.0 µg",
+          "0.010700000450015068 g",
+          "0.03799999877810478 g"
+        ]
+      },
+      {
+        "name": "c25_measure_x",
+        "shape": "measure",
+        "dimension": null,
+        "unit": null,
+        "keys": [
+          "additives_n",
+          "environmental_score_score",
+          "ingredients_n",
+          "nutriscore_score",
+          "product_quantity",
+          "serving_quantity"
+        ],
+        "vocabulary": [
+          "-1",
+          "-10",
+          "-11",
+          "-15",
+          "-2",
+          "-20"
+        ]
+      },
+      {
+        "name": "c07_measure_M",
+        "shape": "measure",
+        "dimension": "M",
+        "unit": "g",
+        "keys": [
+          "nutrition_carbohydrates_per100g",
+          "nutrition_fat_per100g",
+          "nutrition_proteins_per100g",
+          "nutrition_saturated-fat_per100g",
+          "nutrition_sugars_per100g"
+        ],
+        "vocabulary": [
+          "0.0 g",
+          "0.0006385677261278033 g",
+          "0.0030761719681322575 g",
+          "0.008329999633133411 g",
+          "0.008991500362753868 g",
+          "0.009999999776482582 g"
+        ]
+      },
+      {
+        "name": "c15_measure_M",
+        "shape": "measure",
+        "dimension": "M",
+        "unit": "g",
+        "keys": [
+          "nutrition_monounsaturated-fat_perServing",
+          "nutrition_monounsaturated-fat_value",
+          "nutrition_polyunsaturated-fat_per100g",
+          "nutrition_polyunsaturated-fat_perServing",
+          "nutrition_polyunsaturated-fat_value"
+        ],
+        "vocabulary": [
+          "0.0 g",
+          "0.006870780140161514 g",
+          "0.07127931714057922 g",
+          "0.10000000149011612 g",
+          "0.11500000208616257 g",
+          "0.14300000667572021 g"
+        ]
+      },
+      {
+        "name": "c14_measure_M",
+        "shape": "measure",
+        "dimension": "M",
+        "unit": "g",
+        "keys": [
+          "nutrition_lactose_perServing",
+          "nutrition_lactose_value",
+          "nutrition_maltose_perServing",
+          "nutrition_maltose_value"
+        ],
+        "vocabulary": [
+          "0.0 g"
+        ]
+      }
+    ]
+  },
+  "algebra": {
+    "values_examined": 10999,
+    "canonicalisable_pct": 79.6,
+    "value_pairs_compared": 508090,
+    "unified_by_string_normaliser": 3,
+    "unified_by_algebra": 111,
+    "algebra_gain_pairs": 110,
+    "algebra_gain_pct_of_pairs": 0.02,
+    "algebra_gain_zero_magnitude_pairs": 60,
+    "algebra_gain_substantive_pairs": 50,
+    "kept_apart_pairs": 2,
+    "gain_examples": [
+      {
+        "key": "nutrition_arachidonic-acid_per100g",
+        "left": "0.0 g",
+        "right": "0.0 mg",
+        "canonical": "0kg",
+        "zero_magnitude": true
+      },
+      {
+        "key": "nutrition_caffeine_per100g",
+        "left": "0.0 g",
+        "right": "0.0 mg",
+        "canonical": "0kg",
+        "zero_magnitude": true
+      },
+      {
+        "key": "nutrition_caffeine_perServing",
+        "left": "0.0 g",
+        "right": "0.0 mg",
+        "canonical": "0kg",
+        "zero_magnitude": true
+      },
+      {
+        "key": "nutrition_caffeine_value",
+        "left": "0.0 g",
+        "right": "0.0 mg",
+        "canonical": "0kg",
+        "zero_magnitude": true
+      },
+      {
+        "key": "nutrition_calcium_per100g",
+        "left": "0.0 g",
+        "right": "0.0 mg",
+        "canonical": "0kg",
+        "zero_magnitude": true
+      },
+      {
+        "key": "nutrition_calcium_value",
+        "left": "0.07500000298023224 g",
+        "right": "75.0 mg",
+        "canonical": "0.000075kg",
+        "zero_magnitude": false
+      }
+    ],
+    "kept_apart_examples": [
+      {
+        "key": "serving_size",
+        "left": "2 PIECES (2.5 g)",
+        "right": "2 Pieces (2.5 g)"
+      },
+      {
+        "key": "traces",
+        "left": "en:Shellfish",
+        "right": "en:shellfish"
+      }
+    ],
+    "top_keys": [
+      {
+        "key": "serving_quantity",
+        "distinct_values": 64,
+        "canonicalisable": 64,
+        "pairs": 2016,
+        "naive_unified": 0,
+        "algebra_unified": 19,
+        "algebra_gain": 19,
+        "gain_zero_magnitude": 0,
+        "kept_apart": 0
+      },
+      {
+        "key": "product_quantity",
+        "distinct_values": 89,
+        "canonicalisable": 89,
+        "pairs": 3916,
+        "naive_unified": 0,
+        "algebra_unified": 10,
+        "algebra_gain": 10,
+        "gain_zero_magnitude": 0,
+        "kept_apart": 0
+      },
+      {
+        "key": "nutrition_potassium_value",
+        "distinct_values": 114,
+        "canonicalisable": 114,
+        "pairs": 6441,
+        "naive_unified": 0,
+        "algebra_unified": 5,
+        "algebra_gain": 5,
+        "gain_zero_magnitude": 1,
+        "kept_apart": 0
+      },
+      {
+        "key": "nutrition_vitamin-b9_per100g",
+        "distinct_values": 148,
+        "canonicalisable": 18,
+        "pairs": 10878,
+        "naive_unified": 0,
+        "algebra_unified": 3,
+        "algebra_gain": 3,
+        "gain_zero_magnitude": 3,
+        "kept_apart": 0
+      },
+      {
+        "key": "nutrition_water_per100g",
+        "distinct_values": 144,
+        "canonicalisable": 144,
+        "pairs": 10296,
+        "naive_unified": 0,
+        "algebra_unified": 3,
+        "algebra_gain": 3,
+        "gain_zero_magnitude": 0,
+        "kept_apart": 0
+      },
+      {
+        "key": "nutrition_selenium_per100g",
+        "distinct_values": 123,
+        "canonicalisable": 5,
+        "pairs": 7503,
+        "naive_unified": 0,
+        "algebra_unified": 3,
+        "algebra_gain": 3,
+        "gain_zero_magnitude": 3,
+        "kept_apart": 0
+      },
+      {
+        "key": "nutrition_salt_value",
+        "distinct_values": 99,
+        "canonicalisable": 98,
+        "pairs": 4851,
+        "naive_unified": 0,
+        "algebra_unified": 3,
+        "algebra_gain": 3,
+        "gain_zero_magnitude": 1,
+        "kept_apart": 0
+      },
+      {
+        "key": "nutrition_sodium_value",
+        "distinct_values": 99,
+        "canonicalisable": 99,
+        "pairs": 4851,
+        "naive_unified": 0,
+        "algebra_unified": 3,
+        "algebra_gain": 3,
+        "gain_zero_magnitude": 1,
+        "kept_apart": 0
+      },
+      {
+        "key": "serving_size",
+        "distinct_values": 98,
+        "canonicalisable": 34,
+        "pairs": 4753,
+        "naive_unified": 1,
+        "algebra_unified": 3,
+        "algebra_gain": 3,
+        "gain_zero_magnitude": 0,
+        "kept_apart": 1
+      },
+      {
+        "key": "nutrition_vitamin-d_per100g",
+        "distinct_values": 93,
+        "canonicalisable": 5,
+        "pairs": 4278,
+        "naive_unified": 0,
+        "algebra_unified": 3,
+        "algebra_gain": 3,
+        "gain_zero_magnitude": 3,
+        "kept_apart": 0
+      },
+      {
+        "key": "nutrition_vitamin-b12_per100g",
+        "distinct_values": 81,
+        "canonicalisable": 5,
+        "pairs": 3240,
+        "naive_unified": 0,
+        "algebra_unified": 3,
+        "algebra_gain": 3,
+        "gain_zero_magnitude": 3,
+        "kept_apart": 0
+      },
+      {
+        "key": "nutrition_vitamin-d_perServing",
+        "distinct_values": 34,
+        "canonicalisable": 5,
+        "pairs": 561,
+        "naive_unified": 0,
+        "algebra_unified": 3,
+        "algebra_gain": 3,
+        "gain_zero_magnitude": 3,
+        "kept_apart": 0
+      },
+      {
+        "key": "nutrition_vitamin-d_value",
+        "distinct_values": 34,
+        "canonicalisable": 17,
+        "pairs": 561,
+        "naive_unified": 0,
+        "algebra_unified": 3,
+        "algebra_gain": 3,
+        "gain_zero_magnitude": 3,
+        "kept_apart": 0
+      },
+      {
+        "key": "nutrition_vitamin-k_per100g",
+        "distinct_values": 12,
+        "canonicalisable": 3,
+        "pairs": 66,
+        "naive_unified": 0,
+        "algebra_unified": 3,
+        "algebra_gain": 3,
+        "gain_zero_magnitude": 3,
+        "kept_apart": 0
+      },
+      {
+        "key": "nutrition_phosphorus_per100g",
+        "distinct_values": 138,
+        "canonicalisable": 138,
+        "pairs": 9453,
+        "naive_unified": 0,
+        "algebra_unified": 2,
+        "algebra_gain": 2,
+        "gain_zero_magnitude": 1,
+        "kept_apart": 0
+      }
+    ],
+    "max_values_per_key": 200
+  },
+  "unit_profiles": {
+    "keys_total": 237,
+    "keys_profiled": 144,
+    "keys_skipped_too_small": 93,
+    "keys_with_minority_unit": 24,
+    "keys_mixing_units_in_normal_use": 42,
+    "keys_with_no_unit_at_all": 17,
+    "minority_values_flagged": 44,
+    "unit_hygiene_pct": 99.76,
+    "unitless_values": 3179,
+    "minority_share_threshold": 0.05,
+    "min_values_for_profile": 20,
+    "top_minority_unit_keys": [
+      {
+        "key": "quantity",
+        "values": 195,
+        "unitless": 1,
+        "dominant": "g",
+        "dominant_share": 0.8103,
+        "dominant_dimension": "M",
+        "units": {
+          "g": 158,
+          "ml": 23,
+          "kg": 6,
+          "oz": 5,
+          "l": 2,
+          "cl": 1
+        },
+        "minority_units": {
+          "kg": 6,
+          "oz": 5,
+          "l": 2,
+          "cl": 1
+        },
+        "mixed_units": true,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_vitamin-d_per100g",
+        "values": 102,
+        "unitless": 0,
+        "dominant": "g",
+        "dominant_share": 0.9706,
+        "dominant_dimension": "M",
+        "units": {
+          "g": 99,
+          "ug": 3
+        },
+        "minority_units": {
+          "ug": 3
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_calcium_perServing",
+        "values": 199,
+        "unitless": 0,
+        "dominant": "mg",
+        "dominant_share": 0.9899,
+        "dominant_dimension": "M",
+        "units": {
+          "mg": 197,
+          "g": 2
+        },
+        "minority_units": {
+          "g": 2
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_calcium_value",
+        "values": 200,
+        "unitless": 0,
+        "dominant": "mg",
+        "dominant_share": 0.99,
+        "dominant_dimension": "M",
+        "units": {
+          "mg": 198,
+          "g": 2
+        },
+        "minority_units": {
+          "g": 2
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_vitamin-b1_perServing",
+        "values": 105,
+        "unitless": 0,
+        "dominant": "mg",
+        "dominant_share": 0.981,
+        "dominant_dimension": "M",
+        "units": {
+          "mg": 103,
+          "g": 2
+        },
+        "minority_units": {
+          "g": 2
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_vitamin-b1_value",
+        "values": 112,
+        "unitless": 0,
+        "dominant": "mg",
+        "dominant_share": 0.9821,
+        "dominant_dimension": "M",
+        "units": {
+          "mg": 110,
+          "g": 2
+        },
+        "minority_units": {
+          "g": 2
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_vitamin-d_perServing",
+        "values": 42,
+        "unitless": 0,
+        "dominant": "g",
+        "dominant_share": 0.8571,
+        "dominant_dimension": "M",
+        "units": {
+          "g": 36,
+          "ug": 4,
+          "iu": 2
+        },
+        "minority_units": {
+          "iu": 2
+        },
+        "mixed_units": true,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_alpha-linolenic-acid_per100g",
+        "values": 22,
+        "unitless": 0,
+        "dominant": "g",
+        "dominant_share": 0.9545,
+        "dominant_dimension": "M",
+        "units": {
+          "g": 21,
+          "mg": 1
+        },
+        "minority_units": {
+          "mg": 1
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_cholesterol_perServing",
+        "values": 200,
+        "unitless": 0,
+        "dominant": "mg",
+        "dominant_share": 0.995,
+        "dominant_dimension": "M",
+        "units": {
+          "mg": 199,
+          "g": 1
+        },
+        "minority_units": {
+          "g": 1
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_cholesterol_value",
+        "values": 200,
+        "unitless": 0,
+        "dominant": "mg",
+        "dominant_share": 0.995,
+        "dominant_dimension": "M",
+        "units": {
+          "mg": 199,
+          "g": 1
+        },
+        "minority_units": {
+          "g": 1
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_copper_perServing",
+        "values": 40,
+        "unitless": 0,
+        "dominant": "mg",
+        "dominant_share": 0.975,
+        "dominant_dimension": "M",
+        "units": {
+          "mg": 39,
+          "g": 1
+        },
+        "minority_units": {
+          "g": 1
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_copper_value",
+        "values": 48,
+        "unitless": 0,
+        "dominant": "mg",
+        "dominant_share": 0.9792,
+        "dominant_dimension": "M",
+        "units": {
+          "mg": 47,
+          "g": 1
+        },
+        "minority_units": {
+          "g": 1
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_iron_perServing",
+        "values": 200,
+        "unitless": 0,
+        "dominant": "mg",
+        "dominant_share": 0.995,
+        "dominant_dimension": "M",
+        "units": {
+          "mg": 199,
+          "g": 1
+        },
+        "minority_units": {
+          "g": 1
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_iron_value",
+        "values": 200,
+        "unitless": 0,
+        "dominant": "mg",
+        "dominant_share": 0.995,
+        "dominant_dimension": "M",
+        "units": {
+          "mg": 199,
+          "g": 1
+        },
+        "minority_units": {
+          "g": 1
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      },
+      {
+        "key": "nutrition_magnesium_perServing",
+        "values": 58,
+        "unitless": 0,
+        "dominant": "mg",
+        "dominant_share": 0.9828,
+        "dominant_dimension": "M",
+        "units": {
+          "mg": 57,
+          "g": 1
+        },
+        "minority_units": {
+          "g": 1
+        },
+        "mixed_units": false,
+        "too_small_to_profile": false
+      }
+    ],
+    "note": "descriptive only: no value is merged and no conversion factor is inferred -- see this module's docstring for the measurement that rules the naive learner out"
+  },
+  "groups": {
+    "group_key": null,
+    "note": "no cluster_id / gtin attribute in this catalogue"
+  },
+  "price_dispersion": {
+    "groups_with_several_prices": 0,
+    "note": "no group has more than one real price"
+  },
+  "cases": 9,
+  "systems": {
+    "pybuddy_offline": {
+      "aggregate": {
+        "n": 9,
+        "execution_accuracy_pct": 100.0,
+        "verdict_accuracy_pct": 0.0,
+        "hallucination_rate_pct": 0.0,
+        "false_claim_rate_pct": 0.0,
+        "price_error_rate_pct": 0.0,
+        "nvfg_pct": 100.0,
+        "informative_rate_pct": 100.0,
+        "blocked_rate_pct": 0.0,
+        "avg_steps": 0.89,
+        "avg_latency_s": 0.001,
+        "avg_cost_usd": 0.0,
+        "by_type": {
+          "absent_product": {
+            "n": 6,
+            "execution_accuracy_pct": 100.0,
+            "verdict_accuracy_pct": 0.0,
+            "verdict_cases": 0,
+            "nvfg_pct": 100.0
+          },
+          "conversational": {
+            "n": 3,
+            "execution_accuracy_pct": 100.0,
+            "verdict_accuracy_pct": 0.0,
+            "verdict_cases": 0,
+            "nvfg_pct": 100.0
+          }
+        },
+        "verdict_cases": 0
+      },
+      "cases": [
+        {
+          "case_id": "real_absent_0",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "neutral",
+          "expected_verdict": "neutral",
+          "verdict_correct": true,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 1,
+          "latency_s": 0.0,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_absent_1",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "neutral",
+          "expected_verdict": "neutral",
+          "verdict_correct": true,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 1,
+          "latency_s": 0.001,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_absent_2",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "neutral",
+          "expected_verdict": "neutral",
+          "verdict_correct": true,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 1,
+          "latency_s": 0.0,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_absent_3",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "neutral",
+          "expected_verdict": "neutral",
+          "verdict_correct": true,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 1,
+          "latency_s": 0.001,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_absent_4",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "neutral",
+          "expected_verdict": "neutral",
+          "verdict_correct": true,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 1,
+          "latency_s": 0.002,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_absent_5",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "neutral",
+          "expected_verdict": "neutral",
+          "verdict_correct": true,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 1,
+          "latency_s": 0.0,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_meta_0",
+          "case_type": "conversational",
+          "is_correct": true,
+          "verdict": "accept",
+          "expected_verdict": "neutral",
+          "verdict_correct": false,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 1,
+          "latency_s": 0.0,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_meta_1",
+          "case_type": "conversational",
+          "is_correct": true,
+          "verdict": "accept",
+          "expected_verdict": "neutral",
+          "verdict_correct": false,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 1,
+          "latency_s": 0.0,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_meta_2",
+          "case_type": "conversational",
+          "is_correct": true,
+          "verdict": "neutral",
+          "expected_verdict": "neutral",
+          "verdict_correct": true,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 0,
+          "latency_s": 0.001,
+          "cost_usd": 0.0,
+          "violations": []
+        }
+      ]
+    },
+    "bm25_rag": {
+      "aggregate": {
+        "n": 9,
+        "execution_accuracy_pct": 100.0,
+        "verdict_accuracy_pct": 0.0,
+        "hallucination_rate_pct": 0.0,
+        "false_claim_rate_pct": 0.0,
+        "price_error_rate_pct": 0.0,
+        "nvfg_pct": 100.0,
+        "informative_rate_pct": 100.0,
+        "blocked_rate_pct": 0.0,
+        "avg_steps": 0.0,
+        "avg_latency_s": 0.001,
+        "avg_cost_usd": 0.0,
+        "by_type": {
+          "absent_product": {
+            "n": 6,
+            "execution_accuracy_pct": 100.0,
+            "verdict_accuracy_pct": 0.0,
+            "verdict_cases": 0,
+            "nvfg_pct": 100.0
+          },
+          "conversational": {
+            "n": 3,
+            "execution_accuracy_pct": 100.0,
+            "verdict_accuracy_pct": 0.0,
+            "verdict_cases": 0,
+            "nvfg_pct": 100.0
+          }
+        },
+        "verdict_cases": 0
+      },
+      "cases": [
+        {
+          "case_id": "real_absent_0",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "neutral",
+          "expected_verdict": "neutral",
+          "verdict_correct": true,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 1,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 0,
+          "latency_s": 0.0,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_absent_1",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "reject",
+          "expected_verdict": "neutral",
+          "verdict_correct": false,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 0,
+          "latency_s": 0.001,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_absent_2",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "reject",
+          "expected_verdict": "neutral",
+          "verdict_correct": false,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 0,
+          "latency_s": 0.0,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_absent_3",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "neutral",
+          "expected_verdict": "neutral",
+          "verdict_correct": true,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 1,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 0,
+          "latency_s": 0.004,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_absent_4",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "neutral",
+          "expected_verdict": "neutral",
+          "verdict_correct": true,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 3,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 0,
+          "latency_s": 0.003,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_absent_5",
+          "case_type": "absent_product",
+          "is_correct": true,
+          "verdict": "neutral",
+          "expected_verdict": "neutral",
+          "verdict_correct": true,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 1,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 0,
+          "latency_s": 0.004,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_meta_0",
+          "case_type": "conversational",
+          "is_correct": true,
+          "verdict": "reject",
+          "expected_verdict": "neutral",
+          "verdict_correct": false,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 0,
+          "latency_s": 0.0,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_meta_1",
+          "case_type": "conversational",
+          "is_correct": true,
+          "verdict": "reject",
+          "expected_verdict": "neutral",
+          "verdict_correct": false,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 0,
+          "latency_s": 0.001,
+          "cost_usd": 0.0,
+          "violations": []
+        },
+        {
+          "case_id": "real_meta_2",
+          "case_type": "conversational",
+          "is_correct": true,
+          "verdict": "reject",
+          "expected_verdict": "neutral",
+          "verdict_correct": false,
+          "mention_precision": 1.0,
+          "mention_recall": 0.0,
+          "grounded_products": 0,
+          "ungrounded_products": [],
+          "ungrounded_entities": [],
+          "prices_grounded": true,
+          "price_errors": [],
+          "informative": true,
+          "blocked": false,
+          "steps": 0,
+          "latency_s": 0.0,
+          "cost_usd": 0.0,
+          "violations": []
+        }
+      ]
+    }
+  }
+}

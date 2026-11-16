@@ -1,0 +1,199 @@
+{
+  "rows": [
+    {
+      "dataset": "pc_build",
+      "n_products": 15,
+      "truth": 6,
+      "problems": [],
+      "baseline": {
+        "tp": 1,
+        "fp": 3,
+        "fn": 5,
+        "precision": 25.0,
+        "recall": 16.67,
+        "f1": 20.0
+      },
+      "proposed": {
+        "tp": 6,
+        "fp": 4,
+        "fn": 0,
+        "precision": 60.0,
+        "recall": 100.0,
+        "f1": 75.0
+      },
+      "baseline_rules": [
+        "eq(socket)",
+        "eq(Підтримка ОЗП)",
+        "eq(Сокет)",
+        "eq(Форм-фактор)"
+      ],
+      "proposed_rules": [
+        "eq(socket, Сокет)",
+        "eq(Колір)",
+        "eq(Підтримка ОЗП, Тип пам'яті)",
+        "eq(Форм-фактор)",
+        "le(TDP, tdp, Споживана потужність <= Потужність)",
+        "le(TDP, tdp, Споживана потужність <= Потужність CPU (макс.))",
+        "le(TDP, tdp, Споживана потужність <= Потужність БЖ)",
+        "le(Потужність <= Потужність БЖ)",
+        "le(Потужність CPU (макс.) <= Потужність)",
+        "le(Потужність CPU (макс.) <= Потужність БЖ)"
+      ],
+      "negative_controls": 3,
+      "baseline_negative_hits": [],
+      "proposed_negative_hits": [
+        "eq(Колір)",
+        "le(TDP, tdp, Споживана потужність <= Потужність)",
+        "le(Потужність CPU (макс.) <= Потужність)"
+      ],
+      "anonymized": {
+        "baseline": {
+          "tp": 1,
+          "fp": 4,
+          "fn": 5,
+          "precision": 20.0,
+          "recall": 16.67,
+          "f1": 18.18
+        },
+        "proposed": {
+          "tp": 6,
+          "fp": 4,
+          "fn": 0,
+          "precision": 60.0,
+          "recall": 100.0,
+          "f1": 75.0
+        },
+        "proposed_invariant": true
+      }
+    },
+    {
+      "dataset": "auto_parts",
+      "n_products": 9,
+      "truth": 3,
+      "problems": [],
+      "baseline": {
+        "tp": 1,
+        "fp": 1,
+        "fn": 2,
+        "precision": 50.0,
+        "recall": 33.33,
+        "f1": 40.0
+      },
+      "proposed": {
+        "tp": 3,
+        "fp": 1,
+        "fn": 0,
+        "precision": 75.0,
+        "recall": 100.0,
+        "f1": 85.71
+      },
+      "baseline_rules": [
+        "eq(Розболтовка)",
+        "eq(Ширина)"
+      ],
+      "proposed_rules": [
+        "eq(Розболтовка)",
+        "le(diameter, Діаметр <= max_diameter)",
+        "le(Діаметр диска <= diameter, Діаметр)",
+        "le(Діаметр диска <= max_diameter)"
+      ],
+      "negative_controls": 2,
+      "baseline_negative_hits": [
+        "eq(Ширина)"
+      ],
+      "proposed_negative_hits": [
+        "le(Діаметр диска <= max_diameter)"
+      ],
+      "anonymized": {
+        "baseline": {
+          "tp": 1,
+          "fp": 1,
+          "fn": 2,
+          "precision": 50.0,
+          "recall": 33.33,
+          "f1": 40.0
+        },
+        "proposed": {
+          "tp": 3,
+          "fp": 1,
+          "fn": 0,
+          "precision": 75.0,
+          "recall": 100.0,
+          "f1": 85.71
+        },
+        "proposed_invariant": true
+      }
+    },
+    {
+      "dataset": "pharma",
+      "n_products": 5,
+      "truth": 2,
+      "problems": [],
+      "baseline": {
+        "tp": 0,
+        "fp": 2,
+        "fn": 2,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "proposed": {
+        "tp": 2,
+        "fp": 1,
+        "fn": 0,
+        "precision": 66.67,
+        "recall": 100.0,
+        "f1": 80.0
+      },
+      "baseline_rules": [
+        "eq(Вид)",
+        "eq(Форма)"
+      ],
+      "proposed_rules": [
+        "eq(Вид, Форма)",
+        "eq(Колір)",
+        "le(Маса <= Максимальна добова маса)"
+      ],
+      "negative_controls": 1,
+      "baseline_negative_hits": [],
+      "proposed_negative_hits": [
+        "eq(Колір)"
+      ],
+      "anonymized": {
+        "baseline": {
+          "tp": 0,
+          "fp": 3,
+          "fn": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "proposed": {
+          "tp": 2,
+          "fp": 1,
+          "fn": 0,
+          "precision": 66.67,
+          "recall": 100.0,
+          "f1": 80.0
+        },
+        "proposed_invariant": true
+      }
+    }
+  ],
+  "baseline": {
+    "tp": 2,
+    "fp": 6,
+    "fn": 9,
+    "precision": 25.0,
+    "recall": 18.18,
+    "f1": 21.05
+  },
+  "proposed": {
+    "tp": 11,
+    "fp": 6,
+    "fn": 0,
+    "precision": 64.71,
+    "recall": 100.0,
+    "f1": 78.57
+  }
+}

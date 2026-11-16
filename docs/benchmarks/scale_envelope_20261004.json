@@ -1,0 +1,1095 @@
+{
+  "experiment": "scale_envelope",
+  "query_set_version": "scale_queries_v1",
+  "query_set": [
+    "sq_price_early",
+    "sq_price_mid",
+    "sq_price_late",
+    "sq_absent",
+    "sq_cheapest_cpu",
+    "sq_budget_cpu",
+    "sq_cheapest_gpu",
+    "sq_avail_gpu"
+  ],
+  "arm": "pybuddy_offline (deterministic core, no LLM)",
+  "method": {
+    "subsets": "nested prefixes of one deterministic rowid permutation (rowid * 2654435761 mod 4294967291)",
+    "queries": "8 fixed cases, identical at every tier",
+    "repeats": 3,
+    "note": "oracles recomputed per tier; truth changes are reported, denominators never change"
+  },
+  "environment": {
+    "python": "3.10.11",
+    "platform": "Windows-10-10.0.26300-SP0",
+    "cpu_count": 12,
+    "sqlite": "3.40.1",
+    "db_bytes": 5386240,
+    "db_mtime": 1790773614
+  },
+  "tiers": [
+    {
+      "corpus": {
+        "products": 200,
+        "distinct_names": 122,
+        "categories": 8,
+        "eav_rows": 585,
+        "db_bytes": 159744
+      },
+      "build_s": 0.013,
+      "agent_init_s": 0.0005,
+      "rss_mb_delta": 0.5,
+      "queries": 24,
+      "timeouts": 0,
+      "latency_s": {
+        "mean": 0.0004,
+        "std": 0.0003,
+        "ci95_halfwidth": 0.0001,
+        "p50": 0.0004,
+        "p95": 0.0008,
+        "max": 0.001
+      },
+      "cases": [
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0008,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Маточина Audi A4 B9 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 0,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0009,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 0,
+          "latency_s": 0.0008,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0005,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 0,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Маточина Audi A4 B9 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0002,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 1,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.0005,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 1,
+          "latency_s": 0.0005,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 1,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Маточина Audi A4 B9 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 2,
+          "latency_s": 0.001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 2,
+          "latency_s": 0.0007,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 2,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        }
+      ],
+      "requested_size": 200,
+      "actual_products": 200,
+      "execution_accuracy_pct": 62.5
+    },
+    {
+      "corpus": {
+        "products": 2000,
+        "distinct_names": 185,
+        "categories": 8,
+        "eav_rows": 5714,
+        "db_bytes": 1191936
+      },
+      "build_s": 0.052,
+      "agent_init_s": 0.0027,
+      "rss_mb_delta": 3.1,
+      "queries": 24,
+      "timeouts": 0,
+      "latency_s": {
+        "mean": 0.0006,
+        "std": 0.0004,
+        "ci95_halfwidth": 0.0002,
+        "p50": 0.0006,
+        "p95": 0.0011,
+        "max": 0.0014
+      },
+      "cases": [
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Маточина Audi A4 B9 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i7-14700K (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 0,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0011,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 0,
+          "latency_s": 0.0014,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0011,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 0,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Маточина Audi A4 B9 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i7-14700K (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 1,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.001,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 1,
+          "latency_s": 0.0009,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.0007,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 1,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Маточина Audi A4 B9 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i7-14700K (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 2,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0007,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 2,
+          "latency_s": 0.0013,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0011,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 2,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        }
+      ],
+      "requested_size": 2000,
+      "actual_products": 2000,
+      "execution_accuracy_pct": 87.5
+    },
+    {
+      "corpus": {
+        "products": 10000,
+        "distinct_names": 190,
+        "categories": 8,
+        "eav_rows": 28659,
+        "db_bytes": 5632000
+      },
+      "build_s": 0.243,
+      "agent_init_s": 0.0066,
+      "rss_mb_delta": 13.2,
+      "queries": 24,
+      "timeouts": 0,
+      "latency_s": {
+        "mean": 0.0014,
+        "std": 0.0014,
+        "ci95_halfwidth": 0.0006,
+        "p50": 0.0006,
+        "p95": 0.0033,
+        "max": 0.0045
+      },
+      "cases": [
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Маточина Audi A4 B9 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i7-14700K (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 0,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0029,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 0,
+          "latency_s": 0.0045,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0029,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 0,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Маточина Audi A4 B9 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i7-14700K (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 1,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.0026,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 1,
+          "latency_s": 0.0026,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.0029,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 1,
+          "latency_s": 0.0005,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Маточина Audi A4 B9 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i7-14700K (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 2,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0023,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 2,
+          "latency_s": 0.0036,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0033,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 2,
+          "latency_s": 0.0007,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        }
+      ],
+      "requested_size": 10000,
+      "actual_products": 10000,
+      "execution_accuracy_pct": 87.5
+    }
+  ],
+  "truth_transitions": [
+    {
+      "case_id": "sq_avail_gpu",
+      "per_tier": [
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "verdict": "neutral"
+        }
+      ]
+    },
+    {
+      "case_id": "sq_cheapest_cpu",
+      "per_tier": [
+        {
+          "products": [
+            "AMD Ryzen 5 5600 (Rev 1)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "AMD Ryzen 5 5600 (Rev 1)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "verdict": "neutral"
+        }
+      ]
+    },
+    {
+      "case_id": "sq_cheapest_gpu",
+      "per_tier": [
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "verdict": "neutral"
+        }
+      ]
+    },
+    {
+      "case_id": "sq_price_early",
+      "per_tier": [
+        {
+          "products": [],
+          "verdict": "reject"
+        },
+        {
+          "products": [
+            "AMD Ryzen 7 5800X3D (Rev 2)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "AMD Ryzen 7 5800X3D (Rev 2)"
+          ],
+          "verdict": "neutral"
+        }
+      ]
+    },
+    {
+      "case_id": "sq_price_late",
+      "per_tier": [
+        {
+          "products": [],
+          "verdict": "reject"
+        },
+        {
+          "products": [
+            "Intel Core i7-14700K (Rev 4)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "Intel Core i7-14700K (Rev 4)"
+          ],
+          "verdict": "neutral"
+        }
+      ]
+    }
+  ]
+}

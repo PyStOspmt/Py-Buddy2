@@ -1,0 +1,563 @@
+{
+  "experiment": "scale_envelope",
+  "query_set_version": "scale_queries_v1",
+  "query_set": [
+    "sq_price_early",
+    "sq_price_mid",
+    "sq_price_late",
+    "sq_absent"
+  ],
+  "arm": "pybuddy_offline (deterministic core, no LLM)",
+  "method": {
+    "subsets": "nested prefixes of one deterministic rowid permutation (rowid * 2654435761 mod 4294967291)",
+    "queries": "4 fixed cases, identical at every tier",
+    "repeats": 3,
+    "note": "oracles recomputed per tier; truth changes are reported, denominators never change"
+  },
+  "environment": {
+    "python": "3.10.11",
+    "platform": "Windows-10-10.0.26300-SP0",
+    "cpu_count": 12,
+    "sqlite": "3.40.1",
+    "db_bytes": 3305472,
+    "db_mtime": 1790773614
+  },
+  "tiers": [
+    {
+      "corpus": {
+        "products": 500,
+        "distinct_names": 485,
+        "categories": 7,
+        "eav_rows": 2114,
+        "db_bytes": 499712
+      },
+      "build_s": 0.181,
+      "agent_init_s": 0.0008,
+      "rss_mb_delta": 1.2,
+      "queries": 12,
+      "timeouts": 0,
+      "latency_s": {
+        "mean": 0.0004,
+        "std": 0.0002,
+        "ci95_halfwidth": 0.0001,
+        "p50": 0.0003,
+        "p95": 0.0006,
+        "max": 0.0009
+      },
+      "cases": [
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0009,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "658071-B21 HP G8 G9 500-GB 6G 7.2K 3.5 SATA SC HP 658071-B21 SC Part# -658071-B21"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0005,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Corsair Vengeance LED CMU32GX4M4C3000C15 - Prijzen @NL Tweakers @NL"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0003,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 0,
+          "latency_s": 0.0002,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "658071-B21 HP G8 G9 500-GB 6G 7.2K 3.5 SATA SC HP 658071-B21 SC Part# -658071-B21"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0005,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Corsair Vengeance LED CMU32GX4M4C3000C15 - Prijzen @NL Tweakers @NL"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0002,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 1,
+          "latency_s": 0.0002,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0005,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "658071-B21 HP G8 G9 500-GB 6G 7.2K 3.5 SATA SC HP 658071-B21 SC Part# -658071-B21"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Corsair Vengeance LED CMU32GX4M4C3000C15 - Prijzen @NL Tweakers @NL"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0002,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 2,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        }
+      ],
+      "requested_size": 500,
+      "actual_products": 500,
+      "execution_accuracy_pct": 50.0
+    },
+    {
+      "corpus": {
+        "products": 2000,
+        "distinct_names": 1756,
+        "categories": 9,
+        "eav_rows": 8398,
+        "db_bytes": 1769472
+      },
+      "build_s": 0.587,
+      "agent_init_s": 0.0032,
+      "rss_mb_delta": 4.3,
+      "queries": 12,
+      "timeouts": 0,
+      "latency_s": {
+        "mean": 0.0006,
+        "std": 0.0002,
+        "ci95_halfwidth": 0.0001,
+        "p50": 0.0006,
+        "p95": 0.0009,
+        "max": 0.0009
+      },
+      "cases": [
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0009,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "658071-B21 HP G8 G9 500-GB 6G 7.2K 3.5 SATA SC HP 658071-B21 SC Part# -658071-B21"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0007,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Corsair Vengeance LED CMU32GX4M4C3000C15 - Prijzen @NL Tweakers @NL"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "HP CTO ONLY 4GB 2RX4 PC3-10600R-9 KI HP KI - 500658-B21 Server Memory CDWG.com"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 0,
+          "latency_s": 0.0004,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "658071-B21 HP G8 G9 500-GB 6G 7.2K 3.5 SATA SC HP 658071-B21 SC Part# -658071-B21"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0007,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Corsair Vengeance LED CMU32GX4M4C3000C15 - Prijzen @NL Tweakers @NL"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "HP CTO ONLY 4GB 2RX4 PC3-10600R-9 KI HP KI - 500658-B21 Server Memory CDWG.com"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 1,
+          "latency_s": 0.0003,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0007,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "658071-B21 HP G8 G9 500-GB 6G 7.2K 3.5 SATA SC HP 658071-B21 SC Part# -658071-B21"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0008,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Corsair Vengeance LED CMU32GX4M4C3000C15 - Prijzen @NL Tweakers @NL"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0009,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "HP CTO ONLY 4GB 2RX4 PC3-10600R-9 KI HP KI - 500658-B21 Server Memory CDWG.com"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 2,
+          "latency_s": 0.0002,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        }
+      ],
+      "requested_size": 2000,
+      "actual_products": 2000,
+      "execution_accuracy_pct": 75.0
+    },
+    {
+      "corpus": {
+        "products": 3781,
+        "distinct_names": 2899,
+        "categories": 9,
+        "eav_rows": 15908,
+        "db_bytes": 3301376
+      },
+      "build_s": 0.886,
+      "agent_init_s": 0.0044,
+      "rss_mb_delta": 5.0,
+      "queries": 12,
+      "timeouts": 0,
+      "latency_s": {
+        "mean": 0.001,
+        "std": 0.0004,
+        "ci95_halfwidth": 0.0002,
+        "p50": 0.0009,
+        "p95": 0.0014,
+        "max": 0.0018
+      },
+      "cases": [
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0012,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "658071-B21 HP G8 G9 500-GB 6G 7.2K 3.5 SATA SC HP 658071-B21 SC Part# -658071-B21"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0007,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Corsair Vengeance LED CMU32GX4M4C3000C15 - Prijzen @NL Tweakers @NL"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0014,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "HP CTO ONLY 4GB 2RX4 PC3-10600R-9 KI HP KI - 500658-B21 Server Memory CDWG.com"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 0,
+          "latency_s": 0.0003,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0008,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "658071-B21 HP G8 G9 500-GB 6G 7.2K 3.5 SATA SC HP 658071-B21 SC Part# -658071-B21"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0011,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Corsair Vengeance LED CMU32GX4M4C3000C15 - Prijzen @NL Tweakers @NL"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0018,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "HP CTO ONLY 4GB 2RX4 PC3-10600R-9 KI HP KI - 500658-B21 Server Memory CDWG.com"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 1,
+          "latency_s": 0.0007,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0009,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "658071-B21 HP G8 G9 500-GB 6G 7.2K 3.5 SATA SC HP 658071-B21 SC Part# -658071-B21"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.001,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Corsair Vengeance LED CMU32GX4M4C3000C15 - Prijzen @NL Tweakers @NL"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0014,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "HP CTO ONLY 4GB 2RX4 PC3-10600R-9 KI HP KI - 500658-B21 Server Memory CDWG.com"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 2,
+          "latency_s": 0.0004,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        }
+      ],
+      "requested_size": 4000,
+      "actual_products": 3781,
+      "execution_accuracy_pct": 75.0
+    }
+  ],
+  "truth_transitions": [
+    {
+      "case_id": "sq_price_late",
+      "per_tier": [
+        {
+          "products": [],
+          "verdict": "reject"
+        },
+        {
+          "products": [
+            "HP CTO ONLY 4GB 2RX4 PC3-10600R-9 KI HP KI - 500658-B21 Server Memory CDWG.com"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "HP CTO ONLY 4GB 2RX4 PC3-10600R-9 KI HP KI - 500658-B21 Server Memory CDWG.com"
+          ],
+          "verdict": "neutral"
+        }
+      ]
+    }
+  ]
+}

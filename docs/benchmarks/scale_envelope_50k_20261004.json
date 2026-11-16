@@ -1,0 +1,1061 @@
+{
+  "experiment": "scale_envelope",
+  "query_set_version": "scale_queries_v1",
+  "query_set": [
+    "sq_price_early",
+    "sq_price_mid",
+    "sq_price_late",
+    "sq_absent",
+    "sq_cheapest_cpu",
+    "sq_budget_cpu",
+    "sq_cheapest_gpu",
+    "sq_avail_gpu"
+  ],
+  "arm": "pybuddy_offline (deterministic core, no LLM)",
+  "method": {
+    "subsets": "nested prefixes of one deterministic rowid permutation (rowid * 2654435761 mod 4294967291)",
+    "queries": "8 fixed cases, identical at every tier",
+    "repeats": 3,
+    "note": "oracles recomputed per tier; truth changes are reported, denominators never change"
+  },
+  "environment": {
+    "python": "3.10.11",
+    "platform": "Windows-10-10.0.26300-SP0",
+    "cpu_count": 12,
+    "sqlite": "3.40.1",
+    "db_bytes": 27402240,
+    "db_mtime": 1791157224
+  },
+  "tiers": [
+    {
+      "corpus": {
+        "products": 10000,
+        "distinct_names": 185,
+        "categories": 8,
+        "eav_rows": 28682,
+        "db_bytes": 5726208
+      },
+      "build_s": 0.212,
+      "agent_init_s": 0.0049,
+      "rss_mb_delta": 15.0,
+      "queries": 24,
+      "timeouts": 0,
+      "latency_s": {
+        "mean": 0.0011,
+        "std": 0.001,
+        "ci95_halfwidth": 0.0004,
+        "p50": 0.0005,
+        "p95": 0.0023,
+        "max": 0.0029
+      },
+      "cases": [
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0005,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i5-14600K (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "MSI B650 Gaming Plus WiFi (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 0,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0029,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 0,
+          "latency_s": 0.0022,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0021,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 0,
+          "latency_s": 0.0009,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0002,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i5-14600K (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0002,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0002,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "MSI B650 Gaming Plus WiFi (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 1,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.0023,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 1,
+          "latency_s": 0.0021,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.0022,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 1,
+          "latency_s": 0.0005,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i5-14600K (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "MSI B650 Gaming Plus WiFi (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 2,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0018,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 2,
+          "latency_s": 0.0021,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0024,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 2,
+          "latency_s": 0.001,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        }
+      ],
+      "requested_size": 10000,
+      "actual_products": 10000,
+      "execution_accuracy_pct": 87.5
+    },
+    {
+      "corpus": {
+        "products": 25000,
+        "distinct_names": 187,
+        "categories": 8,
+        "eav_rows": 71950,
+        "db_bytes": 14311424
+      },
+      "build_s": 0.54,
+      "agent_init_s": 0.04,
+      "rss_mb_delta": 29.0,
+      "queries": 24,
+      "timeouts": 0,
+      "latency_s": {
+        "mean": 0.0032,
+        "std": 0.0038,
+        "ci95_halfwidth": 0.0015,
+        "p50": 0.001,
+        "p95": 0.0082,
+        "max": 0.0141
+      },
+      "cases": [
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.001,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i5-14600K (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0005,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "MSI B650 Gaming Plus WiFi (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 0,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0141,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 0,
+          "latency_s": 0.0063,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0077,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 0,
+          "latency_s": 0.001,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0005,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i5-14600K (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0004,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "MSI B650 Gaming Plus WiFi (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 1,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.0082,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 1,
+          "latency_s": 0.0058,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.0052,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 1,
+          "latency_s": 0.0018,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i5-14600K (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "MSI B650 Gaming Plus WiFi (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 2,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0058,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 2,
+          "latency_s": 0.0089,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0059,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 2,
+          "latency_s": 0.0009,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        }
+      ],
+      "requested_size": 25000,
+      "actual_products": 25000,
+      "execution_accuracy_pct": 87.5
+    },
+    {
+      "corpus": {
+        "products": 50000,
+        "distinct_names": 191,
+        "categories": 8,
+        "eav_rows": 144049,
+        "db_bytes": 28864512
+      },
+      "build_s": 1.08,
+      "agent_init_s": 0.03,
+      "rss_mb_delta": 60.6,
+      "queries": 24,
+      "timeouts": 0,
+      "latency_s": {
+        "mean": 0.0044,
+        "std": 0.0052,
+        "ci95_halfwidth": 0.0021,
+        "p50": 0.001,
+        "p95": 0.0107,
+        "max": 0.0158
+      },
+      "cases": [
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0006,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i5-14600K (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 0,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "MSI B650 Gaming Plus WiFi (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 0,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0104,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 0,
+          "latency_s": 0.0108,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 0,
+          "latency_s": 0.0107,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 0,
+          "latency_s": 0.0015,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i5-14600K (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 1,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "MSI B650 Gaming Plus WiFi (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 1,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.0107,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 1,
+          "latency_s": 0.0107,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 1,
+          "latency_s": 0.0088,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 1,
+          "latency_s": 0.0017,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_early",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0002,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Intel Core i5-14600K (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_mid",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0002,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 7 5800X3D (Rev 1)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_price_late",
+          "family": "direct_price",
+          "repeat": 2,
+          "latency_s": 0.0003,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "MSI B650 Gaming Plus WiFi (Rev 3)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_absent",
+          "family": "absent_product",
+          "repeat": 2,
+          "latency_s": 0.0001,
+          "correct": false,
+          "violations": [
+            "wrong_verdict"
+          ],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_cpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0097,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_budget_cpu",
+          "family": "budget",
+          "repeat": 2,
+          "latency_s": 0.0158,
+          "correct": true,
+          "violations": [],
+          "expected_products": [],
+          "expected_verdict": "reject"
+        },
+        {
+          "case_id": "sq_cheapest_gpu",
+          "family": "cheapest",
+          "repeat": 2,
+          "latency_s": 0.0101,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)"
+          ],
+          "expected_verdict": "neutral"
+        },
+        {
+          "case_id": "sq_avail_gpu",
+          "family": "availability",
+          "repeat": 2,
+          "latency_s": 0.0014,
+          "correct": true,
+          "violations": [],
+          "expected_products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "expected_verdict": "neutral"
+        }
+      ],
+      "requested_size": 50000,
+      "actual_products": 50000,
+      "execution_accuracy_pct": 87.5
+    }
+  ],
+  "truth_transitions": [
+    {
+      "case_id": "sq_avail_gpu",
+      "per_tier": [
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 3)",
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 4)"
+          ],
+          "verdict": "neutral"
+        }
+      ]
+    },
+    {
+      "case_id": "sq_cheapest_cpu",
+      "per_tier": [
+        {
+          "products": [
+            "AMD Ryzen 5 5600 (Rev 3)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "AMD Ryzen 5 5600 (Rev 2)"
+          ],
+          "verdict": "neutral"
+        }
+      ]
+    },
+    {
+      "case_id": "sq_cheapest_gpu",
+      "per_tier": [
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 1)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)"
+          ],
+          "verdict": "neutral"
+        },
+        {
+          "products": [
+            "Gigabyte GeForce RTX 4060 Windforce (Rev 2)"
+          ],
+          "verdict": "neutral"
+        }
+      ]
+    }
+  ]
+}
