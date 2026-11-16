@@ -174,6 +174,7 @@ class ReActAgent:
         self.ontograph = ontograph
         self.active_inference = active_inference or ActiveInferenceEngine()
         self.semantic_index = semantic_index
+        self.search_index: Optional[Any] = None
         self.sanitizer = SQLSanitizer()
         self.max_steps = max_steps
         #: Per-session runs install an isolated GroundingSet on state; this shared
@@ -484,7 +485,8 @@ class ReActAgent:
         to fresh state for standalone/test callers.
         """
         tools_description = """
-- sql_query: arguments {"query": "SELECT ... FROM <таблиця_зі_схеми> ..."}. Використовуй точні імена таблиць та колонок зі схеми джерела; запити лише для читання!
+- catalog_search: arguments {"query": "пошуковий текст", "category": "необов'язково", "sort": "price_asc|price_desc|name_asc", "limit": 10, "offset": 0}. Швидкий пагінований FTS5/LIKE-пошук по всьому каталогу: повертає точну загальну кількість збігів `total`, розбивку за категоріями, впорядковану сторінку `rows`, діапазон `showing` та `next_offset`. Найкращий інструмент для пошуку найдешевшого/найдорожчого товару за назвою або моделлю.
+- sql_query: arguments {"query": "SELECT ... FROM <таблиця_зі_схеми> ..."}. Використовуй точні імена таблиць та колонок зі схеми джерела; запити лише для читання! Повертає також метадані вікна (`truncated`, `ordered`, `total`, `showing`, `notice`).
 - ontograph_navigate: arguments {"query": "категорія або бренд"}. Навігація по ієрархічному дереву таксономії каталогу (OntoGraph), що повертає рівні, підгрупи, кількість товарів та діапазони цін.
 - hypergraph_check: arguments {"item_ids": ["id1", "id2", ...]}. Перевіряє сумісність набору товарів.
 - pareto_relax: arguments {"budget_max": float, "min_performance": float, "category": "необов'язково"}. Підбирає товари з каталогу за бюджетом і продуктивністю; якщо точних збігів немає, повертає найменше обґрунтоване послаблення вимог (nvfg_status=RELAXED із relaxation_text) або чесну відмову. Кандидати беруться лише з бази — не передавати.
@@ -585,7 +587,16 @@ class ReActAgent:
                 tool_res = self.execute_tool(state, action, action_input)
                 t_tool_call_elapsed = time.time() - t_tool_call_start
                 tool_total_time_ms += t_tool_call_elapsed * 1000
-                dialog_history.append(observation_message(tool_res))
+                from query_awareness import build_cycle_state_summary
+                obs_payload = dict(tool_res) if isinstance(tool_res, dict) else {"value": tool_res}
+                obs_payload["_cycle_state"] = build_cycle_state_summary(
+                    step=state.current_step,
+                    max_steps=state.max_steps,
+                    grounded_count=len(self._gs(state).names),
+                    tool_name=str(action),
+                    result=tool_res if isinstance(tool_res, dict) else None,
+                )
+                dialog_history.append(observation_message(obs_payload))
 
                 # Annotate step with both LLM latency and tool latency
                 if state.execution_history:

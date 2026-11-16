@@ -25,6 +25,7 @@ class ColumnProfile:
     max_value: Optional[float] = None
     distinct_sample_values: List[Any] = field(default_factory=list)
     distinct_count: int = 0
+    category_counts: List[List[Any]] = field(default_factory=list)
 
 @dataclass
 class TableProfile:
@@ -147,6 +148,17 @@ class DomainAgnosticProfiler:
             # Infer semantic type
             semantic_type = self._infer_semantic_type(c_name, c_type, is_pk, is_fk, distinct_count, row_count, distinct_vals)
 
+            category_counts: List[List[Any]] = []
+            if row_count > 0 and semantic_type == "category" and 0 < distinct_count <= 30:
+                try:
+                    cursor.execute(
+                        f"SELECT \"{c_name}\", COUNT(*) AS cnt FROM \"{table_name}\" "
+                        f"WHERE \"{c_name}\" IS NOT NULL GROUP BY \"{c_name}\" ORDER BY cnt DESC LIMIT 15"
+                    )
+                    category_counts = [[r[0], int(r[1])] for r in cursor.fetchall()]
+                except Exception:
+                    category_counts = []
+
             col_profile = ColumnProfile(
                 name=c_name,
                 data_type=c_type,
@@ -159,7 +171,8 @@ class DomainAgnosticProfiler:
                 min_value=min_val,
                 max_value=max_val,
                 distinct_sample_values=distinct_vals,
-                distinct_count=distinct_count
+                distinct_count=distinct_count,
+                category_counts=category_counts,
             )
             table_profile.columns[c_name] = col_profile
 
@@ -284,6 +297,9 @@ class DomainAgnosticProfiler:
                 if col.get('distinct_sample_values') and col['semantic_type'] == 'category':
                     samples = col['distinct_sample_values'][:10]
                     meta_bits.append(f"samples={samples}")
+                if col.get('category_counts'):
+                    cnt_txt = ", ".join(f"{val}: {cnt}" for val, cnt in col['category_counts'][:12])
+                    meta_bits.append(f"counts={{{cnt_txt}}}")
                 
                 lines.append(f"  - `{col_name}`: {', '.join(meta_bits)}")
 

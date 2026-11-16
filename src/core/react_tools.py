@@ -108,6 +108,36 @@ def tool_sql_query(
         return {"success": False, "error": err}, err
 
 
+def tool_catalog_search(
+    agent: Any, state: Any, args: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Run domain-agnostic FTS5/LIKE paginated search with total counts and sorted slice."""
+    from catalog_index import CatalogSearchIndex
+    from query_awareness import search_catalog_window
+
+    sem_idx = getattr(agent, "search_index", None)
+    if sem_idx is None:
+        sem_idx = CatalogSearchIndex()
+        agent.search_index = sem_idx
+
+    res = search_catalog_window(
+        agent.db_path,
+        query=str(args.get("query") or ""),
+        category=args.get("category"),
+        sort=str(args.get("sort") or "price_asc"),
+        limit=int(args.get("limit", 10) or 10),
+        offset=int(args.get("offset", 0) or 0),
+        search_index=sem_idx,
+        max_work_steps=getattr(getattr(agent, "sanitizer", None), "max_work_steps", 5_000_000),
+    )
+    rows = res.get("rows") or []
+    if rows:
+        agent_grounding(agent, state).extend_rows(
+            rows, provenance=res.get("column_provenance")
+        )
+    return res
+
+
 def tool_semantic_search(
     agent: Any, state: Any, args: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -490,6 +520,8 @@ def dispatch_tool(
     """Dispatch a single ReAct tool call and return (observation, error)."""
     if tool_name == "sql_query":
         return tool_sql_query(agent, state, args)
+    if tool_name == "catalog_search":
+        return tool_catalog_search(agent, state, args), None
     if tool_name == "hypergraph_check":
         return tool_hypergraph_check(agent, state, args), None
     if tool_name == "pareto_relax":

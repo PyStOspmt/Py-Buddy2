@@ -282,6 +282,7 @@ class OntoGraph:
         self.profile: Optional[DomainOntologyProfile] = None
         self._lookup: Dict[str, OntoNode] = {}
         self._token_index: Dict[str, List[OntoNode]] = {}
+        self._direct_token_index: Dict[str, List[OntoNode]] = {}
         if os.path.exists(db_path):
             self.build()
 
@@ -670,14 +671,16 @@ class OntoGraph:
             )
             parent_node.children.append(b_node)
             self._lookup[b_id] = b_node
-            self._index_tokens(bname, b_node)
-            self._index_tokens(f"{parent_node.name} {bname}", b_node)
+            self._index_tokens(bname, b_node, direct=True)
+            self._index_tokens(f"{parent_node.name} {bname}", b_node, direct=False)
 
-    def _index_tokens(self, text: str, node: OntoNode) -> None:
+    def _index_tokens(self, text: str, node: OntoNode, *, direct: bool = True) -> None:
         words = re.findall(r"[A-Za-z0-9а-яА-ЯёЁіІїЇєЄґҐ_]+", text.lower())
         for w in words:
             if len(w) >= 2:
                 self._token_index.setdefault(w, []).append(node)
+                if direct:
+                    self._direct_token_index.setdefault(w, []).append(node)
 
     def navigate(self, query: str) -> Dict[str, Any]:
         """
@@ -691,14 +694,17 @@ class OntoGraph:
         q_lower = query.lower()
         words = re.findall(r"[A-Za-z0-9а-яА-ЯёЁіІїЇєЄґҐ_]+", q_lower)
 
-        candidates: List[Tuple[int, int, OntoNode]] = []
+        hits_by_id: Dict[int, Tuple[Set[str], Set[str], OntoNode]] = {}
         for w in words:
-            if w in self._token_index:
-                for node in self._token_index[w]:
-                    score = node.level * 2
-                    candidates.append((score, node.level, node))
+            for node in self._token_index.get(w, ()):
+                entry = hits_by_id.setdefault(id(node), (set(), set(), node))
+                entry[0].add(w)
+            for node in self._direct_token_index.get(w, ()):
+                entry = hits_by_id.setdefault(id(node), (set(), set(), node))
+                entry[0].add(w)
+                entry[1].add(w)
 
-        if not candidates:
+        if not hits_by_id:
             return {
                 "found": False,
                 "node_id": self.root.id,
@@ -707,14 +713,30 @@ class OntoGraph:
                 "item_count": self.root.item_count,
                 "price_range": {"min": self.root.price_min, "max": self.root.price_max},
                 "available_departments": [c.name for c in self.root.children[:10]],
-                "message": "Вкажіть точнішу категорію або товар."
+                "message": "Вкажіть точнішу категорію або товар.",
+                "hint": "Категорію чи бренд не знайдено у дереві; для пошуку за назвою чи моделлю використайте catalog_search або sql_query із LIKE.",
             }
 
-        # Sort candidates: deepest level first, then item count
-        candidates.sort(key=lambda x: (x[1], x[0], -x[2].item_count), reverse=True)
-        best = candidates[0][2]
+        ranked = sorted(
+            hits_by_id.values(),
+            key=lambda item: (len(item[0]), len(item[1]), item[2].level, item[2].item_count),
+            reverse=True,
+        )
+        best = ranked[0][2]
+        other_matches = [
+            {
+                "node_id": n.id,
+                "name": n.name,
+                "level": n.level,
+                "item_count": n.item_count,
+                "price_range": {"min": n.price_min, "max": n.price_max},
+                "raw_categories": n.raw_categories,
+            }
+            for _m, _d, n in ranked[1:6]
+            if n.id != best.id and (n.name.lower() == best.name.lower() or len(_m) == len(ranked[0][0]))
+        ]
 
-        return {
+        res = {
             "found": True,
             "node_id": best.id,
             "name": best.name,
@@ -726,6 +748,9 @@ class OntoGraph:
             "raw_db_categories": best.raw_categories,
             "sub_branches": [c.name for c in best.children[:12]]
         }
+        if other_matches:
+            res["other_matches"] = other_matches
+        return res
 
     def to_tree_dict(self) -> Dict[str, Any]:
         """Returns the full hierarchical mindmap tree for Web UI rendering."""

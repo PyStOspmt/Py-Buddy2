@@ -140,3 +140,42 @@ def test_semantic_ontology_fallback_no_single_token_clipping():
     assert "Turkey" not in profile.macro_departments
     assert "Country" not in profile.macro_departments
 
+
+def test_ontograph_exact_category_beats_child_brand_inheritance(tmp_path):
+    """Querying a category name must return the full category node rather than an arbitrary child brand."""
+    db = tmp_path / "onto_hierarchy.db"
+    conn = sqlite3.connect(str(db))
+    conn.execute(
+        "CREATE TABLE products ("
+        "id TEXT PRIMARY KEY, name TEXT, category TEXT, brand TEXT, price REAL)"
+    )
+    rows = [
+        ("g1", "Gigabyte Item 1", "gpu", "Gigabyte", 100.0),
+        ("g2", "Gigabyte Item 2", "gpu", "Gigabyte", 110.0),
+        ("g3", "ASUS GPU 1", "gpu", "ASUS", 200.0),
+        ("g4", "ASUS GPU 2", "gpu", "ASUS", 210.0),
+        ("g5", "MSI GPU 1", "gpu", "MSI", 250.0),
+        ("g6", "PowerColor GPU 1", "gpu", "PowerColor", 300.0),
+        ("p1", "ASUS PSU 1", "psu", "ASUS", 150.0),
+        ("p2", "Seasonic PSU 1", "psu", "Seasonic", 160.0),
+        ("p3", "Corsair PSU 1", "psu", "Corsair", 170.0),
+    ]
+    conn.executemany("INSERT INTO products VALUES (?, ?, ?, ?, ?)", rows)
+    conn.commit()
+    conn.close()
+
+    graph = OntoGraph(str(db), use_ai_clustering=False)
+    res_gpu = graph.navigate("gpu")
+    assert res_gpu["found"] is True
+    assert res_gpu["level"] == 1
+    assert res_gpu["name"].lower() == "gpu"
+    assert res_gpu["item_count"] == 6
+
+    res_asus = graph.navigate("ASUS")
+    assert res_asus["found"] is True
+    assert res_asus["name"] == "ASUS"
+    assert res_asus["item_count"] == 2
+    assert len(res_asus.get("other_matches", [])) >= 1
+    assert any("psu" in m.get("raw_categories", []) for m in res_asus["other_matches"])
+
+

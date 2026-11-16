@@ -103,14 +103,17 @@ class SQLSanitizer:
         swallowed and turned into a silent fall-through to the expensive
         tier.
         """
-        limit_match = re.search(r"\bLIMIT\s+(\d+)", query, flags=re.IGNORECASE)
+        from query_awareness import mask_sql_literals
+
+        masked = mask_sql_literals(query)
+        limit_match = re.search(r"\bLIMIT\s+(\d+)", masked, flags=re.IGNORECASE)
         if limit_match:
             val = int(limit_match.group(1))
             if val > self.max_limit:
                 # Clamp to max_limit
                 return query[:limit_match.start(1)] + str(self.max_limit) + query[limit_match.end(1):]
             return query
-        if re.search(r"\bLIMIT\s+\?", query, flags=re.IGNORECASE):
+        if re.search(r"\bLIMIT\s+\?", masked, flags=re.IGNORECASE):
             return query
         # Append default limit
         return f"{query} LIMIT {self.default_limit}"
@@ -277,6 +280,13 @@ class SQLSanitizer:
                 # from this result may ground facts.
                 res["column_provenance"] = {c: "derived" for c in col_names}
 
+            try:
+                from query_awareness import annotate_sql_window
+                res.update(annotate_sql_window(
+                    conn, sanitized_query, bound, result_rows, self.max_work_steps))
+            except Exception:
+                pass
+
             # Adaptive Zero-Row Recovery: If no rows matched, attempt fuzzy fallback
             if len(result_rows) == 0:
                 fuzzy_hits = self._fuzzy_fallback_search(conn, sanitized_query, limit=5, db_path=db_path)
@@ -329,10 +339,13 @@ class SQLSanitizer:
     def _clamp_bound_limit(self, query: str,
                            params: List[Any]) -> Tuple[str, List[Any]]:
         """Clamp a bound `LIMIT ?` value exactly like a literal LIMIT."""
-        m = re.search(r"\bLIMIT\s+\?", query, flags=re.IGNORECASE)
+        from query_awareness import mask_sql_literals
+
+        masked = mask_sql_literals(query)
+        m = re.search(r"\bLIMIT\s+\?", masked, flags=re.IGNORECASE)
         if not m:
             return query, params
-        idx = len(re.findall(r"\?", query[:m.start()]))
+        idx = masked[:m.start()].count("?")
         if idx < len(params):
             try:
                 val = int(params[idx])
