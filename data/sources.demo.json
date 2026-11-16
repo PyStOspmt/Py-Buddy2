@@ -1,0 +1,65 @@
+{
+  "_comment": "F45: DEMO BOOTSTRAP REGISTRY. These entries are labelled demo/dev sources bundled with the repository -- NOT universal domain knowledge. Production sources are registered at runtime via POST /api/register_domain. A missing or empty `description` is generated from the source's own profiled schema at init; a `description` here is demo text only. `graph` names a fixture hypergraph builder for the three pre-seeded demo catalogues; real sources omit it.",
+  "default_domain": "pc_hardware",
+  "sources": [
+    {
+      "domain_id": "pc_hardware",
+      "name": "PC Hardware Components (Комп'ютерні комплектуючі)",
+      "db_candidates": ["data/catalog.db"],
+      "graph": "pc_hardware",
+      "currency": "UAH",
+      "description": "Демо-джерело: комплектуючі ПК з контрактами сумісності"
+    },
+    {
+      "domain_id": "auto_parts",
+      "name": "Automotive Parts & Wheels (Автозапчастини та колеса)",
+      "db_candidates": ["data/auto_parts.db"],
+      "graph": "auto_parts",
+      "currency": "UAH",
+      "description": "Демо-джерело: автозапчастини та колісна геометрія"
+    },
+    {
+      "domain_id": "marketplace_rozetka",
+      "name": "Rozetka Marketplace",
+      "db_candidates": ["data/marketplace_rozetka.db"],
+      "graph": "marketplace",
+      "currency": "UAH",
+      "description": "Демо-джерело: мультидоменний каталог маркетплейсу"
+    },
+    {
+      "domain_id": "pharmacy",
+      "name": "Pharmacy & Medications",
+      "db_candidates": ["data/real_pharmacy.db"],
+      "graph": null,
+      "currency": "UAH",
+      "description": "Демо-джерело: аптечний каталог із протипоказаннями та рецептурністю"
+    },
+    {
+      "domain_id": "openfoodfacts",
+      "name": "Open Food Facts",
+      "db_candidates": [
+        "data/real_off.db",
+        "tests/fixtures/real_off_fixture.db"
+      ],
+      "graph": null
+    },
+    {
+      "domain_id": "openprices",
+      "name": "Open Prices",
+      "db_candidates": [
+        "data/real_prices.db",
+        "tests/fixtures/real_prices_fixture.db"
+      ],
+      "graph": null
+    },
+    {
+      "domain_id": "wdc_products",
+      "name": "WDC Products (Web Data Commons)",
+      "db_candidates": [
+        "data/real_wdc.db",
+        "tests/fixtures/real_wdc_fixture.db"
+      ],
+      "graph": null
+    }
+  ]
+}

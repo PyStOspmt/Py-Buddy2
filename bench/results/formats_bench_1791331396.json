@@ -1,0 +1,143 @@
+{
+  "benchmark": "formats_v1",
+  "disclosure": "synthetic labelled fixtures in native JSON/MD/PDF normalized via the upload path; oracle SQL on the NORMALIZED sqlite -- never via the projection; measures channel reachability after conversion, not ranking quality",
+  "sources": {
+    "fmt_json": {
+      "entity_table": "products",
+      "tables": [
+        "__ingest_meta",
+        "products",
+        "products_variants"
+      ],
+      "queries": [
+        {
+          "query": "шкіра",
+          "truth_n": 1,
+          "truth": [
+            "$.products[0]"
+          ],
+          "hits": [
+            "$.products[0]"
+          ],
+          "recall": 1.0,
+          "precision": 1.0,
+          "regret": 0
+        },
+        {
+          "query": "var1",
+          "truth_n": 1,
+          "truth": [
+            "$.products[0]"
+          ],
+          "hits": [
+            "$.products[0]"
+          ],
+          "recall": 1.0,
+          "precision": 1.0,
+          "regret": 0
+        },
+        {
+          "query": "обманка",
+          "truth_n": 0,
+          "truth": [],
+          "hits": [],
+          "recall": 0.0,
+          "precision": 1.0,
+          "regret": 1
+        }
+      ],
+      "mean_recall": 0.6666666666666666
+    },
+    "fmt_md": {
+      "entity_table": "sections",
+      "tables": [
+        "__ingest_meta",
+        "sections",
+        "table_1"
+      ],
+      "queries": [
+        {
+          "query": "Nike",
+          "truth_n": 1,
+          "truth": [
+            "L3-L8"
+          ],
+          "hits": [
+            "L3-L8"
+          ],
+          "recall": 1.0,
+          "precision": 1.0,
+          "regret": 0
+        },
+        {
+          "query": "куртки",
+          "truth_n": 1,
+          "truth": [
+            "L9-L10"
+          ],
+          "hits": [
+            "L9-L10"
+          ],
+          "recall": 1.0,
+          "precision": 1.0,
+          "regret": 0
+        },
+        {
+          "query": "телескоп",
+          "truth_n": 0,
+          "truth": [],
+          "hits": [],
+          "recall": 0.0,
+          "precision": 1.0,
+          "regret": 1
+        }
+      ],
+      "mean_recall": 0.6666666666666666
+    },
+    "fmt_pdf": {
+      "entity_table": "pages",
+      "tables": [
+        "__ingest_meta",
+        "pages"
+      ],
+      "queries": [
+        {
+          "query": "laptop",
+          "truth_n": 1,
+          "truth": [
+            "p1"
+          ],
+          "hits": [
+            "p1"
+          ],
+          "recall": 1.0,
+          "precision": 1.0,
+          "regret": 0
+        },
+        {
+          "query": "printer",
+          "truth_n": 1,
+          "truth": [
+            "p2"
+          ],
+          "hits": [
+            "p2"
+          ],
+          "recall": 1.0,
+          "precision": 1.0,
+          "regret": 0
+        },
+        {
+          "query": "nope",
+          "truth_n": 0,
+          "truth": [],
+          "hits": [],
+          "recall": 0.0,
+          "precision": 1.0,
+          "regret": 1
+        }
+      ],
+      "mean_recall": 0.6666666666666666
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "source": "marketplace_500k",
+  "entity": "products",
+  "eav": [
+    "product_eav_meta"
+  ],
+  "projection_s": 5.3,
+  "channels": {
+    "entity_only": {
+      "s": 2.76,
+      "bound": 500
+    },
+    "all_lexical": {
+      "s": 3.54,
+      "bound": 500
+    },
+    "all_lexical_indexed": {
+      "s": 0.88,
+      "bound": 500
+    }
+  },
+  "index_build_s": 54.76,
+  "bindings_equal": true
+}

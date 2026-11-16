@@ -1,0 +1,704 @@
+{
+  "benchmark": "ebr_recall_v2",
+  "protocol": "docs/BENCHMARKS.md",
+  "seed": 42,
+  "n_entities": 40,
+  "embedder": "scripted (disclosed synonym map; NOT a real-model quality measurement)",
+  "disclosure": "synthetic fixtures; ground truth hand-labelled; measures channel reachability, not real-world relevance",
+  "shapes": {
+    "flat": {
+      "queries": [
+        {
+          "query": "сталевий",
+          "truth": [
+            "e3",
+            "e7"
+          ],
+          "note": "term in entity name column",
+          "fts": {
+            "hits": [
+              "e3",
+              "e7"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.5
+          },
+          "ebr": {
+            "hits": [
+              "e3",
+              "e7"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.0
+          },
+          "ebr_vec": {
+            "hits": [
+              "e3",
+              "e7"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.0
+          },
+          "vec_only": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 2.3
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 120,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.02
+      },
+      "mean_recall_fts": 1.0,
+      "mean_recall_ebr": 1.0,
+      "mean_recall_ebr_vec": 1.0,
+      "mean_recall_vec_only": 0.0
+    },
+    "eav": {
+      "queries": [
+        {
+          "query": "шкіра",
+          "truth": [
+            "e11",
+            "e3",
+            "e7"
+          ],
+          "note": "term only inside EAV value axis",
+          "fts": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.0
+          },
+          "ebr": {
+            "hits": [
+              "e11",
+              "e3",
+              "e7"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.0
+          },
+          "ebr_vec": {
+            "hits": [
+              "e11",
+              "e3",
+              "e7"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 2.0
+          },
+          "vec_only": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 4.7
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 120,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.01
+      },
+      "mean_recall_fts": 0.0,
+      "mean_recall_ebr": 1.0,
+      "mean_recall_ebr_vec": 1.0,
+      "mean_recall_vec_only": 0.0
+    },
+    "eav_renamed": {
+      "queries": [
+        {
+          "query": "шкіра",
+          "truth": [
+            "e11",
+            "e3",
+            "e7"
+          ],
+          "note": "term only inside EAV value axis (renamed identifiers)",
+          "fts": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 0.0
+          },
+          "ebr": {
+            "hits": [
+              "e11",
+              "e3",
+              "e7"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 2.1
+          },
+          "ebr_vec": {
+            "hits": [
+              "e11",
+              "e3",
+              "e7"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.0
+          },
+          "vec_only": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 4.6
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 120,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.01
+      },
+      "mean_recall_fts": 0.0,
+      "mean_recall_ebr": 1.0,
+      "mean_recall_ebr_vec": 1.0,
+      "mean_recall_vec_only": 0.0
+    },
+    "eav_ambiguous": {
+      "queries": [
+        {
+          "query": "шкіра",
+          "truth": [],
+          "note": "ambiguous EAV -- detector must refuse",
+          "fts": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 0.0
+          },
+          "ebr": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 1,
+            "ms": 1.5
+          },
+          "ebr_vec": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 1,
+            "ms": 4.3
+          },
+          "vec_only": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 3.0
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 120,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.01
+      },
+      "degraded_ok": true,
+      "mean_recall_fts": 0.0,
+      "mean_recall_ebr": 0.0,
+      "mean_recall_ebr_vec": 0.0,
+      "mean_recall_vec_only": 0.0
+    },
+    "fk_dim": {
+      "queries": [
+        {
+          "query": "взуття",
+          "truth": [
+            "e13",
+            "e5",
+            "e9"
+          ],
+          "note": "term only in a declared-FK dimension label",
+          "fts": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.7
+          },
+          "ebr": {
+            "hits": [
+              "e13",
+              "e5",
+              "e9"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.5
+          },
+          "ebr_vec": {
+            "hits": [
+              "e13",
+              "e5",
+              "e9"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 2.1
+          },
+          "vec_only": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 4.6
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 160,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.02
+      },
+      "mean_recall_fts": 0.0,
+      "mean_recall_ebr": 1.0,
+      "mean_recall_ebr_vec": 1.0,
+      "mean_recall_vec_only": 0.0
+    },
+    "multi_hop": {
+      "queries": [
+        {
+          "query": "взуття",
+          "truth": [
+            "e12",
+            "e20",
+            "e4"
+          ],
+          "note": "term 2 hops away via declared FKs",
+          "fts": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.0
+          },
+          "ebr": {
+            "hits": [
+              "e12",
+              "e20",
+              "e4"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 3.1
+          },
+          "ebr_vec": {
+            "hits": [
+              "e12",
+              "e20",
+              "e4"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 4.6
+          },
+          "vec_only": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 6.3
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 160,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.02
+      },
+      "mean_recall_fts": 0.0,
+      "mean_recall_ebr": 1.0,
+      "mean_recall_ebr_vec": 1.0,
+      "mean_recall_vec_only": 0.0
+    },
+    "junction": {
+      "queries": [
+        {
+          "query": "антисептична",
+          "truth": [
+            "e10",
+            "e14",
+            "e2",
+            "e6"
+          ],
+          "note": "term behind a two-FK junction bridge",
+          "fts": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 0.0
+          },
+          "ebr": {
+            "hits": [
+              "e10",
+              "e14",
+              "e2",
+              "e6"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 2.6
+          },
+          "ebr_vec": {
+            "hits": [
+              "e10",
+              "e14",
+              "e2",
+              "e6"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 2.1
+          },
+          "vec_only": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 4.9
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 120,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.01
+      },
+      "mean_recall_fts": 0.0,
+      "mean_recall_ebr": 1.0,
+      "mean_recall_ebr_vec": 1.0,
+      "mean_recall_vec_only": 0.0
+    },
+    "inferred": {
+      "queries": [
+        {
+          "query": "взуття",
+          "truth": [
+            "e1",
+            "e15",
+            "e8"
+          ],
+          "note": "undeclared link (post-conductor state)",
+          "fts": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.0
+          },
+          "ebr": {
+            "hits": [
+              "e1",
+              "e15",
+              "e8"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 2.1
+          },
+          "ebr_vec": {
+            "hits": [
+              "e1",
+              "e15",
+              "e8"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.6
+          },
+          "vec_only": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 4.8
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 160,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.02
+      },
+      "mean_recall_fts": 0.0,
+      "mean_recall_ebr": 1.0,
+      "mean_recall_ebr_vec": 1.0,
+      "mean_recall_vec_only": 0.0
+    },
+    "inferred_junc": {
+      "queries": [
+        {
+          "query": "антисептична",
+          "truth": [
+            "e10",
+            "e14",
+            "e2",
+            "e6"
+          ],
+          "note": "junction whose links are overlap-verified",
+          "fts": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.1
+          },
+          "ebr": {
+            "hits": [
+              "e10",
+              "e14",
+              "e2",
+              "e6"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.5
+          },
+          "ebr_vec": {
+            "hits": [
+              "e10",
+              "e14",
+              "e2",
+              "e6"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 2.7
+          },
+          "vec_only": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 6.4
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 120,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.01
+      },
+      "mean_recall_fts": 0.0,
+      "mean_recall_ebr": 1.0,
+      "mean_recall_ebr_vec": 1.0,
+      "mean_recall_vec_only": 0.0
+    },
+    "paraphrase": {
+      "queries": [
+        {
+          "query": "воскресити",
+          "truth": [
+            "e3",
+            "e7"
+          ],
+          "note": "paraphrase -- vector channel only",
+          "fts": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 0.6
+          },
+          "ebr": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 1,
+            "ms": 1.0
+          },
+          "ebr_vec": {
+            "hits": [
+              "e3",
+              "e7"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 4.7
+          },
+          "vec_only": {
+            "hits": [
+              "e3",
+              "e7"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 2.1
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 80,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.01
+      },
+      "mean_recall_fts": 0.0,
+      "mean_recall_ebr": 0.0,
+      "mean_recall_ebr_vec": 1.0,
+      "mean_recall_vec_only": 1.0
+    },
+    "conj_mix": {
+      "queries": [
+        {
+          "query": "фарба шкіра",
+          "truth": [
+            "e3"
+          ],
+          "note": "conjunctive: name + EAV value",
+          "fts": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.5
+          },
+          "ebr": {
+            "hits": [
+              "e3"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.0
+          },
+          "ebr_vec": {
+            "hits": [
+              "e3"
+            ],
+            "recall": 1.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 2.7
+          },
+          "vec_only": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 9.1
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 120,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.01
+      },
+      "mean_recall_fts": 0.0,
+      "mean_recall_ebr": 1.0,
+      "mean_recall_ebr_vec": 1.0,
+      "mean_recall_vec_only": 0.0
+    },
+    "no_match": {
+      "queries": [
+        {
+          "query": "титан",
+          "truth": [],
+          "note": "zero-truth: expect empty + regret 1",
+          "fts": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 0.0
+          },
+          "ebr": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 1,
+            "ms": 1.5
+          },
+          "ebr_vec": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 1,
+            "ms": 4.6
+          },
+          "vec_only": {
+            "hits": [],
+            "recall": 0.0,
+            "precision": 1.0,
+            "regret": 0,
+            "ms": 1.7
+          }
+        }
+      ],
+      "vector_stats": {
+        "model": "bench/scripted-embedder",
+        "cells": 80,
+        "sampled": false,
+        "status": "ready",
+        "elapsed_s": 0.01
+      },
+      "mean_recall_fts": 0.0,
+      "mean_recall_ebr": 0.0,
+      "mean_recall_ebr_vec": 0.0,
+      "mean_recall_vec_only": 0.0
+    }
+  }
+}
