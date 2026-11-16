@@ -316,3 +316,27 @@ def test_multi_offer_evidence_deduplicates_sentence_products():
     assert rep.n_unsupported == 0
     assert rep.sentences[0].products == ["ASUS ROG Thor 1200W Platinum II"]
 
+
+def test_affirmative_range_scarcity_denial_not_flagged_as_contradiction():
+    rows = [
+        {"id": "p1", "name": "Intel Core i7-14700K (Rev 2)", "price": 15533.50},
+        {"id": "p2", "name": "Intel Core i7-14700K (Rev 4)", "price": 15940.80},
+        {"id": "p3", "name": "Intel Core i7-14700K (Rev 1)", "price": 18883.11},
+    ]
+    ok = verify_answer_against_rows(
+        "Ні, дефіциту немає: у каталозі є Intel Core i7-14700K (Rev 4), "
+        "ціни починаються від 15533.50 грн до 18883.11 грн (наприклад, 15940.80 грн).",
+        rows,
+        user_query="чи є дефіцит на Intel Core i7-14700K до 20000 грн?",
+    )
+    assert ok.n_unsupported == 0
+
+    bad = verify_answer_against_rows(
+        "На жаль, моделей з ціною до 20000 грн немає.",
+        rows,
+        user_query="чи є Intel Core i7-14700K до 20000 грн?",
+    )
+    assert bad.n_unsupported == 1
+    assert "суперечить каталогу" in bad.sentences[0].unsupported[0]
+
+

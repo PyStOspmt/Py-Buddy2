@@ -850,3 +850,61 @@ def test_live_arm_byok_header_isolates_runner_without_mutating_ctx(monkeypatch):
     tel = safe_client.get("/api/telemetry", headers={"X-Admin-Token": "adm-secret"}).text
     assert byok_key not in tel
 
+
+def test_register_unseen_composite_pk_eav_with_fk_dimensions(client, tmp_path, monkeypatch):
+    """Registering a DB with composite-PK EAV & FK category populates EAV + rules via API."""
+    import sqlite3
+
+    db_file = tmp_path / "custom_fk_eav.db"
+    conn = sqlite3.connect(str(db_file))
+    conn.executescript(
+        """
+        CREATE TABLE zones (id INTEGER PRIMARY KEY, name TEXT UNIQUE);
+        CREATE TABLE entities (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            zone_id INTEGER NOT NULL REFERENCES zones(id),
+            summary TEXT NOT NULL
+        );
+        CREATE TABLE props (
+            entity_id TEXT NOT NULL REFERENCES entities(id),
+            k TEXT NOT NULL,
+            v TEXT NOT NULL,
+            PRIMARY KEY (entity_id, k)
+        );
+        """
+    )
+    zones = ["north", "south", "east"]
+    for idx, z in enumerate(zones, start=1):
+        conn.execute("INSERT INTO zones VALUES (?, ?)", (idx, z))
+    for i in range(18):
+        eid = f"ent_{i:02d}"
+        zid = (i % 3) + 1
+        conn.execute(
+            "INSERT INTO entities VALUES (?, ?, ?, ?)",
+            (eid, f"Entity {i:02d}", zid, f"Long free-form narrative paragraph {i} describing unique contextual behavior in detail"),
+        )
+        conn.execute("INSERT INTO props VALUES (?, 'mode', ?)", (eid, f"mode_{zid}"))
+        conn.execute("INSERT INTO props VALUES (?, 'tier', ?)", (eid, "high" if zid == 1 else "low"))
+    conn.commit()
+    conn.close()
+
+    monkeypatch.setenv("PYBUDDY_RUNTIME_REGISTRY", str(tmp_path / "sources.runtime.json"))
+    monkeypatch.setenv("PYBUDDY_SOURCE_ROOT", str(tmp_path))
+    monkeypatch.setenv("PYBUDDY_ADMIN_TOKEN", "adm-secret")
+    admin = {"X-Admin-Token": "adm-secret"}
+    slug = f"fk_eav_{tmp_path.name[-6:].lower()}"
+    reg = client.post(
+        "/api/register_domain",
+        json={"domain_id": slug, "name": "Unseen FK EAV", "db_path": str(db_file)},
+        headers=admin,
+    )
+    assert reg.status_code in (200, 202), reg.text
+    insp = client.get(f"/api/domains/{slug}/inspection").json()
+    proj = insp.get("projection") or {}
+    assert "props" in (proj.get("eav_tables") or {})
+    assert (proj.get("roles") or {}).get("category", {}).get("column") != "summary"
+    assert insp["hypergraph"]["constraint_count"] >= 2
+    client.delete(f"/api/domains/{slug}", headers=admin)
+
+

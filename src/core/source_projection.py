@@ -84,6 +84,20 @@ def _looks_temporal(col) -> bool:
     return hits >= len(samples) / 2
 
 
+def _looks_temporal_or_prose(col) -> bool:
+    if _looks_temporal(col):
+        return True
+    # Long multi-word sentence columns (descriptions/snippets) are prose text, not facet categories.
+    if _name_tokens(getattr(col, "name", "")) & {"category", "категорія"}:
+        return False
+    samples = [s.strip() for s in getattr(col, "distinct_sample_values", ()) if isinstance(s, str) and s.strip()]
+    if len(samples) < 2:
+        return False
+    avg_len = sum(len(s) for s in samples) / len(samples)
+    avg_words = sum(len(s.split()) for s in samples) / len(samples)
+    return avg_len > 64 or avg_words > 8
+
+
 def _name_tokens(name: str) -> Set[str]:
     return {t for t in re.split(r"[^0-9a-zA-Zа-яА-ЯёЁіІїЇєЄґҐ]+",
                                 name.lower()) if t}
@@ -601,8 +615,8 @@ class SourceProjection:
             hint_types=("category",),
             extra_hint=None,
             primary_tokens=("category", "категорія"),
-            veto=_looks_temporal,
-            veto_detail="temporal values/name -- not a category axis",
+            veto=_looks_temporal_or_prose,
+            veto_detail="temporal values or prose description -- not a category axis",
         )
 
         self.roles["price"] = self._resolve_hinted_numeric_role(

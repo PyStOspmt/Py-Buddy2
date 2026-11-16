@@ -342,3 +342,67 @@ def test_f10_marketplace_projection_is_unchanged(tmp_path):
 
     rows = fetch_candidates(path, category="cpu", budget_max=5000.0)
     assert rows and rows[0].price == 2000.0
+
+
+def test_composite_pk_eav_and_prose_veto_with_fk_category_projection(tmp_path):
+    """Unseen schema with composite-PK EAV, long-prose column, and FK dimension category."""
+    from contract_inductor import ContractInductor, induce_structural_rules
+
+    path = str(tmp_path / "unseen_fk_eav.db")
+    conn = sqlite3.connect(path)
+    conn.executescript(
+        """
+        CREATE TABLE regions (id INTEGER PRIMARY KEY, label TEXT UNIQUE);
+        CREATE TABLE specimens (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            region_id INTEGER NOT NULL REFERENCES regions(id),
+            narrative TEXT NOT NULL,
+            metric_val REAL
+        );
+        CREATE TABLE traits (
+            specimen_id TEXT NOT NULL REFERENCES specimens(id),
+            trait_key TEXT NOT NULL,
+            trait_val TEXT NOT NULL,
+            PRIMARY KEY (specimen_id, trait_key)
+        );
+        """
+    )
+    regions = ["alpine", "desert", "forest", "marine"]
+    for idx, reg in enumerate(regions, start=1):
+        conn.execute("INSERT INTO regions VALUES (?, ?)", (idx, reg))
+    for i in range(40):
+        sid = f"sp_{i:02d}"
+        reg = regions[i % len(regions)]
+        reg_id = (i % len(regions)) + 1
+        conn.execute(
+            "INSERT INTO specimens VALUES (?, ?, ?, ?, ?)",
+            (
+                sid,
+                f"Specimen {i:02d}",
+                reg_id,
+                f"Detailed field description number {i} covering unique specimen traits across multiple zones without repetition",
+                100.0 + i * 5,
+            ),
+        )
+        conn.execute("INSERT INTO traits VALUES (?, 'diet_class', ?)", (sid, "class_a" if reg in {"alpine", "forest"} else "class_b"))
+        conn.execute("INSERT INTO traits VALUES (?, 'group_tag', ?)", (sid, f"grp_{i % 3}"))
+        if reg == "alpine":
+            conn.execute("INSERT INTO traits VALUES (?, 'load_cap', ?)", (sid, "500 kg"))
+        elif reg == "desert":
+            conn.execute("INSERT INTO traits VALUES (?, 'load_req', ?)", (sid, "200 kg"))
+    conn.commit()
+    conn.close()
+
+    proj = build_source_projection(path)
+    assert "traits" in proj.eav_tables
+    assert proj.eav_tables["traits"]["detection"] == "structural_composite_pk"
+    assert proj.resolve("category").column != "narrative"
+
+    kg = DomainCatalogRegistry.create_database_catalog(db_path=path)
+    cats = {n.category for n in kg.nodes.values()}
+    assert cats == set(regions)
+    rules = induce_structural_rules(list(kg.nodes.values()))
+    assert len(rules) >= 2
+    vhg = ContractInductor().build_virtual_hypergraph(list(kg.nodes.values()), use_llm=False)
+    assert len(vhg.constraints) >= 2

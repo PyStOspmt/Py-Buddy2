@@ -4,7 +4,7 @@ Modular repository for multi-domain product nodes and universal constraints.
 Decouples catalog initialization from the server transport layer.
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 import json
 import os
 
@@ -71,6 +71,58 @@ class DomainCatalogRegistry:
         if os.path.exists(db_path):
             return cls.create_database_catalog(db_path, seed_limit=120)
         return KnowledgeHypergraph()
+
+    @staticmethod
+    def _fk_category_join(proj, cat_res) -> Optional[Tuple[str, str, str, str]]:
+        """When entity has no direct category column, inspect unique FK dimension label."""
+        if cat_res.resolved or not proj.entity_table:
+            return None
+        tbl = proj.snapshot.tables.get(proj.entity_table)
+        if tbl is None:
+            return None
+        candidates: List[Tuple[str, str, str, str]] = []
+        for col in tbl.columns.values():
+            if not getattr(col, "is_foreign_key", False):
+                continue
+            tgt_tbl_name = getattr(col, "fk_target_table", None)
+            tgt_col_name = getattr(col, "fk_target_column", None)
+            if not tgt_tbl_name or not tgt_col_name or tgt_tbl_name == tbl.name:
+                continue
+            tgt_tbl = proj.snapshot.tables.get(tgt_tbl_name)
+            if tgt_tbl is None or tgt_tbl.row_count < 2 or tgt_tbl.row_count > 100:
+                continue
+            pk_set = set(tgt_tbl.primary_keys)
+            lbl_cols = [
+                tc.name
+                for tc in tgt_tbl.columns.values()
+                if tc.name not in pk_set
+                and not any(tok in (tc.data_type or "").upper() for tok in ("INT", "FLOAT", "REAL", "NUM", "DOUBLE", "BLOB"))
+            ]
+            if len(lbl_cols) == 1:
+                candidates.append((col.name, tgt_tbl_name, tgt_col_name, lbl_cols[0]))
+        return candidates[0] if len(candidates) == 1 else None
+
+    @staticmethod
+    def _projection_query_parts(proj, name_res, cat_res, price_res, ident) -> Tuple[str, str, bool]:
+        """Build aliased SELECT list, optional FK category JOIN clause, and category presence."""
+        q = quote_ident
+        name_sel = f"e.{q(name_res.column)} AS name" if name_res.column else f"e.{q(ident.column)} AS name"
+        price_sel = f"e.{q(price_res.column)} AS price" if price_res.column else "NULL AS price"
+        join_sql = ""
+        if cat_res.column:
+            cat_sel = f"e.{q(cat_res.column)} AS category"
+            has_cat = True
+        else:
+            fk_cat = DomainCatalogRegistry._fk_category_join(proj, cat_res)
+            if fk_cat is not None:
+                fk_col, dim_tbl, dim_pk, dim_lbl = fk_cat
+                join_sql = f" LEFT JOIN {q(dim_tbl)} dim ON e.{q(fk_col)} = dim.{q(dim_pk)}"
+                cat_sel = f"dim.{q(dim_lbl)} AS category"
+                has_cat = True
+            else:
+                cat_sel = "NULL AS category"
+                has_cat = False
+        return f"e.{q(ident.column)} AS id, {name_sel}, {cat_sel}, {price_sel}", join_sql, has_cat
 
     @staticmethod
     def _projection_select(proj, name_res, cat_res, price_res, ident) -> str:
@@ -192,11 +244,13 @@ class DomainCatalogRegistry:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         try:
-            select_list = DomainCatalogRegistry._projection_select(proj, name_res, cat_res, price_res, ident)
+            select_list, join_sql, has_cat = DomainCatalogRegistry._projection_query_parts(
+                proj, name_res, cat_res, price_res, ident
+            )
             placeholders = ", ".join("?" for _ in ids)
             cursor.execute(
-                f"SELECT {select_list} FROM {quote_ident(table)} "
-                f"WHERE {quote_ident(ident.column)} IN ({placeholders})",
+                f"SELECT {select_list} FROM {quote_ident(table)} e{join_sql} "
+                f"WHERE e.{quote_ident(ident.column)} IN ({placeholders})",
                 ids,
             )
             rows = cursor.fetchall()
@@ -217,7 +271,7 @@ class DomainCatalogRegistry:
             # identity value with an honest marker instead of a fabricated label.
             price = None if r[3] is None else float(r[3])
             name = r[1] if (name_res.column and r[1] is not None) else pid
-            category = (r[2] or "general") if cat_res.column else "general"
+            category = (r[2] or "general") if has_cat else "general"
             node = MarketplaceEAVNormalizer.build_product_node(pid, name, category, price, raw_meta)
             if not name_res.column:
                 node = ProductNode(
@@ -260,12 +314,18 @@ class DomainCatalogRegistry:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         try:
-            select_list = DomainCatalogRegistry._projection_select(proj, name_res, cat_res, price_res, ident)
-            group_col = name_res.column or ident.column
-            cursor.execute(
-                f"SELECT {select_list} FROM {quote_ident(table)} "
-                f"GROUP BY {quote_ident(group_col)} LIMIT {int(seed_limit)}"
+            select_list, join_sql, has_cat = DomainCatalogRegistry._projection_query_parts(
+                proj, name_res, cat_res, price_res, ident
             )
+            group_col = name_res.column or ident.column
+            base_sql = (
+                f"SELECT {select_list} FROM {quote_ident(table)} e{join_sql} "
+                f"GROUP BY e.{quote_ident(group_col)}"
+            )
+            try:
+                cursor.execute(f"{base_sql} ORDER BY MIN(e.rowid) LIMIT {int(seed_limit)}")
+            except sqlite3.OperationalError:
+                cursor.execute(f"{base_sql} LIMIT {int(seed_limit)}")
             rows = cursor.fetchall()
 
             pids = [str(r[0]) for r in rows]
@@ -284,7 +344,7 @@ class DomainCatalogRegistry:
             # falls back to the identity value with an honest marker.
             price = None if r[3] is None else float(r[3])
             name = r[1] if (name_res.column and r[1] is not None) else pid
-            category = (r[2] or "general") if cat_res.column else "general"
+            category = (r[2] or "general") if has_cat else "general"
             node = MarketplaceEAVNormalizer.build_product_node(pid, name, category, price, raw_meta)
             if not name_res.column:
                 node = ProductNode(

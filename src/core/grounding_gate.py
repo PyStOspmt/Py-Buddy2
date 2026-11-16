@@ -270,6 +270,8 @@ def preserve_tool_status(
     compat_verdict: Optional[str],
     relax_notice: Optional[str],
     pre_text: str = "",
+    *,
+    has_verified_items: Optional[bool] = None,
 ) -> str:
     """Ensure conflict or relaxation verdicts survive response correction and pruning."""
     tail = [s for s in re.split(r"[.!?\n]+", text or "") if s.strip()]
@@ -287,7 +289,11 @@ def preserve_tool_status(
             return f"{text}\n{conflict_msg}" if text else conflict_msg
         return text
 
-    had_neg_in_pre = bool(_PRE_NEG_RE.search(pre_text or ""))
+    # Never synthesize a pareto-relaxation negative tail when pareto_relax did not
+    # run and verified items are present -- ordinary prose negation ("немає інших")
+    # must not overwrite an affirmative catalog answer.
+    allow_prose_neg = relax_notice is not None or not bool(has_verified_items)
+    had_neg_in_pre = allow_prose_neg and bool(_PRE_NEG_RE.search(pre_text or ""))
     if (relax_notice is not None and not _NEGATIVE_STATUS_RE.search(tail_sent)) or (
         had_neg_in_pre and not _NEGATIVE_STATUS_RE.search(text or "")
     ):
@@ -310,6 +316,13 @@ def _item_prices(entry: Dict[str, Any]) -> List[float]:
     return vals
 
 
+_REV_SUFFIX_RE = re.compile(r"\s*\(rev\s*\d+\)\s*$", re.IGNORECASE)
+
+
+def _strip_rev_suffix(name: str) -> str:
+    return _REV_SUFFIX_RE.sub("", name or "").strip()
+
+
 def _validate_positional_prices(
     text: str,
     allowed_by_name: Dict[str, Dict[str, Any]],
@@ -320,10 +333,21 @@ def _validate_positional_prices(
 ) -> Tuple[str, bool, bool]:
     """Validate (and optionally repair) currency tokens positionally against preceding items."""
     mention_positions: List[Tuple[int, str]] = []
+    by_base: Dict[str, List[str]] = {}
     for name in allowed_by_name:
         for m in re.finditer(re.escape(name), text or "", re.IGNORECASE):
             mention_positions.append((m.start(), name))
+        base = _strip_rev_suffix(name)
+        if base and base != name and len(base) >= 6:
+            by_base.setdefault(base, []).append(name)
     mention_positions.sort()
+
+    base_positions: List[Tuple[int, str]] = []
+    for base in by_base:
+        for m in re.finditer(r"(?<!\w)" + re.escape(base) + r"(?!\w)", text or "", re.IGNORECASE):
+            base_positions.append((m.start(), base))
+    base_positions.sort()
+
     spans = sentence_spans(text)
 
     def _sentence_products(pos: int) -> List[str]:
@@ -331,6 +355,18 @@ def _validate_positional_prices(
             if start <= pos < end:
                 seg = norm_name(text[start:end])
                 return [n for n in allowed_by_name if norm_name(n) in seg]
+        return []
+
+    def _sentence_rev_group_prices(pos: int) -> List[float]:
+        for start, end in spans:
+            if start <= pos < end:
+                seg = norm_name(text[start:end])
+                matched: List[float] = []
+                for base, revs in by_base.items():
+                    if norm_name(base) in seg:
+                        for rn in revs:
+                            matched.extend(_item_prices(allowed_by_name[rn]))
+                return matched
         return []
 
     corrected_text = text
@@ -352,6 +388,22 @@ def _validate_positional_prices(
             continue
 
         sent_products = _sentence_products(_m.start())
+        if any(
+            abs(_value - vp) <= 0.51
+            for n in sent_products
+            for vp in _item_prices(allowed_by_name[n])
+        ):
+            continue
+
+        # Allow sibling-revision prices when prose cites the shared model family name.
+        preceding_bases = [b for p, b in base_positions if p < _m.start()]
+        group_prices = _sentence_rev_group_prices(_m.start())
+        if not group_prices and preceding_bases:
+            for rn in by_base.get(preceding_bases[-1], ()):
+                group_prices.extend(_item_prices(allowed_by_name[rn]))
+        if group_prices and any(abs(_value - vp) <= 0.51 for vp in group_prices):
+            continue
+
         if len(sent_products) >= 2:
             per_item = [_item_prices(allowed_by_name[n]) for n in sent_products]
             if all(per_item):
@@ -509,7 +561,11 @@ def _collect_grounding_context(
     if mentioned_verified:
         verified = mentioned_verified
     else:
-        verified = [dict(allowed_by_name[n]) for n in rec_names if n in allowed_by_name]
+        verified = [
+            dict(allowed_by_name[n])
+            for n in dict.fromkeys(rec_names)
+            if n in allowed_by_name
+        ]
     fabricated = sorted({n for n in rec_names if n} - set(allowed_by_name))
     return {
         "currency": currency,
@@ -530,9 +586,34 @@ def _collect_grounding_context(
     }
 
 
+def _select_evidence_for_summary(
+    evidence_rows: List[Dict[str, Any]],
+    limit: int = 18,
+) -> List[Dict[str, Any]]:
+    """Select the newest evidence rows first, prioritizing distinct item names."""
+    recent = list(reversed(evidence_rows or ()))
+    chosen: List[Dict[str, Any]] = []
+    seen_names: Set[str] = set()
+    chosen_ids: Set[int] = set()
+    for idx, row in enumerate(recent):
+        key = norm_name(row.get("name") or row.get("id") or f"row-{idx}")
+        if key not in seen_names:
+            seen_names.add(key)
+            chosen.append(row)
+            chosen_ids.add(idx)
+            if len(chosen) >= limit:
+                return chosen
+    for idx, row in enumerate(recent):
+        if idx not in chosen_ids:
+            chosen.append(row)
+            if len(chosen) >= limit:
+                break
+    return chosen
+
+
 def _format_evidence_summary(
     evidence_rows: List[Dict[str, Any]],
-    limit: int = 8,
+    limit: int = 18,
     currency: Optional[str] = None,
 ) -> str:
     """Format grounded rows compactly for single-retry ClaimVerifier feedback."""
@@ -542,7 +623,7 @@ def _format_evidence_summary(
             "якщо точних значень немає, чесно повідом про відсутність даних."
         )
     lines: List[str] = []
-    for row in evidence_rows[:limit]:
+    for row in _select_evidence_for_summary(evidence_rows, limit=limit):
         name = row.get("name") or row.get("id") or "позиція"
         price = row.get("price")
         parts: List[str] = [str(name)]
@@ -556,9 +637,11 @@ def _format_evidence_summary(
         for k, v in list(specs.items())[:5]:
             if v is not None and str(v).strip():
                 extra_kv.append(f"{k}={v}")
-        for k in ("category", "brand", "stock_quantity"):
-            if row.get(k) is not None and str(row.get(k)).strip() and len(extra_kv) < 6:
-                extra_kv.append(f"{k}={row[k]}")
+        for k, v in row.items():
+            if k in ("id", "name", "price", "specs", "price_conflicts"):
+                continue
+            if v is not None and not isinstance(v, (dict, list)) and str(v).strip() and len(extra_kv) < 8:
+                extra_kv.append(f"{k}={str(v)[:60]}")
         if extra_kv:
             parts.append(", ".join(extra_kv))
         lines.append("- " + " | ".join(parts))
@@ -658,6 +741,7 @@ def finalize_grounded_response(
                 compat_verdict,
                 relax_notice,
                 synthesis_text,
+                has_verified_items=bool(rows),
             )
             return True, state.final_response
         state.is_terminated = True
@@ -685,6 +769,7 @@ def finalize_grounded_response(
                 compat_verdict,
                 relax_notice,
                 synthesis_text,
+                has_verified_items=bool(verified),
             )
             return True, state.final_response
         state.is_terminated = True
@@ -712,6 +797,7 @@ def finalize_grounded_response(
             compat_verdict,
             relax_notice,
             synthesis_text,
+            has_verified_items=bool(verified),
         )
         return True, state.final_response
 
@@ -737,6 +823,7 @@ def finalize_grounded_response(
                 compat_verdict,
                 relax_notice,
                 synthesis_text,
+                has_verified_items=bool(verified),
             )
             state.termination_reason = "SUCCESS_GROUNDED_WITH_CORRECTION"
             state.recommended_items = verified
@@ -765,6 +852,7 @@ def finalize_grounded_response(
             compat_verdict,
             relax_notice,
             synthesis_text,
+            has_verified_items=bool(rows),
         )
         return True, state.final_response
 
@@ -776,5 +864,6 @@ def finalize_grounded_response(
         compat_verdict,
         relax_notice,
         synthesis_text,
+        has_verified_items=bool(verified or allowed),
     )
     return True, state.final_response

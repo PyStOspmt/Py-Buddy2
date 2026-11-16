@@ -112,6 +112,21 @@ _PRICE_CAP_RE = re.compile(
     r"(?:\s*(?:(?:грн|uah|usd|eur)\b|[₴$€]))?",
     re.IGNORECASE | re.UNICODE,
 )
+_RANGE_FROM_RE = re.compile(
+    r"\b(?:від|from|between)\s+(?:[$€₴]\s*)?\d[\d \u00a0\u202f'.,]*"
+    r"(?:(?:грн|uah|usd|eur)\b|[₴$€])?[^.!?\n]{0,20}$",
+    re.IGNORECASE | re.UNICODE,
+)
+_NON_CATALOG_NEG_PRE_RE = re.compile(
+    r"\b(?:дефіцит\w*|нестач\w*|брак\w*|проблем\w*|помил\w*|конфлікт\w*|"
+    r"несумісност\w*|ризик\w*|сумнів\w*|обмежен\w*|різниц\w*|перешкод\w*|затрим\w*)\s+$",
+    re.IGNORECASE | re.UNICODE,
+)
+_NON_CATALOG_NEG_POST_RE = re.compile(
+    r"^\s+(?:дефіцит\w*|нестач\w*|брак\w*|проблем\w*|помил\w*|конфлікт\w*|"
+    r"несумісност\w*|ризик\w*|сумнів\w*|обмежен\w*|різниц\w*|перешкод\w*|затрим\w*)\b",
+    re.IGNORECASE | re.UNICODE,
+)
 # Labelled language lexicon (generic Ukrainian prose function/comparison
 # words across arbitrary domains, NOT a domain-specific catalog dictionary).
 _EXCLUSION_STOP = frozenset({
@@ -340,15 +355,36 @@ def evidence_item_from_row(row: Dict[str, Any]) -> EvidenceItem:
     )
 
 
+def _has_catalog_neg_existence(sent: str) -> bool:
+    """Return True if sentence denies item existence rather than scarcity/errors."""
+    for m in _NEG_EXISTENCE_RE.finditer(sent):
+        before = sent[max(0, m.start() - 36):m.start()]
+        after = sent[m.end():m.end() + 36]
+        if _NON_CATALOG_NEG_PRE_RE.search(before) or _NON_CATALOG_NEG_POST_RE.search(after):
+            continue
+        return True
+    return False
+
+
+def _find_price_cap(sent: str, user_query: str) -> Optional[re.Match]:
+    """Find an upper price cap while ignoring 'від X ... до Y' interval bounds."""
+    for m in _PRICE_CAP_RE.finditer(sent):
+        prefix = sent[max(0, m.start() - 48):m.start()]
+        if _RANGE_FROM_RE.search(prefix):
+            continue
+        return m
+    return _PRICE_CAP_RE.search(user_query)
+
+
 def _contradicts_existence(
     sent: str,
     user_query: str,
     evidence: Sequence[EvidenceItem],
 ) -> Optional[str]:
     """Flag false-negative existence claims contradicted by a price-bounded row."""
-    if not evidence or not _NEG_EXISTENCE_RE.search(sent):
+    if not evidence or not _has_catalog_neg_existence(sent):
         return None
-    m = _PRICE_CAP_RE.search(sent) or _PRICE_CAP_RE.search(user_query)
+    m = _find_price_cap(sent, user_query)
     if not m:
         return None
     try:

@@ -502,3 +502,59 @@ def test_finalize_response_uses_domain_currency_without_hardcoded_uah():
     assert ok_n is True
     assert "837.99" in fixed_n
     assert "грн" not in fixed_n
+
+
+def test_evidence_summary_prioritizes_newest_unique_items():
+    """Later tool steps and distinct item names must not be crowded out by 50 stale rows."""
+    from grounding_gate import _format_evidence_summary
+
+    old_rows = [{"name": "Item Alpha", "price": 8000.0 + i, "stock_quantity": 5} for i in range(50)]
+    new_rows = [{"name": "Item Beta", "price": 15940.80, "stock_quantity": 3}]
+    summary = _format_evidence_summary(old_rows + new_rows)
+    assert "Item Beta" in summary
+    assert "Item Alpha" in summary
+
+
+def test_preserve_tool_status_skips_pareto_tail_on_prose_negation_when_verified():
+    """Ordinary prose negation ('дефіциту немає') must not inject a Pareto zero-match notice."""
+    from grounding_gate import preserve_tool_status
+
+    prose = "Ні, дефіциту немає: Intel Core i7-14700K є в наявності за 15940.80 грн."
+    out = preserve_tool_status(
+        prose, [], None, None, prose, has_verified_items=True
+    )
+    assert "На жаль, точних варіантів" not in out
+
+
+def test_finalize_dedups_recommended_and_binds_pre_name_or_revision_price():
+    """Pre-name prices, sibling revisions, and duplicate recommendations must stay grounded."""
+    from grounding_gate import finalize_grounded_response
+    from react_tools import agent_grounding
+
+    rows = [
+        {"id": "cpu_1", "name": "Chip X (Rev 1)", "price": 15533.50, "category": "cpu"},
+        {"id": "cpu_2", "name": "Chip X (Rev 2)", "price": 15940.80, "category": "cpu"},
+        {"id": "cpu_3", "name": "Chip X (Rev 4)", "price": 18883.11, "category": "cpu"},
+    ]
+    agent = ReActAgent.__new__(ReActAgent)
+    agent.currency = "₴"
+    agent.grounding = GroundingSet()
+    state = SessionState(
+        session_id="s_dedup_rev",
+        user_query="Ціна Chip X?",
+        execution_history=[
+            {"step": 1, "tool_name": "sql_query", "observation": {"success": True, "rows": rows, "row_count": 3}}
+        ],
+    )
+    agent_grounding(agent, state).extend_rows(rows)
+
+    ok, _ = finalize_grounded_response(
+        agent,
+        state,
+        "Наприклад, за 15940.80 грн є Chip X (Rev 2), а в лінійці Chip X (Rev 1..4) старт від 15533.50 грн до 18883.11 грн.",
+        [{"name": "Chip X (Rev 2)"}, {"name": "Chip X (Rev 2)"}],
+    )
+    assert ok is True
+    assert state.termination_reason == "SUCCESS_GROUNDED"
+    assert [r["name"] for r in state.recommended_items] == ["Chip X (Rev 2)"]
+

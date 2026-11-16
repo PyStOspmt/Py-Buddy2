@@ -91,19 +91,7 @@ def structural_eav_hypothesis(
     cols = list(table.columns.values())
     if not (3 <= len(cols) <= 4) or table.row_count < 3:
         return None
-    if len(table.primary_keys) > 1:
-        return None
-
-    pk = set(table.primary_keys)
-    key_candidates = [
-        c
-        for c in cols
-        if c.name not in pk
-        and is_text_fn(c)
-        and 1 <= c.distinct_count <= max(20, 0.2 * table.row_count)
-        and table.row_count >= 2 * c.distinct_count
-    ]
-    if not key_candidates:
+    if len(table.primary_keys) > 2:
         return None
 
     def _pairs_ok(key_col, ent_col) -> bool:
@@ -115,6 +103,55 @@ def structural_eav_hypothesis(
         except Exception:
             return False
         return pairs >= 0.95 * table.row_count
+
+    pk = set(table.primary_keys)
+    # Composite 2-column primary key: standard 1NF EAV uses PRIMARY KEY (entity_fk, key_col)
+    # with the attribute value living outside the primary key.
+    if len(table.primary_keys) == 2:
+        pk_cols = [c for c in cols if c.name in pk]
+        non_pk = [c for c in cols if c.name not in pk and not getattr(c, "is_foreign_key", False)]
+        if len(pk_cols) != 2 or len(non_pk) != 1:
+            return None
+        value_col = non_pk[0]
+        comp_hyps = []
+        for idx in (0, 1):
+            key_col = pk_cols[idx]
+            ent_col = pk_cols[1 - idx]
+            if (
+                getattr(key_col, "is_foreign_key", False)
+                or not is_text_fn(key_col)
+                or not (1 <= key_col.distinct_count <= max(20, 0.2 * table.row_count))
+                or table.row_count < 2 * key_col.distinct_count
+            ):
+                continue
+            if (
+                ent_col.distinct_count < 2
+                or table.row_count < 2 * ent_col.distinct_count
+                or key_col.distinct_count >= ent_col.distinct_count
+            ):
+                continue
+            if _pairs_ok(key_col, ent_col):
+                comp_hyps.append((key_col, ent_col, value_col))
+        if len(comp_hyps) == 1:
+            key_col, ent_col, val_col = comp_hyps[0]
+            return {
+                "entity_fk": ent_col.name,
+                "key_column": key_col.name,
+                "value_column": val_col.name,
+                "detection": "structural_composite_pk",
+            }
+        return None
+
+    key_candidates = [
+        c
+        for c in cols
+        if c.name not in pk
+        and is_text_fn(c)
+        and 1 <= c.distinct_count <= max(20, 0.2 * table.row_count)
+        and table.row_count >= 2 * c.distinct_count
+    ]
+    if not key_candidates:
+        return None
 
     hypotheses = []
     for key_col in key_candidates:
