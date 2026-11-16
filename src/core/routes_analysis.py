@@ -117,6 +117,7 @@ def compute_pareto(req: ParetoRequest):
     # provides them. Products without the attribute are excluded from the
     # front and counted, not silently assigned defaults.
     perf_by_id: Dict[str, Optional[float]] = {}
+    deliv_by_id: Dict[str, Optional[int]] = {}
     categories_set = {str(n.category).strip() for n in hg.nodes.values() if getattr(n, "category", None)}
     category_nodes = None
     total_source_items = len(hg.nodes)
@@ -151,6 +152,17 @@ def compute_pareto(req: ParetoRequest):
                             f"SELECT {q(ident.column)}, {q(perf_res.column)} FROM {t}"
                         ):
                             perf_by_id[str(pid)] = None if val is None else float(val)
+                    # Optional merchant delivery_days read directly from relational offer join
+                    tbl_meta = proj.snapshot.tables.get(proj.entity_table)
+                    if tbl_meta and "merchant_id" in tbl_meta.columns and "merchants" in proj.snapshot.tables:
+                        m_tbl = proj.snapshot.tables["merchants"]
+                        if "delivery_days" in m_tbl.columns:
+                            for pid, dval in conn.execute(
+                                f"SELECT e.{q(ident.column)}, m.delivery_days "
+                                f"FROM {t} e JOIN merchants m ON e.merchant_id = m.id "
+                                f"WHERE m.delivery_days IS NOT NULL"
+                            ):
+                                deliv_by_id[str(pid)] = int(dval)
                     if selected_category and cat_res.resolved:
                         name_col = q(name_res.column) if name_res.resolved else q(ident.column)
                         price_col = q(price_res.column) if price_res.resolved else "NULL"
@@ -210,6 +222,8 @@ def compute_pareto(req: ParetoRequest):
             excluded_without_price += 1
             continue
         raw_deliv = attrs.get("delivery_days")
+        if raw_deliv is None:
+            raw_deliv = deliv_by_id.get(pid)
         try:
             deliv = int(raw_deliv) if raw_deliv is not None else None
         except (TypeError, ValueError):

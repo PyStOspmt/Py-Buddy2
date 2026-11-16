@@ -58,26 +58,27 @@ def test_generic_extrema_prototypes_survive():
 # ---------------------------------------------------------------------------
 
 def test_bare_diameter_number_is_unit_unknown_not_inches():
-    """F39: '8' near a length is not '8 inches' -- it is unknown."""
-    from marketplace_normalizer import MarketplaceEAVNormalizer
-    norm = MarketplaceEAVNormalizer.normalize_diameter
-    assert norm(17) is None          # bare float: no stated unit
-    assert norm("8") is None         # bare string: no stated unit
-    # explicit units and the universal R<n> rim marking still parse
-    assert norm("R17") == 17.0
-    assert norm('17"') == 17.0
-    assert norm("457.2 mm") == pytest.approx(18.0)
+    """F39: '8' without a unit is unknown in Value Algebra, never inches."""
+    from attribute_algebra import canonical_form, magnitude, spec_of
+    assert spec_of("17").dimension is None
+    assert spec_of("8").dimension is None
+    # explicit units and the universal R<n> rim marking carry dimension L
+    assert spec_of("R17").dimension == "L"
+    assert magnitude("R17")[0] == pytest.approx(17.0 * 25.4)
+    assert magnitude('17"')[0] == pytest.approx(17.0 * 25.4)
+    assert magnitude("457.2 mm")[0] == pytest.approx(18.0 * 25.4)
+    assert canonical_form("457.2 mm") == canonical_form('18"')
 
 
-def test_bare_diameter_falls_through_to_raw_key():
-    """An unparseable-unit diameter must not become a canonical inch fact."""
-    from marketplace_normalizer import MarketplaceEAVNormalizer
-    canon = MarketplaceEAVNormalizer.canonicalize_eav(
-        {"diameter": "8"}, category="misc")
-    # the raw string survives under its own key -- stated, not
-    # reinterpreted; a float 8.0 would mean "8 inches" was invented
-    assert canon.get("diameter") == "8"
-    assert not any(isinstance(v, float) for v in canon.values())
+def test_bare_diameter_falls_through_untyped():
+    """An unlabelled bare number does not participate in unit-based induction."""
+    from contract_inductor import induce_structural_rules
+    from hypergraph import ProductNode
+    prods = [
+        ProductNode("r1", "r1", "rim", 1.0, {"diameter": "8"}),
+        ProductNode("h1", "h1", "hub", 1.0, {"max_diameter": "19"}),
+    ]
+    assert induce_structural_rules(prods) == []
 
 
 import pytest
@@ -189,7 +190,7 @@ def test_lexicon_remains_labelled_fallback_without_structure():
 
 
 # ---------------------------------------------------------------------------
-# F40/F47: inductor seeds are labelled data + structural filters do the work
+# F40/F47: zero domain seed dictionaries in production induction + full invariance
 # ---------------------------------------------------------------------------
 
 def _products():
@@ -197,61 +198,120 @@ def _products():
     mk = lambda pid, cat, attrs: ProductNode(
         id=pid, name=pid, category=cat, price=1.0, attributes=attrs)
     return [
-        mk("a1", "cpu",    {"socket": "AM5", "TDP": 105.0,
-                            "shipping_cost": 5.0, "store_note": "x"}),
-        mk("a2", "motherboard", {"socket": "AM5", "shipping_cost": 9.0,
+        mk("a1", "cpu",    {"socket": "AM5", "TDP": "105W",
+                            "shipping_cost": "5", "store_note": "x"}),
+        mk("a2", "motherboard", {"socket": "AM5", "shipping_cost": "9",
                                  "store_note": "x"}),
-        mk("b1", "psu",    {"psu_wattage": 650.0, "shipping_cost": 5.0,
+        mk("a3", "cpu",    {"socket": "LGA1700", "TDP": "181W",
+                            "shipping_cost": "5", "store_note": "x"}),
+        mk("a4", "motherboard", {"socket": "LGA1700", "shipping_cost": "9",
+                                 "store_note": "x"}),
+        mk("b1", "psu",    {"psu_wattage": "650W", "shipping_cost": "5",
                             "store_note": "x"}),
-        mk("b2", "case",   {"max_diameter": 20.0, "shipping_cost": 9.0,
+        mk("b2", "case",   {"max_diameter": '20"', "shipping_cost": "9",
                             "store_note": "x"}),
-        mk("c1", "rim",    {"diameter": 18.0, "shipping_cost": 5.0,
+        mk("c1", "rim",    {"diameter": "R18", "shipping_cost": "5",
                             "store_note": "x"}),
     ]
 
 
 def test_single_valued_attr_never_induces_equivalence():
-    """F40: a constant attribute cannot discriminate -- structural, so it
-    holds even for names no seed list mentions."""
+    """F40: a constant attribute cannot discriminate across categories."""
     from contract_inductor import ContractInductor
-    rules = ContractInductor()._induce_deterministic(_products())
+    rules = ContractInductor().induce_contracts_from_products(_products())
     assert not any(getattr(r, "attr_name", None) == "store_note"
                    for r in rules)
 
 
-def test_seed_lists_are_overridable_data_not_hidden_logic():
-    """F40/F47: empty seeds -> 'socket' still induces (it is not in the
-    seeds anyway), and 'brand' becomes inducible when the seed is removed --
-    proving the seeds are data the caller controls."""
-    from contract_inductor import ContractInductor
-    from hypergraph import ProductNode
-    prods = _products() + [
-        ProductNode(id="d1", name="d1", category="gpu", price=1.0,
-                    attributes={"brand": "X", "warranty": "y"}),
-        ProductNode(id="d2", name="d2", category="cpu", price=1.0,
-                    attributes={"brand": "Y"}),
-        ProductNode(id="d3", name="d3", category="psu", price=1.0,
-                    attributes={"brand": "Z"}),
+def test_zero_domain_seed_vocabularies_in_production_inductor_and_catalog():
+    """Production induction carries NO domain key/attribute seed dictionaries."""
+    import pathlib
+    import contract_inductor
+    root = pathlib.Path(__file__).resolve().parents[1]
+    assert not (root / "src" / "core" / "marketplace_normalizer.py").exists()
+    for banned in ("NON_MATCHING_SEED_KEYS", "DEMAND_SEED_TERMS",
+                   "CAPACITY_SEED_TERMS", "DIMENSION_SEED_TERMS",
+                   "MAX_DIMENSION_SEED_TERMS"):
+        assert not hasattr(contract_inductor, banned), f"banned seed constant remains: {banned}"
+    assert not hasattr(contract_inductor.ContractInductor, "_induce_deterministic")
+
+
+def test_full_pipeline_schema_renaming_invariance(tmp_path):
+    """Total schema obfuscation (tables, columns, categories, EAV keys, seller axis) preserves induced graph 1:1."""
+    import sqlite3
+    from domain_catalog import DomainCatalogRegistry
+    from hypergraph import CumulativeCapacityConstraint, EquivalenceConstraint
+
+    orig_db = str(tmp_path / "orig.db")
+    obf_db = str(tmp_path / "obf.db")
+
+    # Enough distinct rows per category (18 rows across 3 categories) so purely
+    # structural category detection fires without ANY hint column names.
+    rows = [
+        ("c1", "CPU-A", "cpu", 100.0, {"socket": "AM5", "power": "105W", "seller_tag": "shop_1"}),
+        ("c2", "CPU-A", "cpu", 105.0, {"socket": "Socket AM5", "power": "105 Вт", "seller_tag": "shop_2"}),
+        ("c3", "CPU-B", "cpu", 120.0, {"гніздо": "sAM5", "power": "120W", "seller_tag": "shop_1"}),
+        ("c4", "CPU-C", "cpu", 130.0, {"socket": "LGA1700", "power": "180W", "seller_tag": "shop_1"}),
+        ("c5", "CPU-D", "cpu", 140.0, {"гніздо": "LGA1700", "power": "253W", "seller_tag": "shop_2"}),
+        ("c6", "CPU-E", "cpu", 110.0, {"Socket Type": "AM4", "power": "65W", "seller_tag": "shop_1"}),
+        ("m1", "MB-A", "motherboard", 90.0, {"socket": "AM5", "seller_tag": "shop_1"}),
+        ("m2", "MB-B", "motherboard", 92.0, {"гніздо": "sAM5", "seller_tag": "shop_2"}),
+        ("m3", "MB-C", "motherboard", 95.0, {"Socket Type": "LGA1700", "seller_tag": "shop_1"}),
+        ("m4", "MB-D", "motherboard", 96.0, {"socket": "LGA1700", "seller_tag": "shop_2"}),
+        ("m5", "MB-E", "motherboard", 85.0, {"гніздо": "AM4", "seller_tag": "shop_1"}),
+        ("m6", "MB-F", "motherboard", 88.0, {"Socket Type": "AM4", "seller_tag": "shop_2"}),
+        ("p1", "PSU-1", "psu", 80.0, {"power": "650W", "seller_tag": "shop_1"}),
+        ("p2", "PSU-2", "psu", 95.0, {"power": "850W", "seller_tag": "shop_2"}),
+        ("p3", "PSU-3", "psu", 75.0, {"power": "550W", "seller_tag": "shop_1"}),
+        ("p4", "PSU-4", "psu", 105.0, {"power": "1000W", "seller_tag": "shop_2"}),
+        ("p5", "PSU-5", "psu", 110.0, {"power": "1200W", "seller_tag": "shop_1"}),
+        ("p6", "PSU-6", "psu", 85.0, {"power": "750W", "seller_tag": "shop_2"}),
     ]
-    rules = ContractInductor()._induce_deterministic(prods,
-                                                   non_matching_keys=set())
-    assert any(getattr(r, "attr_name", None) == "brand" for r in rules)
+    cat_map = {"cpu": "cat_x1", "motherboard": "cat_x2", "psu": "cat_x3"}
+    key_map = {
+        "socket": "k_a1", "гніздо": "k_a2", "Socket Type": "k_a3",
+        "power": "k_b1", "seller_tag": "k_c1",
+    }
 
+    c1 = sqlite3.connect(orig_db)
+    c1.executescript(
+        "CREATE TABLE products (id TEXT PRIMARY KEY, name TEXT, category TEXT, price REAL);"
+        "CREATE TABLE product_eav_meta (product_id TEXT REFERENCES products(id), meta_key TEXT, meta_value TEXT);"
+    )
+    for pid, nm, cat, pr, meta in rows:
+        c1.execute("INSERT INTO products VALUES (?,?,?,?)", (pid, nm, cat, pr))
+        for k, v in meta.items():
+            c1.execute("INSERT INTO product_eav_meta VALUES (?,?,?)", (pid, k, v))
+    c1.commit()
+    c1.close()
 
-def test_normalizer_key_hints_are_overridable():
-    """F42: a source with its own key profile replaces the seeds -- the
-    lists are data, not hidden logic. A schema that writes 'Fassung' for
-    socket keys is served without editing the module."""
-    from marketplace_normalizer import MarketplaceEAVNormalizer
-    canon = MarketplaceEAVNormalizer.canonicalize_eav(
-        {"Fassung": "AM5"}, category="cpu",
-        key_hints={"socket": ["fassung"]})
-    assert canon.get("socket") == "AM5"
-    # ...and by default the same key is an unknown key, passed through
-    canon2 = MarketplaceEAVNormalizer.canonicalize_eav(
-        {"Fassung": "AM5"}, category="cpu")
-    assert "socket" not in canon2
-    assert canon2.get("Fassung") == "am5"
+    c2 = sqlite3.connect(obf_db)
+    c2.executescript(
+        "CREATE TABLE t_ent (c_id TEXT PRIMARY KEY, c_nm TEXT, c_grp TEXT, c_amt REAL);"
+        "CREATE TABLE t_attr (c_ref TEXT REFERENCES t_ent(c_id), c_k TEXT, c_v TEXT);"
+    )
+    for pid, nm, cat, pr, meta in rows:
+        c2.execute("INSERT INTO t_ent VALUES (?,?,?,?)", (pid, f"X_{nm}", cat_map[cat], pr))
+        for k, v in meta.items():
+            v2 = "AM5" if v == "Socket AM5" else v
+            c2.execute("INSERT INTO t_attr VALUES (?,?,?)", (pid, key_map[k], v2))
+    c2.commit()
+    c2.close()
+
+    hg_orig = DomainCatalogRegistry.create_database_catalog(orig_db)
+    hg_obf = DomainCatalogRegistry.create_database_catalog(obf_db)
+
+    assert len(hg_orig.constraints) == len(hg_obf.constraints) >= 2
+    assert any(isinstance(c, EquivalenceConstraint) for c in hg_obf.constraints)
+    assert any(isinstance(c, CumulativeCapacityConstraint) for c in hg_obf.constraints)
+    # Seller tag excluded identically without naming "seller_tag" or "k_c1"
+    for c in hg_orig.constraints:
+        assert getattr(c, "attr_name", None) != "seller_tag"
+    for c in hg_obf.constraints:
+        assert getattr(c, "attr_name", None) != "k_c1"
+    # Compatibility verdicts match on AM5+AM5 vs AM5+LGA1700 despite total obfuscation
+    assert hg_obf.compatibility_verdict({"c1", "m2"})["verdict"] == "unknown"
+    assert hg_obf.compatibility_verdict({"c1", "m3"})["verdict"] == "candidate_conflict"
 
 
 def test_domain_description_generated_from_profile_not_prose():
@@ -278,15 +338,15 @@ def test_bootstrap_registry_is_config_not_code(tmp_path):
 
 
 def test_no_fabricated_headroom_margin():
-    """F47: the induced capacity rule asserts the exact bound unless the
-    caller states a margin -- the old code baked in 0.9 silently."""
+    """F47: the induced capacity rule asserts 1.0 unless caller states a margin."""
     from contract_inductor import ContractInductor
     ci = ContractInductor()
-    rules = ci._induce_deterministic(_products())
+    rules = ci.induce_contracts_from_products(_products())
     caps = [r for r in rules if hasattr(r, "headroom_ratio")]
+    assert caps
     for r in caps:
         assert r.headroom_ratio == 1.0
-    rules2 = ci._induce_deterministic(_products(), headroom_ratio=0.85)
+    rules2 = ci.induce_contracts_from_products(_products(), headroom_ratio=0.85)
     assert any(getattr(r, "headroom_ratio", None) == 0.85 for r in rules2)
 
 

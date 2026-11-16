@@ -290,7 +290,7 @@ class OfflineDeterministicAgent:
 
     def _answer_conversational(self, query: str) -> str:
         # The catalogue size is read, not hardcoded: a tier corpus in the
-        # scale-envelope protocol must not advertise the full set.
+        # scale-envelope protocol must not report the full set.
         return ("Вітаю! Я консультант Py-Buddy. Працюю з каталогом із "
                 f"{len(self.snap.products)} товарів, перевіряю сумісність "
                 "детерміновано і не вигадую цін чи характеристик. "

@@ -96,9 +96,11 @@ _HELDOUT_TRAPS = (
 def _attr_ground_terms(snap: Snapshot) -> List[str]:
     terms = set()
     for prod_attrs in snap.attrs.values():
-        for vals in prod_attrs.values():
+        for k, vals in prod_attrs.items():
             for v in vals:
                 terms.add(str(v))
+                if k:
+                    terms.add(f"{k} {v}")
     return sorted(terms)
 
 
@@ -248,15 +250,15 @@ def build_multiturn_scenarios(snap: Snapshot) -> List[Dict[str, Any]]:
             "turns": [
                 {
                     "query": f"Скільки коштує {snap.id_to_name[cpu_ok]}?",
-                    "oracle": Oracle("mt1_t1", "direct_price", [snap.id_to_name[cpu_ok]], {snap.id_to_name[cpu_ok]: float(snap.products[cpu_ok]["price"])}, "neutral", False),
+                    "oracle": Oracle("mt1_t1", "direct_price", [snap.id_to_name[cpu_ok]], {snap.id_to_name[cpu_ok]: float(snap.products[cpu_ok]["price"])}, "neutral", True, False),
                 },
                 {
                     "query": f"А чи сумісний цей процесор із материнською платою {snap.id_to_name[compat_mb]}?",
-                    "oracle": Oracle("mt1_t2", "compat_accept", [snap.id_to_name[cpu_ok], snap.id_to_name[compat_mb]], {}, "accept", True),
+                    "oracle": Oracle("mt1_t2", "compat_accept", [snap.id_to_name[cpu_ok], snap.id_to_name[compat_mb]], {}, "accept", True, True),
                 },
                 {
                     "query": f"А з {snap.id_to_name[incompat_mb]} він буде сумісний?",
-                    "oracle": Oracle("mt1_t3", "compat_reject", [snap.id_to_name[cpu_ok], snap.id_to_name[incompat_mb]], {}, "reject", True),
+                    "oracle": Oracle("mt1_t3", "compat_reject", [snap.id_to_name[cpu_ok], snap.id_to_name[incompat_mb]], {}, "reject", True, True),
                 },
             ],
         },
@@ -265,15 +267,15 @@ def build_multiturn_scenarios(snap: Snapshot) -> List[Dict[str, Any]]:
             "turns": [
                 {
                     "query": f"Порадь відеокарту з ціною до {impossible_gpu:.0f} грн.",
-                    "oracle": Oracle("mt2_t1", "overconstrained", [], {}, "reject", True),
+                    "oracle": Oracle("mt2_t1", "overconstrained", [], {}, "reject", True, True),
                 },
                 {
                     "query": "Тоді підкажи найдешевший блок живлення в наявності.",
-                    "oracle": Oracle("mt2_t2", "cheapest_category", [snap.id_to_name[cheapest_psu]], {snap.id_to_name[cheapest_psu]: float(snap.products[cheapest_psu]["price"])}, "accept", True),
+                    "oracle": Oracle("mt2_t2", "cheapest_category", [snap.id_to_name[cheapest_psu]], {snap.id_to_name[cheapest_psu]: float(snap.products[cheapest_psu]["price"])}, "neutral", True, False),
                 },
                 {
                     "query": "А чи є у вас Intel Core i9-15900KS і скільки він коштує?",
-                    "oracle": Oracle("mt2_t3", "price_trap", [], {}, "reject", True),
+                    "oracle": Oracle("mt2_t3", "price_trap", [], {}, "reject", True, True),
                 },
             ],
         },
@@ -282,15 +284,15 @@ def build_multiturn_scenarios(snap: Snapshot) -> List[Dict[str, Any]]:
             "turns": [
                 {
                     "query": "Привіт! Які категорії комп'ютерних товарів є в каталозі?",
-                    "oracle": Oracle("mt3_t1", "conversational", [], {}, "neutral", False),
+                    "oracle": Oracle("mt3_t1", "conversational", [], {}, "neutral", True, False),
                 },
                 {
                     "query": f"Покажи ціну {snap.id_to_name[compat_mb]}.",
-                    "oracle": Oracle("mt3_t2", "direct_price", [snap.id_to_name[compat_mb]], {snap.id_to_name[compat_mb]: float(snap.products[compat_mb]["price"])}, "neutral", False),
+                    "oracle": Oracle("mt3_t2", "direct_price", [snap.id_to_name[compat_mb]], {snap.id_to_name[compat_mb]: float(snap.products[compat_mb]["price"])}, "neutral", True, False),
                 },
                 {
                     "query": "Дякую, на цьому все!",
-                    "oracle": Oracle("mt3_t3", "conversational", [], {}, "neutral", False),
+                    "oracle": Oracle("mt3_t3", "conversational", [], {}, "neutral", True, False),
                 },
             ],
         },
@@ -560,7 +562,8 @@ def run_model_evaluation(
                 snap.db_path, runner=BudgetedRunner(_make_runner(), shared_budget=rag_budget), top_k=8
             )
             mt_pb_agent = LivePyBuddyAgent(
-                snap, _make_runner(), schema_prompt=schema_prompt, shared_budget=pb_budget
+                snap, _make_runner(), schema_prompt=schema_prompt, shared_budget=pb_budget,
+                hypergraph=_clone_kg(),
             )
             for turn in scen["turns"]:
                 q = turn["query"]

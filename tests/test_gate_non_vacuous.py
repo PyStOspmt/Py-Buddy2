@@ -117,6 +117,32 @@ def test_grounded_synthesis_only_prints_prices_it_has():
         {"id": "p", "name": "AMD Ryzen 5 7600X", "price": 9500.0},
         {"id": "q", "name": "Без ціни", "price": None},
     ])
-    assert "9500.00 грн" in text
+    assert "9\u00a0500,00 грн" in text
     assert "Без ціни" in text
     assert text.count("грн") == 1
+
+
+
+def test_note_does_not_reject_base_name_of_a_grounded_revision():
+    rev = CandidateSolution("rev_ram", "Corsair Vengeance LPX 32GB DDR4-3600 (Rev 1)", 2510.31, 70.0, 3)
+    agent = _agent_with_grounding(rev, *GROUNDED)
+    state = SessionState("s_rev", "q")
+    ok, text = agent.finalize_response(
+        state, "Раджу Corsair Vengeance LPX 32GB DDR4-3600.",
+        [{"name": "Corsair Vengeance LPX 32GB DDR4-3600"}])
+    assert ok
+    assert "не вдалося підтвердити" not in text
+    assert "Corsair Vengeance LPX 32GB DDR4-3600" in text
+
+
+def test_note_does_not_reject_base_name_grounded_by_two_revisions():
+    rev1 = CandidateSolution("ram_r1", "Corsair Vengeance LPX 32GB DDR4-3600 (Rev 1)", 2510.31, 70.0, 3)
+    rev4 = CandidateSolution("ram_r4", "Corsair Vengeance LPX 32GB DDR4-3600 (Rev 4)", 2514.36, 70.0, 3)
+    agent = _agent_with_grounding(rev1, rev4, *GROUNDED)
+    state = SessionState("s_rev2", "q")
+    ok, text = agent.finalize_response(
+        state, "Раджу Corsair Vengeance LPX 32GB DDR4-3600.",
+        [{"name": "Corsair Vengeance LPX 32GB DDR4-3600"}])
+    assert ok
+    assert "Corsair Vengeance LPX 32GB DDR4-3600" in text
+    assert "не вдалося підтвердити" not in text

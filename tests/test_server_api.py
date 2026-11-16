@@ -715,9 +715,9 @@ def test_fast_router_tier1_uses_domain_currency_and_handles_null_price(tmp_path)
     )
     res_usd = router.route_and_execute("Який найдешевший товар?")
     assert res_usd["tier"] == ExecutionTier.TIER1_FAST_PATH
-    assert "837.99 USD" in res_usd["answer"]
+    assert "837,99 USD" in res_usd["answer"]
     assert "грн" not in res_usd["answer"]
-    assert "837.99 USD" in res_usd["steps"][0]["observation"]
+    assert "837,99 USD" in res_usd["steps"][0]["observation"]
 
     class _NullResultSanitizer(SQLSanitizer):
         def execute_safe_query(self, db_path, sql, params=None):

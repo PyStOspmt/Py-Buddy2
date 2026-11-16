@@ -31,48 +31,6 @@ from hypergraph import (
 )
 from openrouter_client import OpenRouterAgentRunner
 
-# F40/F47: the term lists below are LABELLED SEEDS, not universal rules.
-# They were observed to separate matching attributes from commercial /
-# logistics noise in the pilot catalogues; the load-bearing checks are
-# structural (a single-valued attribute cannot discriminate; a capacity
-# pairing must be supported by the sample's own numbers). A caller may
-# replace or empty any seed via the keyword arguments -- the constants
-# are data, not hidden logic.
-NON_MATCHING_SEED_KEYS = frozenset({
-    "brand", "manufacturer", "color", "status", "warranty", "name", "id",
-    "description", "vendor", "merchant", "seller", "shop", "store",
-    "supplier", "rating", "vendor_rating", "delivery_days", "price",
-    "image", "url", "sku", "колір", "статус", "гарантія", "магазин",
-    "продавець", "рейтинг", "доставка",
-})
-DEMAND_SEED_TERMS = (
-    "tdp", "watt", "draw", "weight", "mass", "dose", "demand",
-    "consumption", "power_consumption",
-    "потужність", "споживання", "тепловиділення", "вага", "маса", "доза",
-    "витрата",
-)
-CAPACITY_SEED_TERMS = (
-    "psu_wattage", "wattage", "capacity", "payload", "max_safe_dose",
-    "power_supply", "limit", "supply", "psu",
-    "бж", "живлення", "ємність", "вантажопідйомність", "макс_доза",
-    "ліміт", "запас",
-)
-# A demand name that also looks like a capacity name is a capacity.
-_CAPACITY_OVERLAP_TERMS = (
-    "supply", "psu", "capacity", "payload", "max", "limit",
-    "бж", "макс", "ліміт",
-)
-DIMENSION_SEED_TERMS = (
-    "length", "width", "height", "diameter", "radius",
-    "діаметр", "довжина", "ширина", "висота", "радіус",
-)
-MAX_DIMENSION_SEED_TERMS = (
-    "max_length", "clearance", "max_width", "max_height", "max_diameter",
-    "arch_clearance", "макс_діаметр", "макс_довжина", "кліренс", "допуск",
-)
-# A dimension name that also looks like a limit is a limit.
-_MAX_DIM_OVERLAP_TERMS = ("max", "макс", "clearance", "допуск")
-
 EQ = "eq"
 LE = "le"
 _SYMBOLIC_SHAPES = (Shape.TOKEN, Shape.DUPLEX, Shape.RATIO)
@@ -85,19 +43,31 @@ class StructuralRule:
     subject: Tuple[str, ...]
     obj: Tuple[str, ...]
     headroom: float = field(default=0.0, compare=False)
+    subject_categories: Tuple[str, ...] = ()
+    object_categories: Tuple[str, ...] = ()
 
     def __str__(self) -> str:
         if self.kind == EQ:
             return f"eq({', '.join(self.subject)})"
-        return f"le({', '.join(self.subject)} <= {', '.join(self.obj)})"
+        scope = ""
+        if self.subject_categories or self.object_categories:
+            sc = "/".join(self.subject_categories) or "*"
+            oc = "/".join(self.object_categories) or "*"
+            scope = f" [{sc} -> {oc}]"
+        return f"le({', '.join(self.subject)} <= {', '.join(self.obj)}{scope})"
 
     def to_dict(self) -> Dict[str, object]:
-        return {
+        out: Dict[str, object] = {
             "kind": self.kind,
             "subject": list(self.subject),
             "obj": list(self.obj),
             "headroom": round(self.headroom, 4),
         }
+        if self.subject_categories:
+            out["subject_categories"] = list(self.subject_categories)
+        if self.object_categories:
+            out["object_categories"] = list(self.object_categories)
+        return out
 
 
 def _structural_measure(value: object) -> Optional[Tuple[float, str]]:
@@ -173,13 +143,39 @@ def induce_structural_rules(products: Sequence[ProductNode]) -> List[StructuralR
                 vals.append(m[0])
         return (vals, dim)
 
+    from attribute_algebra import canonical_form
+
+    all_keys_ctx = " ".join(sorted(key_values))
     for concept in concepts:
         if concept.shape not in _SYMBOLIC_SHAPES:
             continue
         if len(group_scope(concept.keys)) < 2:
             continue
+        canon_vals = {
+            canonical_form(v, key=all_keys_ctx)
+            for v in concept.vocabulary
+        } - {None}
+        if len(canon_vals) <= 1:
+            continue
         keys_sorted = tuple(sorted(concept.keys))
         rules.append(StructuralRule(EQ, keys_sorted, keys_sorted))
+
+    def group_measure_by_category(keys: Sequence[str]) -> Tuple[Dict[str, List[float]], Optional[str]]:
+        by_cat: Dict[str, List[float]] = {}
+        dim: Optional[str] = None
+        key_set = set(keys)
+        for p in products:
+            for k, v in p.attributes.items():
+                if k not in key_set:
+                    continue
+                m = _structural_measure(v)
+                if m is None:
+                    continue
+                if dim is not None and m[1] != dim:
+                    return ({}, None)
+                dim = m[1]
+                by_cat.setdefault(p.category, []).append(m[0])
+        return (by_cat, dim)
 
     measurable: List[Tuple[Tuple[str, ...], str, List[float]]] = []
     for keys in groups:
@@ -187,6 +183,7 @@ def induce_structural_rules(products: Sequence[ProductNode]) -> List[StructuralR
         if dim and vals:
             measurable.append((keys, dim, vals))
 
+    paired_groups: Set[Tuple[str, ...]] = set()
     for i, (sub_keys, sub_dim, sub_vals) in enumerate(measurable):
         for obj_keys, obj_dim, obj_vals in measurable[i + 1:]:
             if sub_dim != obj_dim:
@@ -201,19 +198,63 @@ def induce_structural_rules(products: Sequence[ProductNode]) -> List[StructuralR
             subj_vals, obj_vals_sel = (sub_vals, obj_vals) if forward else (obj_vals, sub_vals)
             ceiling = max(obj_vals_sel)
             headroom = (max(subj_vals) / ceiling) if ceiling else 1.0
+            paired_groups.add(tuple(sorted(subj)))
+            paired_groups.add(tuple(sorted(obj)))
             rules.append(StructuralRule(LE, tuple(sorted(subj)), tuple(sorted(obj)), headroom))
+
+    # Shared-key cross-category capacity dominance: when a single physical
+    # concept (e.g. wattage keys reused by suppliers across CPUs, GPUs, PSUs)
+    # partitions into cleanly separated consumer and provider category ranges.
+    for keys, _dim, _vals in measurable:
+        keys_sorted = tuple(sorted(keys))
+        if keys_sorted in paired_groups:
+            continue
+        by_cat, _ = group_measure_by_category(keys)
+        if len(by_cat) < 2:
+            continue
+        cats = sorted(by_cat)
+        providers: List[str] = []
+        consumers_by_provider: Dict[str, List[str]] = {}
+        for obj_cat in cats:
+            dominated = [
+                sub_cat for sub_cat in cats
+                if sub_cat != obj_cat
+                and _structural_covers(by_cat[obj_cat], by_cat[sub_cat])
+                and not _structural_covers(by_cat[sub_cat], by_cat[obj_cat])
+            ]
+            if dominated:
+                # Only treat obj_cat as top provider if it is not itself dominated.
+                is_sub = any(
+                    other != obj_cat
+                    and _structural_covers(by_cat[other], by_cat[obj_cat])
+                    and not _structural_covers(by_cat[obj_cat], by_cat[other])
+                    for other in cats
+                )
+                if not is_sub:
+                    providers.append(obj_cat)
+                    consumers_by_provider[obj_cat] = dominated
+        for obj_cat in providers:
+            sub_cats = tuple(sorted(consumers_by_provider[obj_cat]))
+            sub_vals = [v for c in sub_cats for v in by_cat[c]]
+            ceiling = max(by_cat[obj_cat])
+            headroom = (max(sub_vals) / ceiling) if ceiling else 1.0
+            rules.append(StructuralRule(
+                LE, keys_sorted, keys_sorted, headroom,
+                subject_categories=sub_cats,
+                object_categories=(obj_cat,),
+            ))
 
     return sorted(set(rules))
 
 
 class ContractInductor:
     """
-    Induces mathematical compatibility invariants from raw product catalogs or schema profiles.
+    Domain-free Open Dynamic Contract Inductor.
 
-    The structural core is domain-free; the name-term SEEDS that nominate
-    demand/capacity/dimension candidates are labelled, overridable data
-    (F40/F47), and every induced rule stays a `candidate` that may flag
-    conflicts but never vouches for compatibility (F12).
+    Discovers compatibility invariants strictly from Value Algebra shapes,
+    canonical value overlaps, and dimensional measurement dominance -- zero
+    domain keyword/attribute/category vocabularies. Every induced rule stays
+    `status="candidate"` (F12: vetoes conservatively, never vouches).
     """
     def __init__(self, openrouter_runner: Optional[OpenRouterAgentRunner] = None,
                  max_induced: Optional[int] = None):
@@ -248,7 +289,7 @@ class ContractInductor:
         non_matching_keys: Optional[Set[str]] = None,
     ) -> List[BaseConstraint]:
         """Materialize structural rules as live candidate constraints (F12)."""
-        nm_keys = NON_MATCHING_SEED_KEYS if non_matching_keys is None else non_matching_keys
+        nm_keys = set(non_matching_keys) if non_matching_keys else set()
         filtered = [
             ProductNode(
                 id=p.id,
@@ -288,8 +329,6 @@ class ContractInductor:
 
         structural = induce_structural_rules(filtered)
         constraints: List[BaseConstraint] = []
-        covered_eq_keys: Set[str] = set()
-        covered_le_pairs: Set[Tuple[str, str]] = set()
         hr = float(headroom_ratio) if headroom_ratio is not None else 1.0
 
         for rule in structural:
@@ -306,7 +345,6 @@ class ContractInductor:
                     )
                     c.status = "candidate"
                     constraints.append(c)
-                    covered_eq_keys.update(alias_group)
             elif rule.kind == LE and rule.subject and rule.obj:
                 d_label = " / ".join(rule.subject)
                 c_label = " / ".join(rule.obj)
@@ -317,32 +355,11 @@ class ContractInductor:
                     description=f"Структурне обмеження ({d_label}) <= ({c_label})",
                     demand_attrs=rule.subject,
                     capacity_attrs=rule.obj,
+                    subject_categories=rule.subject_categories or None,
+                    object_categories=rule.object_categories or None,
                 )
                 c.status = "candidate"
                 constraints.append(c)
-                for sk in rule.subject:
-                    for ok in rule.obj:
-                        covered_le_pairs.add((sk, ok))
-
-        # Additive fallback for bare unitless float attributes (no dimension tokens)
-        # verified by the caller's sample evidence (`test_f11` / raw float datasets).
-        for legacy_c in self._induce_deterministic(
-            products, non_matching_keys=nm_keys, headroom_ratio=headroom_ratio
-        ):
-            if isinstance(legacy_c, EquivalenceConstraint):
-                if legacy_c.attr_name in NON_MATCHING_SEED_KEYS:
-                    continue
-                if legacy_c.attr_name in covered_eq_keys:
-                    continue
-                covered_eq_keys.add(legacy_c.attr_name)
-                constraints.append(legacy_c)
-            elif isinstance(legacy_c, CumulativeCapacityConstraint):
-                if (legacy_c.demand_attr, legacy_c.capacity_attr) in covered_le_pairs:
-                    continue
-                covered_le_pairs.add((legacy_c.demand_attr, legacy_c.capacity_attr))
-                constraints.append(legacy_c)
-            else:
-                constraints.append(legacy_c)
         return constraints
 
     def induce_contracts_from_products(
@@ -351,6 +368,7 @@ class ContractInductor:
         use_llm: bool = False,
         headroom_ratio: Optional[float] = None,
         max_induced: Optional[int] = None,
+        non_matching_keys: Optional[Set[str]] = None,
     ) -> List[BaseConstraint]:
         """
         Extracts constraints from a collection of ProductNode instances.
@@ -359,6 +377,7 @@ class ContractInductor:
         `headroom_ratio` is the source/user-stated safety margin for
         capacity rules; None means the induced rule asserts the exact
         bound (F47 -- no fabricated margin).
+        `non_matching_keys` may optionally pass data-derived offer keys to skip.
         """
         induced: Optional[List[BaseConstraint]] = None
         if use_llm and self.runner and self.runner.api_key:
@@ -367,12 +386,14 @@ class ContractInductor:
                 if llm_constraints:
                     induced = llm_constraints
             except Exception:
-                # Graceful fallback to deterministic induction if LLM
-                # network/format fails; the fallback path is taken below.
                 pass
 
         if induced is None:
-            induced = self._induce_structural_constraints(products, headroom_ratio=headroom_ratio)
+            induced = self._induce_structural_constraints(
+                products,
+                headroom_ratio=headroom_ratio,
+                non_matching_keys=non_matching_keys,
+            )
 
         cap = max_induced if max_induced is not None else self.max_induced
         if cap is not None and len(induced) > cap:
@@ -386,155 +407,6 @@ class ContractInductor:
             "dropped": 0, "cap": cap if cap is not None else 0,
         }
         return induced
-
-    def _induce_deterministic(
-        self,
-        products: List[ProductNode],
-        *,
-        non_matching_keys: Optional[Set[str]] = None,
-        demand_terms: Tuple[str, ...] = DEMAND_SEED_TERMS,
-        capacity_terms: Tuple[str, ...] = CAPACITY_SEED_TERMS,
-        dimension_terms: Tuple[str, ...] = DIMENSION_SEED_TERMS,
-        max_dimension_terms: Tuple[str, ...] = MAX_DIMENSION_SEED_TERMS,
-        headroom_ratio: Optional[float] = None,
-    ) -> List[BaseConstraint]:
-        """
-        Deterministic, domain-agnostic constraint discovery based on attribute co-occurrence and naming semantics.
-
-        F12: everything this method produces is a correlation observed in the
-        passed-in sample, promoted by naming heuristics. Every induced rule is
-        therefore marked `status="candidate"`: it may signal a conflict, but
-        its pass is never counted as evidence of compatibility. Only rules
-        authored or independently validated elsewhere may vouch.
-
-        F40/F47: the name-term lists are labelled seeds (module constants),
-        caller-overridable; the structural filters -- single-valued
-        attributes cannot discriminate, pairings must be supported by the
-        sample's own numbers -- are the domain-free part.
-        """
-        constraints: List[BaseConstraint] = []
-        if non_matching_keys is None:
-            non_matching_keys = set(NON_MATCHING_SEED_KEYS)
-
-        # 1. Map attributes to categories that possess them
-        attr_to_categories: Dict[str, Set[str]] = {}
-        attr_types: Dict[str, Set[str]] = {}
-        attr_values: Dict[str, List[float]] = {}
-        attr_distinct: Dict[str, Set[str]] = {}
-
-        for p in products:
-            for k, v in p.attributes.items():
-                if k not in attr_to_categories:
-                    attr_to_categories[k] = set()
-                    attr_types[k] = set()
-                attr_to_categories[k].add(p.category)
-                attr_types[k].add(type(v).__name__)
-                attr_distinct.setdefault(k, set()).add(repr(v))
-                if isinstance(v, (int, float)) and not isinstance(v, bool):
-                    attr_values.setdefault(k, []).append(float(v))
-
-        # 2. Induce Equivalence Constraints (Matching Keys)
-        # Any categorical/string attribute shared across >= 2 different categories is an equivalence candidate
-        for attr, cats in attr_to_categories.items():
-            # F40: the STRUCTURAL filter first -- an attribute that takes a
-            # single value across the whole sample cannot discriminate
-            # anything, whatever its name, so no fixed list is needed to
-            # exclude it. The labelled seed set then excludes commercial /
-            # logistics keys a structural criterion cannot see.
-            if len(attr_distinct.get(attr, ())) <= 1:
-                continue
-            if attr.lower() in non_matching_keys:
-                continue
-            
-            types = attr_types[attr]
-            is_string_like = "str" in types or "bool" in types
-            
-            if len(cats) >= 2 and is_string_like:
-                constraints.append(EquivalenceConstraint(
-                    attr_name=attr,
-                    categories=list(cats),
-                    description=f"Авто-індукована еквівалентність за ключем '{attr}' між категоріями {list(cats)}"
-                ))
-
-        # 3. Induce Cumulative Capacity Constraints
-        # Look for numeric demand indicators and capacity providers (Multilingual + Dimensional)
-        demand_candidates = []
-        capacity_candidates = []
-
-        for attr, types in attr_types.items():
-            if not any(t in ("int", "float") for t in types):
-                continue
-            attr_l = attr.lower()
-            if any(term in attr_l for term in demand_terms) and not any(
-                    cap_term in attr_l for cap_term in _CAPACITY_OVERLAP_TERMS):
-                demand_candidates.append(attr)
-            if any(term in attr_l for term in capacity_terms):
-                capacity_candidates.append(attr)
-
-        for dem in demand_candidates:
-            for cap in capacity_candidates:
-                # Classify on the folded name -- a "TDP" key was previously
-                # missed entirely because the pairing terms are lowercase.
-                dem_l, cap_l = dem.lower(), cap.lower()
-                is_power = any(w in dem_l for w in ["tdp", "watt", "draw", "consumption", "потужн", "спожив"]) and any(w in cap_l for w in ["watt", "psu", "power", "бж", "живлен"])
-                is_weight = any(w in dem_l for w in ["weight", "mass", "вага", "маса"]) and any(w in cap_l for w in ["payload", "capacity", "mass", "вантаж", "ємніст"])
-                is_dose = ("dose" in dem_l or "доза" in dem_l) and ("dose" in cap_l or "доза" in cap_l)
-
-                if is_power or is_weight or is_dose:
-                    # F11: the pairing must be supported by the sample itself.
-                    # A "capacity" whose observed values are smaller than the
-                    # "demand" it is paired with would flag every bundle as a
-                    # conflict -- the numbers refute the naming heuristic, so
-                    # no rule is induced from that pairing.
-                    dem_vals = attr_values.get(dem, [])
-                    cap_vals = attr_values.get(cap, [])
-                    if not dem_vals or not cap_vals:
-                        continue
-                    if sum(cap_vals) / len(cap_vals) <= sum(dem_vals) / len(dem_vals):
-                        continue
-                    # F47: the margin is not baked in. The source/user may
-                    # state one explicitly; without a stated margin the
-                    # induced rule asserts the exact bound (ratio 1.0) --
-                    # claiming a 10% safety allowance the data never
-                    # mentioned would fabricate a constraint.
-                    margin = 1.0 if headroom_ratio is None else float(headroom_ratio)
-                    margin_note = ("точна межа" if margin == 1.0
-                                   else f"запас {margin:g}")
-                    constraints.append(CumulativeCapacityConstraint(
-                        demand_attr=dem,
-                        capacity_attr=cap,
-                        headroom_ratio=margin,
-                        description=f"Авто-індукований кумулятивний баланс: {dem} <= {margin:g} * {cap} ({margin_note})"
-                    ))
-
-        # 4. Induce Spatial Bounding Constraints (Multilingual + Dimension-based)
-        dim_candidates = []
-        max_dim_candidates = []
-
-        for attr, types in attr_types.items():
-            if not any(t in ("int", "float") for t in types):
-                continue
-            attr_l = attr.lower()
-            if any(term in attr_l for term in dimension_terms) and not any(m in attr_l for m in _MAX_DIM_OVERLAP_TERMS):
-                dim_candidates.append(attr)
-            if any(term in attr_l for term in max_dimension_terms):
-                max_dim_candidates.append(attr)
-
-        for dim in dim_candidates:
-            for max_dim in max_dim_candidates:
-                dim_l, max_l = dim.lower(), max_dim.lower()
-                matches_diam = ("diameter" in dim_l or "діаметр" in dim_l) and ("diameter" in max_l or "діаметр" in max_l)
-                matches_len = ("length" in dim_l or "довжина" in dim_l) and ("length" in max_l or "довжина" in max_l)
-                if matches_diam or matches_len:
-                    constraints.append(SpatialBoundingConstraint(
-                        dimension_attr=dim,
-                        max_dimension_attr=max_dim,
-                        description=f"Авто-індукований габаритний допуск: {dim} <= {max_dim}"
-                    ))
-
-        for c in constraints:
-            c.status = "candidate"
-        return constraints
 
     def _induce_via_llm(self, products: List[ProductNode]) -> List[BaseConstraint]:
         """

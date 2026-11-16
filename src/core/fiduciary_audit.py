@@ -42,7 +42,7 @@ pass one and fail another:
 The certificate is the conjunction of all three. FID (Fiduciary Invariance
 Deviation) is the reported number:
 
-    FID = (1/|C|) * sum_p | rank_true(p) - rank_permuted(p) |
+    FID = (1/|C|^2) * sum_p | rank_true(p) - rank_permuted(p) |
 
 FID = 0 means no item moved. Any non-zero value names the items that moved,
 which is the part a regulator or a customer would actually want to see.

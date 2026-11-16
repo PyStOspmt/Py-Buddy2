@@ -2,6 +2,7 @@
 
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)
+![Offline Tests](https://img.shields.io/badge/tests-940%20passed%20%2F%206%20skipped-2ea44f)
 ![Gate Latency](https://img.shields.io/badge/symbolic%20gate-%3C3%20ms%20%C2%B7%200%20FLOPs-0078d4)
 ![Schema Agnostic](https://img.shields.io/badge/zero--code%20schema-EAV%20%2B%20SQLite%20%2B%20CSV%2FJSON%2FPDF-0a7)
 
@@ -45,7 +46,7 @@ Py-Buddy separates natural-language orchestration from deterministic database gr
 | `data/` | Demo catalogue builders (`init_database.py`, `generate_marketplace_scale.py`) & real-data ingest (`ingest_real_data.py`) |
 | `docs/` | Architecture docs ([`docs/architecture/00_ARCHITECTURE_INDEX.md`](docs/architecture/00_ARCHITECTURE_INDEX.md)), benchmark report ([`docs/BENCHMARKS.md`](docs/BENCHMARKS.md)), JSON artifacts (`docs/benchmarks/`) |
 | `bench/` | Retrieval recall, held-out, format parity, live vector, and 500k scale probes (`bench/results/`) |
-| `tests/` | Offline unit, API, security, schema, and regression test suite (`pytest`) |
+| `tests/` | Offline unit, API, security, schema, and regression test suite (`940 passed, 6 skipped` / `946` collected cleanly without keys/models across 76 modules) |
 
 ---
 
@@ -56,7 +57,7 @@ Py-Buddy separates natural-language orchestration from deterministic database gr
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
 python scripts/bootstrap_demo_dbs.py          # generates synthetic demo DBs (idempotent)
-python -m pytest tests -q                     # offline verification suite (auto-bootstraps DBs)
+python -m pytest tests -q                     # 940 passed, 6 skipped without keys/models
 python src/core/server.py                     # starts API & Web UI at http://127.0.0.1:8000
 ```
 
@@ -87,16 +88,16 @@ Full methodology, ablation tables, real-world catalogue breakdowns, scaling metr
 
 ### Live Multi-Model Comparison (`N = 73`, `marketplace_rozetka.db`)
 
-Source: [`docs/benchmarks/multi_model_eval_20261113.json`](docs/benchmarks/multi_model_eval_20261113.json) (`$0.6936` total API spend across 4 models + `9`-turn multi-turn split):
+Source: [`docs/benchmarks/multi_model_eval_20261116.json`](docs/benchmarks/multi_model_eval_20261116.json) (zero domain-dictionary production core; `$0.9529` total API spend across 4 models + `9`-turn multi-turn split; `>=1,413` single-turn API calls):
 
 | Model | LLM-RAG Exec Acc / Price Err / NVFG | Py-Buddy PRE Exec Acc / Hall | Py-Buddy Full Exec Acc / Price Err / NVFG | Multi-Turn (RAG -> PB) |
 |---|---|---|---|---|
-| `openai/gpt-6-luna` | 49.32% / 7.50% / 61.64% | 75.34% / 1.37% | **78.08% / 0.00% / 79.45%** | 55.56% -> **66.67%** |
-| `deepseek/deepseek-v4.1-flash-1017` | 36.99% / 25.27% / 49.32% | 63.01% / 19.18% | **71.23%** / 6.38% / **73.97%** | 44.44% -> **66.67%** |
-| `anthropic/claude-haiku-5.5` | 38.36% / 36.73% / 50.68% | 63.01% / 8.22% | **68.49% / 0.00% / 72.60%** | 44.44% -> 44.44% |
-| `xiaomi/mimo-v2.6-flash` | 49.32% / 25.00% / 56.16% | 58.90% / 23.29% | **68.49% / 0.96% / 71.23%** | 77.78% -> **88.89%** |
+| `deepseek/deepseek-v4.1-flash-1017` | 47.95% / 9.28% / 56.16% | 83.56% / 9.59% | **83.56% / 0.54% / 84.93%** | 88.89% -> **100.0%** |
+| `openai/gpt-6-luna` | 50.68% / 0.00% / 63.01% | 73.97% / 2.74% | **83.56% / 1.14% / 83.56%** | 66.67% -> 66.67% |
+| `xiaomi/mimo-v2.6-flash` | 53.42% / 14.29% / 63.01% | 65.75% / 10.96% | **79.45% / 1.18% / 80.82%** | 88.89% -> 66.67% |
+| `anthropic/claude-haiku-5.5` | 49.32% / 19.54% / 61.64% | 65.75% / 16.44% | **73.97% / 4.27% / 78.08%** | 55.56% -> 55.56% |
 
-- **Constraint Induction (`cip_benchmark`):** Precision `28.57% -> 64.71%`, Recall `18.18% -> 100.0%`, **F1 `22.22% -> 78.57%`**, invariant across anonymized bilingual headers.
+- **Constraint Induction (`cip_benchmark`):** Precision `28.57% -> 64.71%`, Recall `18.18% -> 100.0%`, **F1 `22.22% -> 78.57%`**, invariant across anonymized bilingual headers; `7` structural rules discovered on Ukrainian `jury_zoo.db` (420 entities, 1,519 EAV rows) with zero domain seed vocabularies.
 - **Public Catalogues (`real_off`, `real_prices`, `real_wdc`):** Up to **`100%` recall** via Evidence-Bound Relaxation where flat lexical FTS scores **`0%`**, plus typed unit algebra unification (`0.075 g == 75 mg`) without false merges on unknown unit tokens.
 - **Scale & Speed:** `1.0 ms` median query latency up to `50,000` SKUs (`+60.6 MB` RSS, `1.08 s` build), and `0.88 s` indexed FTS5 EBR scan at **`500,000` SKUs**.
 - **Fiduciary Audit (`FIC-1.1`):** **`0.0` Fiduciary Instability Deviation (`FID`)** — `0/30` items displaced under synthetic sponsorship & commission injections (`CERTIFIED`), vs `20–24` displaced items on biased controls.

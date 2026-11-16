@@ -345,6 +345,41 @@ class OpenRouterAgentRunner:
             "detail": content[:200],
         }
 
+    @staticmethod
+    def _build_react_messages(
+        system_instruction: str,
+        user_query: str,
+        dialog_history: List[Dict[str, str]],
+        current_step: int,
+    ) -> List[Dict[str, str]]:
+        """Assemble chat messages in strict chronological order (prior turns -> current query -> step trace)."""
+        messages: List[Dict[str, str]] = [
+            {"role": "system", "content": system_instruction},
+        ]
+        prior_turns: List[Dict[str, str]] = []
+        current_trace: List[Dict[str, str]] = []
+        for h in dialog_history:
+            content_str = str(h.get("content") or "")
+            if not current_trace and content_str.startswith("[Попередній хід діалогу"):
+                prior_turns.append({"role": h["role"], "content": content_str})
+            else:
+                current_trace.append({"role": h["role"], "content": content_str})
+
+        messages.extend(prior_turns)
+        messages.append({"role": "user", "content": f"Поточний запит користувача: {user_query}"})
+        messages.extend(current_trace)
+
+        if current_step >= 5:
+            step_prompt = (
+                f"Поточний крок ReAct: {current_step}. УВАГА: Це завершальний крок! "
+                "Якщо в історії вже є необхідні дані або спостереження (Observations), ОБОВ'ЯЗКОВО сформуй 'final_answer' замість виклику нових інструментів!"
+            )
+        else:
+            step_prompt = f"Поточний крок ReAct: {current_step}. Надай наступну дію у СУВОРОМУ форматі JSON (thought, action/final_answer)."
+
+        messages.append({"role": "user", "content": step_prompt})
+        return messages
+
     def generate_react_step(
         self,
         schema_prompt: str,
@@ -373,7 +408,7 @@ class OpenRouterAgentRunner:
    - Якщо запит користувача є розмовою, привітанням, питанням про твоє ім'я/роль/можливості ("хто ти", "як тебе звуть", "що робиш"), або загальним запитанням про асортимент ("що ви продаєте", "який асортимент", "які товари є") БЕЗ потреби шукати конкретні екстремуми чи окремі артикули — ВІДРАЗУ повертай 'final_answer' на кроці 1 без виклику інструментів. При питанні про асортимент стисло перелічи категорії товарів відповідно до наведеної вище схеми активного каталогу. Спілкуйся природно, привітно та виключно українською мовою.
    - Якщо користувач шукає конкретні товари, запитує про наявність, точні ціни, характеристики або сумісність — спочатку виклич потрібний інструмент ('sql_query', 'hypergraph_check', 'pareto_relax', 'active_inference_step').
    - Якщо шуканого товару немає в базі даних або категорія не підтримується — ввічливо поясни це на основі каталогу і запропонуй корисні альтернативи серед наявних категорій.
-1. Не вигадуй характеристики, наявність чи ціни. Всі дані бери ВИКЛЮЧНО через виклики інструментів.
+1. Не вигадуй характеристики, наявність чи ціни. Всі дані бери ВИКЛЮЧНО через виклики інструментів. Якщо валюта джерела визначена у схемі або рядках (наприклад, грн / USD / EUR) — вказуй її біля кожної ціни; якщо валюта в джерелі не задана — не вигадуй її.
 2. Якщо потрібні товари — спочатку виклич 'sql_query'.
    - Формуй запити з урахуванням наміру користувача та схеми підключеної бази даних.
    - Якщо один і той самий товар або його модифікації пропонуються різними продавцями чи за різними цінами, аналізуй пропозиції та вказуй клієнту найвигідніший варіант.
@@ -404,26 +439,9 @@ class OpenRouterAgentRunner:
    - Поняття 'дешевий', 'бюджетний', 'економний' означають сортування за ціною (ORDER BY price ASC).
 """
 
-        messages = [
-            {"role": "system", "content": system_instruction},
-            {"role": "user", "content": f"Запит користувача: {user_query}"}
-        ]
-
-        for h in dialog_history:
-            messages.append({"role": h["role"], "content": h["content"]})
-
-        if current_step >= 5:
-            step_prompt = (
-                f"Поточний крок ReAct: {current_step}. УВАГА: Це завершальний крок! "
-                "Якщо в історії вже є необхідні дані або спостереження (Observations), ОБОВ'ЯЗКОВО сформуй 'final_answer' замість виклику нових інструментів!"
-            )
-        else:
-            step_prompt = f"Поточний крок ReAct: {current_step}. Надай наступну дію у СУВОРОМУ форматі JSON (thought, action/final_answer)."
-
-        messages.append({
-            "role": "user",
-            "content": step_prompt
-        })
+        messages = self._build_react_messages(
+            system_instruction, user_query, dialog_history, current_step
+        )
 
         headers = {
             "Authorization": f"Bearer {self.api_key}",

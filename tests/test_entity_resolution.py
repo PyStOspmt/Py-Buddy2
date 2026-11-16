@@ -69,9 +69,6 @@ def test_entity_resolution_and_legacy_meta_handle_custom_table(tmp_path):
     entity = next(e for e in resolved.values() if len(e.offers) == 2)
     assert entity.min_price == 1200.0 and entity.max_price == 1250.0
 
-    con_ro = sqlite3.connect(str(db_file))
-    meta = DomainCatalogRegistry._legacy_merchant_meta(
-        con_ro.cursor(), ["k1", "k2"], entity_table="warehouse_skus", ident_col="sku_code"
-    )
-    con_ro.close()
-    assert meta == {}
+    hg = DomainCatalogRegistry.create_database_catalog(str(db_file), seed_limit=10)
+    assert "k1" in hg.nodes and "k3" in hg.nodes
+    assert all("vendor" not in n.attributes for n in hg.nodes.values())

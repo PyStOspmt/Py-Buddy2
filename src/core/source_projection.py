@@ -597,17 +597,20 @@ class SourceProjection:
         )
         merchant_col = (self.roles["merchant"].column
                         if self.roles["merchant"].resolved else None)
+        name_col = (self.roles["name"].column
+                    if self.roles["name"].resolved else None)
+        excluded_for_cat = frozenset(c for c in (merchant_col, name_col) if c)
         self.roles["category"] = self._resolve_descriptive_role(
             conn, table, "category", text_cols, pk,
-            exclude=frozenset({merchant_col}) if merchant_col else frozenset(),
+            exclude=excluded_for_cat,
             structural=lambda c: (
                 table.row_count >= 3
                 # A constant column (distinct == 1) carries no category
-                # information, and a column where every row is distinct is an
-                # identifier or a name -- the bounds keep tiny tables from
-                # making everything look low-cardinality.
+                # information, and a near-unique column (>= 0.5 * row_count)
+                # is a name/identifier -- keep category strictly disjoint from
+                # the name role even on multi-offer tables.
                 and 2 <= c.distinct_count <= max(20, 0.2 * table.row_count)
-                and c.distinct_count < table.row_count
+                and c.distinct_count < 0.5 * table.row_count
             ),
             structural_detail=lambda c: (
                 f"low cardinality ({c.distinct_count}/{table.row_count})"

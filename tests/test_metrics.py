@@ -244,3 +244,123 @@ def test_metrics_separate_verdict_abstention_from_contradiction():
     assert agg.verdict_contradiction_count == 1
     assert agg.by_type["compat_accept"]["verdict_abstained_count"] == 1
     assert agg.by_type["compat_reject"]["verdict_contradiction_count"] == 1
+
+
+def test_sentence_scoped_summary_and_trailing_price_binding():
+    """Summary & trailing-name sentences anchor cleanly while same-sentence swaps fail."""
+    rev_catalog = CATALOG + ["AMD Ryzen 5 7600X (Rev 1)", "AMD Ryzen 5 7600X (Rev 2)"]
+    rev_prices = {**PRICES, "AMD Ryzen 5 7600X (Rev 1)": [9500.0], "AMD Ryzen 5 7600X (Rev 2)": [9100.0]}
+    o = _oracle(
+        expected_products=["AMD Ryzen 5 7600X (Rev 2)"],
+        expected_prices={"AMD Ryzen 5 7600X (Rev 2)": 9100.0},
+        expected_verdict="neutral",
+        checks_verdict=False,
+    )
+    ans = (
+        "Ось 2 найдешевші варіанти:\n"
+        "1. AMD Ryzen 5 7600X (Rev 2) — 9 100 грн\n"
+        "2. AMD Ryzen 5 7600X (Rev 1) — 9 500 грн\n"
+        "Найвигідніший варіант — перший за 9 100 грн."
+    )
+    sc = score_case(ans, o, rev_catalog, rev_prices)
+    assert sc.prices_grounded, sc.price_errors
+    assert sc.ungrounded_entities == []
+
+    # Trailing product in the same sentence binds cleanly
+    sc2 = score_case("Ціна 9 100 грн за AMD Ryzen 5 7600X (Rev 2).", o, rev_catalog, rev_prices)
+    assert sc2.prices_grounded, sc2.price_errors
+
+    # Same-sentence price swap MUST still fail
+    sc_bad = score_case(
+        "AMD Ryzen 5 7600X за 6200 грн та MSI B650 Gaming Plus WiFi за 9500 грн.",
+        _oracle(), CATALOG, PRICES,
+    )
+    assert not sc_bad.prices_grounded
+
+
+def test_entity_regex_ignores_cyrillic_intro_and_multiline_lists():
+    """Prose count phrases ('Ось 5') and newlines ('Ukraine\\n3.') never emit bogus entities."""
+    o = _oracle(expected_verdict="neutral", checks_verdict=False)
+    ans = "Ось 5 варіантів, AutoDrive Ukraine\n3. AMD Ryzen 5 7600X — 9 500 грн."
+    sc = score_case(ans, o, CATALOG, PRICES)
+    assert sc.ungrounded_entities == []
+    # Genuine fabricated model token is still caught
+    sc_bad = score_case("Ось 5: AMD Ryzen 9 9950X.", o, CATALOG, PRICES)
+    assert any("9950x" in tok for tok in sc_bad.ungrounded_entities)
+
+
+def test_match_products_masks_revision_suffix_and_preserves_mention_order():
+    rev_catalog = CATALOG + ["AMD Ryzen 5 7600X (Rev 1)", "MSI B650 Gaming Plus WiFi (Rev 2)"]
+    found = match_products(
+        "Спочатку MSI B650 Gaming Plus WiFi (Rev 2), потім AMD Ryzen 5 7600X (Rev 1).",
+        rev_catalog,
+    )
+    assert found == ["MSI B650 Gaming Plus WiFi (Rev 2)", "AMD Ryzen 5 7600X (Rev 1)"]
+
+
+def test_extract_verdict_negated_conflict_and_trap_alternatives():
+    assert extract_verdict("Так, ці компоненти сумісні! Конфліктів не виявлено.") == "accept"
+    assert extract_verdict("Інформації про ціну AMD Ryzen 9 9950X у каталозі бракує.") == "reject"
+    trap_with_alt = (
+        "Модель Samsung 990 PRO 4TB наразі відсутня в нашому каталозі. "
+        "Натомість можу запропонувати схожі варіанти в наявності."
+    )
+    assert extract_verdict(trap_with_alt) == "reject"
+
+
+def test_header_to_bullet_revision_and_family_revision_price_anchoring():
+    rev_catalog = CATALOG + [
+        "AMD Ryzen 5 7600X (Rev 1)",
+        "AMD Ryzen 5 7600X (Rev 2)",
+    ]
+    rev_prices = {
+        **PRICES,
+        "AMD Ryzen 5 7600X (Rev 1)": [9500.0],
+        "AMD Ryzen 5 7600X (Rev 2)": [9100.0],
+    }
+    o = _oracle(expected_products=[], expected_prices={}, expected_verdict="reject")
+    ans = (
+        "Запитаної моделі немає, знайдено варіанти AMD Ryzen 5 7600X від різних продавців:\n"
+        "• Seller A (Rev 2): 9 100 грн\n"
+        "Інші ревізії цієї ж моделі доступні від 9 500 грн."
+    )
+    sc = score_case(ans, o, rev_catalog, rev_prices)
+    assert sc.prices_grounded, sc.price_errors
+
+
+def test_embedded_capacity_token_contrast_negation_and_per_price_revs():
+    """LPX 32GB grounds '32GB', 'а не RTX 5090 Ti' exempts trap, and per-price Rev anchors cleanly."""
+    rev_catalog = CATALOG + [
+        "AMD Ryzen 5 7600X (Rev 1)",
+        "AMD Ryzen 5 7600X (Rev 2)",
+        "Corsair Vengeance LPX 32GB DDR4-3600 (Rev 1)",
+        "MSI B650 Gaming Plus WiFi (Rev 2)",
+    ]
+    rev_prices = {
+        **PRICES,
+        "AMD Ryzen 5 7600X (Rev 1)": [9500.0],
+        "AMD Ryzen 5 7600X (Rev 2)": [9100.0],
+        "Corsair Vengeance LPX 32GB DDR4-3600 (Rev 1)": [2510.31],
+        "MSI B650 Gaming Plus WiFi (Rev 2)": [6900.0],
+    }
+    o_trap = _oracle(expected_products=[], expected_prices={}, expected_verdict="reject")
+    ans_trap = (
+        "NVIDIA GeForce RTX 5090 Ti у каталозі немає. "
+        "Серед схожих моделей є AMD Ryzen 5 7600X (Rev 2) — це інша модель, а не RTX 5090 Ti. "
+        "Їхні ціни: 9 100 грн або 9 500 грн (Rev 1). Модель на 32GB DDR4 — Corsair Vengeance LPX 32GB DDR4-3600 (Rev 1) за 2 510,31 грн."
+    )
+    sc_trap = score_case(
+        ans_trap, o_trap, rev_catalog, rev_prices,
+        user_query="Скільки коштує NVIDIA GeForce RTX 5090 Ti? Чи є 32GB?",
+    )
+    assert sc_trap.ungrounded_entities == []
+    assert sc_trap.prices_grounded, sc_trap.price_errors
+
+    # Multi-item line picks the LAST family ('MSI B650...') for downstream 'Rev 2' continuation
+    o_multi = _oracle(expected_products=[], expected_prices={}, expected_verdict="neutral", checks_verdict=False)
+    ans_multi = (
+        "Порівняння: AMD Ryzen 5 7600X (Rev 1) — 9 500 грн; материнська плата MSI B650 Gaming Plus WiFi — 6 800 грн.\n"
+        "Інші пропозиції цієї материнської плати: Rev 2 за 6 900 грн."
+    )
+    sc_multi = score_case(ans_multi, o_multi, rev_catalog, rev_prices)
+    assert sc_multi.prices_grounded, sc_multi.price_errors

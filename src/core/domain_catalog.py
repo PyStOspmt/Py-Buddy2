@@ -158,49 +158,79 @@ class DomainCatalogRegistry:
         return meta_by_prod
 
     @staticmethod
-    def _legacy_merchant_meta(
-        cursor,
-        entity_ids: List[str],
-        entity_table: str = "products",
-        ident_col: str = "id",
-    ) -> Dict[str, Dict[str, Any]]:
+    def _non_intrinsic_eav_keys(cursor, proj) -> set:
         """
-        Merchant enrichment is a marketplace-schema feature. For any other
-        table shape it is simply absent (F18: absent stays absent).
+        Structural offer/seller-axis detection (zero domain vocabulary):
+        an EAV key whose canonical Value-Algebra meanings disagree across
+        listings for the SAME named product entity cannot be an intrinsic
+        compatibility attribute of that product (e.g. per-offer seller/promo tags),
+        whereas spelling variants (`"AM4"` vs `"Socket AM4"`, `"65W"` vs `"65 Вт"`)
+        fold to the same canonical value and are preserved cleanly.
         """
-        vendor_by_prod: Dict[str, Dict[str, Any]] = {}
-        if not entity_ids:
-            return vendor_by_prod
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='merchants'")
-        has_merchants_tbl = bool(cursor.fetchone())
+        from attribute_algebra import canonical_form
+
+        non_intrinsic: set = set()
+        table = proj.entity_table
+        ident = proj.resolve("identity")
+        name_res = proj.resolve("name")
+        if not table or not ident.resolved or not name_res.column:
+            return non_intrinsic
         q = quote_ident
-        cursor.execute(f"PRAGMA table_info({q(entity_table)})")
-        prod_cols = {col[1] for col in cursor.fetchall()}
-        if not (has_merchants_tbl and "merchant_id" in prod_cols):
-            return vendor_by_prod
-        placeholders = ",".join("?" for _ in entity_ids)
-        cursor.execute(
-            f"SELECT e.{q(ident_col)}, m.name, m.rating, m.delivery_days "
-            f"FROM {q(entity_table)} e LEFT JOIN merchants m ON e.merchant_id = m.id "
-            f"WHERE e.{q(ident_col)} IN ({placeholders})",
-            entity_ids,
-        )
-        for pid, vname, vrating, vdeliv in cursor.fetchall():
-            vendor_by_prod[str(pid)] = (vname, vrating, vdeliv)
-        return vendor_by_prod
+        t = q(table)
+        id_c = q(ident.column)
+        nm_c = q(name_res.column)
+        for eav_name, meta in proj.eav_tables.items():
+            et = q(eav_name)
+            fk = q(meta["entity_fk"])
+            kc = q(meta["key_column"])
+            vc = q(meta["value_column"])
+            try:
+                # Single-pass O(N) scan; canonical_form runs only on (name, key)
+                # pairs whose raw spellings actually differ across offers.
+                cursor.execute(
+                    f"SELECT ent.{nm_c}, eav.{kc}, eav.{vc} "
+                    f"FROM {t} ent "
+                    f"JOIN {et} eav ON eav.{fk} = ent.{id_c} "
+                    f"WHERE ent.{nm_c} IS NOT NULL AND eav.{kc} IS NOT NULL AND eav.{vc} IS NOT NULL"
+                )
+                first_raw: Dict[Tuple[str, str], str] = {}
+                diff_pairs: set = set()
+                by_nk_raw: Dict[Tuple[str, str], set] = {}
+                for nm, k, v in cursor.fetchall():
+                    nk = (str(nm), str(k))
+                    sv = str(v)
+                    prev = first_raw.get(nk)
+                    if prev is None:
+                        first_raw[nk] = sv
+                    elif prev != sv:
+                        if nk not in diff_pairs:
+                            diff_pairs.add(nk)
+                            by_nk_raw[nk] = {prev, sv}
+                        else:
+                            by_nk_raw[nk].add(sv)
+                if not diff_pairs:
+                    continue
+                all_keys_ctx = " ".join(sorted({k for (_nm, k) in diff_pairs}))
+                for (_nm, k), raw_vals in by_nk_raw.items():
+                    if k in non_intrinsic:
+                        continue
+                    canon_vals = set()
+                    for rv in raw_vals:
+                        cf = canonical_form(rv, key=all_keys_ctx)
+                        canon_vals.add(cf if cf is not None else rv.strip())
+                    if len(canon_vals) > 1:
+                        non_intrinsic.add(k)
+            except Exception:
+                continue
+        return non_intrinsic
 
     @staticmethod
-    def _merge_vendor_meta(raw_meta: Dict[str, Any], vend: Optional[tuple]) -> None:
-        # F18: only stated values are passed through; missing ones stay missing.
-        if not vend:
-            return
-        vname, vrating, vdeliv = vend
-        if vname:
-            raw_meta["vendor"] = str(vname)
-        if vrating is not None:
-            raw_meta["vendor_rating"] = str(vrating)
-        if vdeliv is not None:
-            raw_meta["delivery_days"] = str(vdeliv)
+    def _build_raw_node(pid: str, name: str, category: str, price: Optional[float],
+                        raw_meta: Dict[str, Any], name_from_identity: bool = False) -> ProductNode:
+        attrs = {str(k): str(v) for k, v in raw_meta.items() if v is not None and str(v).strip() != ""}
+        if name_from_identity:
+            attrs["name_source"] = "identity_column"
+        return ProductNode(id=pid, name=name, category=category, price=price, attributes=attrs)
 
     @staticmethod
     def load_product_dynamically(db_path: str, product_id: str) -> Optional[ProductNode]:
@@ -223,7 +253,6 @@ class DomainCatalogRegistry:
         per-row lazy hydration that made a catalog page cost N+1 queries.
         """
         import sqlite3
-        from marketplace_normalizer import MarketplaceEAVNormalizer
         from source_projection import build_source_projection
 
         ids = [str(i) for i in product_ids]
@@ -256,9 +285,6 @@ class DomainCatalogRegistry:
             rows = cursor.fetchall()
             pids = [str(r[0]) for r in rows]
             meta_by_prod = DomainCatalogRegistry._collect_eav_meta(cursor, proj, pids)
-            vendor_by_prod = DomainCatalogRegistry._legacy_merchant_meta(
-                cursor, pids, entity_table=table, ident_col=ident.column
-            )
         finally:
             conn.close()
 
@@ -266,18 +292,15 @@ class DomainCatalogRegistry:
         for r in rows:
             pid = str(r[0])
             raw_meta = dict(meta_by_prod.get(pid, {}))
-            DomainCatalogRegistry._merge_vendor_meta(raw_meta, vendor_by_prod.get(pid))
             # F10: an absent price stays absent; a NULL name falls back to the
             # identity value with an honest marker instead of a fabricated label.
             price = None if r[3] is None else float(r[3])
             name = r[1] if (name_res.column and r[1] is not None) else pid
             category = (r[2] or "general") if has_cat else "general"
-            node = MarketplaceEAVNormalizer.build_product_node(pid, name, category, price, raw_meta)
-            if not name_res.column:
-                node = ProductNode(
-                    id=node.id, name=node.name, category=node.category, price=node.price,
-                    attributes={**dict(node.attributes), "name_source": "identity_column"},
-                )
+            node = DomainCatalogRegistry._build_raw_node(
+                pid, name, category, price, raw_meta,
+                name_from_identity=not bool(name_res.column),
+            )
             out[pid] = node
         return out
 
@@ -290,10 +313,9 @@ class DomainCatalogRegistry:
         (source_projection.py), not by a hard-coded `products` table shape.
         A source without a resolvable price column still projects -- its items
         simply have no price axis -- and a renamed schema needs no product-code
-        changes.
+        changes. Zero domain vocabularies or seed dictionaries are applied.
         """
         import sqlite3
-        from marketplace_normalizer import MarketplaceEAVNormalizer
         from source_projection import build_source_projection
 
         kg = KnowledgeHypergraph()
@@ -330,33 +352,31 @@ class DomainCatalogRegistry:
 
             pids = [str(r[0]) for r in rows]
             meta_by_prod = DomainCatalogRegistry._collect_eav_meta(cursor, proj, pids)
-            vendor_by_prod = DomainCatalogRegistry._legacy_merchant_meta(
-                cursor, pids, entity_table=table, ident_col=ident.column
-            )
+            non_intrinsic_keys = DomainCatalogRegistry._non_intrinsic_eav_keys(cursor, proj)
         finally:
             conn.close()
 
         for r in rows:
             pid = str(r[0])
             raw_meta = dict(meta_by_prod.get(pid, {}))
-            DomainCatalogRegistry._merge_vendor_meta(raw_meta, vendor_by_prod.get(pid))
             # F10: an absent price stays absent (None, never 0.0); a NULL name
             # falls back to the identity value with an honest marker.
             price = None if r[3] is None else float(r[3])
             name = r[1] if (name_res.column and r[1] is not None) else pid
             category = (r[2] or "general") if has_cat else "general"
-            node = MarketplaceEAVNormalizer.build_product_node(pid, name, category, price, raw_meta)
-            if not name_res.column:
-                node = ProductNode(
-                    id=node.id, name=node.name, category=node.category, price=node.price,
-                    attributes={**dict(node.attributes), "name_source": "identity_column"},
-                )
+            node = DomainCatalogRegistry._build_raw_node(
+                pid, name, category, price, raw_meta,
+                name_from_identity=not bool(name_res.column),
+            )
             kg.add_product(node)
 
-        # Dynamic Contract Induction for any ingested SQLite domain
+        # Dynamic Contract Induction for any ingested SQLite domain (zero seeds)
         from contract_inductor import ContractInductor
         inductor = ContractInductor(max_induced=MAX_INDUCED_CONSTRAINTS)
-        for c in inductor.induce_contracts_from_products(list(kg.nodes.values())):
+        for c in inductor.induce_contracts_from_products(
+            list(kg.nodes.values()),
+            non_matching_keys=non_intrinsic_keys or None,
+        ):
             kg.add_constraint(c)
         kg.induction_report = inductor.last_induction_report
 

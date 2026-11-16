@@ -88,13 +88,21 @@ _SPEC_PHRASE_RE = re.compile(
     r"(\d+(?:[.,]\d+)?)(?!\.\d)(?!\w)")
 
 _POS_COMPAT_RE = re.compile(
-    r"\b(?:можна\s+встановити\s+разом|сумісн\w*|працюватим\w*\s+разом|"
-    r"підійде\s+до|підходить\s+до|обидва\s+компоненти)\b",
+    r"\b(?:можна\s+(?:встановити|використовувати)\s+(?:разом|у\s+парі)|сумісн\w*|"
+    r"працюватим\w*\s+разом|підійде\s+до|підходить\s+до|"
+    r"підход\w*\s+(?:один|одне|одна)\s+до\s+(?:одного|одної)|"
+    r"(?:перевірка\s+сумісності\s+(?:\([^)]*\)\s+)?)?пройшла\s+успішно|"
+    r"обидва\s+компоненти)\b",
     re.IGNORECASE | re.UNICODE,
 )
 _NEG_COMPAT_RE = re.compile(
     r"\b(?:не\s*сумісн\w*|несумісн\w*|не\s+можна|неможлив\w*|"
     r"конфлікт\w*|не\s+підход\w*|не\s+працюватим\w*|різн\w*\s+сокет\w*)\b",
+    re.IGNORECASE | re.UNICODE,
+)
+_UNKNOWN_COMPAT_QUALIFIER_RE = re.compile(
+    r"(?:невідом\w*|не\s+підтвердж\w*|не\s+має\s+підтвердж\w*|не\s+гарант\w*|"
+    r"попередн\w*|unknown|candidate|без\s+гаранті\w*|потребу\w*\s+(?:ручн\w*\s+)?перевірк\w*)",
     re.IGNORECASE | re.UNICODE,
 )
 _JOINT_CLAIM_RE = re.compile(
@@ -444,6 +452,27 @@ def _is_grounded_tool_count(
     return True
 
 
+_SURCHARGE_RE = re.compile(r"доплат\w*\D{0,25}?(\d[\d \u00a0\u202f.,]*\d|\d)")
+
+
+def _surcharge_is_price_not_difference(
+    sent: str, scoped_items: Sequence[EvidenceItem],
+) -> Optional[str]:
+    """A surcharge ('доплата') must be the difference of two grounded prices, never a price."""
+    prices = [it.price for it in scoped_items if it.price is not None]
+    diffs = {abs(a - b) for a in prices for b in prices if a != b}
+    for m in _SURCHARGE_RE.finditer(sent):
+        try:
+            val = float(re.sub(r"[ \u00a0\u202f]", "", m.group(1)).replace(",", "."))
+        except ValueError:
+            continue
+        if any(abs(val - p) <= 0.01 for p in prices) and not any(
+            abs(val - d) <= 0.01 for d in diffs
+        ):
+            return f"доплата {val:g} є ціною товару, а не різницею цін"
+    return None
+
+
 def verify_answer(
     text: str,
     evidence: Sequence[EvidenceItem],
@@ -543,9 +572,22 @@ def verify_answer(
         if neg_contra:
             unsupported.append(neg_contra)
 
+        surcharge_bad = _surcharge_is_price_not_difference(sent, scoped_items)
+        if surcharge_bad:
+            unsupported.append(surcharge_bad)
+
         if (tool_conflicts or compatibility_verdict in ("incompatible", "candidate_conflict")) \
                 and _POS_COMPAT_RE.search(sent) and not _NEG_COMPAT_RE.search(sent):
             unsupported.append("суперечить перевірці сумісності (виявлено конфлікт)")
+        elif (
+            compatibility_verdict == "unknown"
+            and _POS_COMPAT_RE.search(sent)
+            and not _NEG_COMPAT_RE.search(sent)
+            and not _UNKNOWN_COMPAT_QUALIFIER_RE.search(sent)
+        ):
+            unsupported.append(
+                "перевірка сумісності повернула unknown (правила не підтверджені)"
+            )
 
         # A spec claim leans on the products named in this sentence; if the
         # sentence names none, on the products the whole answer names.

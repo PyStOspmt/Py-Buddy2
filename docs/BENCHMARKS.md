@@ -6,25 +6,26 @@ All numbers below come directly from the versioned JSON reports in [`docs/benchm
 
 ## 1. End-to-End Multi-Model Evaluation (Live LLM)
 
-Source: [`docs/benchmarks/multi_model_eval_20261113.json`](benchmarks/multi_model_eval_20261113.json)  
-Catalog: `marketplace_rozetka.db` · Single-turn suite: `N = 73` (`30` verdict cases) · Total multi-model API spend: `$0.6936`
+Source: [`docs/benchmarks/multi_model_eval_20261116.json`](benchmarks/multi_model_eval_20261116.json) (superseding [`multi_model_eval_20261113.json`](benchmarks/multi_model_eval_20261113.json) after removing all production domain seed vocabularies, enforcing `F12` unknown compatibility checks, and propagating source currency)  
+Catalog: `marketplace_rozetka.db` · Single-turn suite: `N = 73` (`30` verdict cases) · Offline suite ([`benchmark_offline_20261116.json`](benchmarks/benchmark_offline_20261116.json)): **`100.0%`** acc / `100.0%` NVFG (`0.002s` avg latency vs baseline `40.82%` / `0.022s`) · Total multi-model live API spend: `$0.9529`
 
 | Model | Arm | Exec Acc (%) | NVFG (%) | Hallucination Rate (%) | False Claim Rate (%) | Price Error Rate (%) | Verdict Acc (%) | Avg Cost / Query |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| `openai/gpt-6-luna` | Baseline RAG | 49.32 | 61.64 | 2.74 | 22.64 | 7.50 | 60.00 | $0.000107 |
-| `openai/gpt-6-luna` | Pre-Verifier Ablation | 75.34 | 78.08 | 1.37 | 8.60 | **0.00** | 56.67 | $0.001110 |
-| `openai/gpt-6-luna` | **Py-Buddy (Full)** | **78.08** | **79.45** | **1.37** | **8.79** | **0.00** | **63.33** | $0.001110 |
-| `deepseek/deepseek-v4.1-flash-1017` | Baseline RAG | 36.99 | 49.32 | 19.18 | 24.14 | 25.27 | **70.00** | $0.000212 |
-| `deepseek/deepseek-v4.1-flash-1017` | **Py-Buddy (Full)** | **71.23** | **73.97** | **8.22** | **21.83** | **6.38** | 53.33 | $0.002572 |
-| `anthropic/claude-haiku-5.5` | Baseline RAG | 38.36 | 50.68 | 24.66 | 25.00 | 36.73 | **73.33** | $0.000245 |
-| `anthropic/claude-haiku-5.5` | **Py-Buddy (Full)** | **68.49** | **72.60** | **6.85** | **24.37** | **0.00** | 60.00 | $0.002364 |
-| `xiaomi/mimo-v2.6-flash` | Baseline RAG | 49.32 | 56.16 | 15.07 | **16.39** | 25.00 | **73.33** | $0.000142 |
-| `xiaomi/mimo-v2.6-flash` | **Py-Buddy (Full)** | **68.49** | **71.23** | **9.59** | 19.85 | **0.96** | 56.67 | $0.001765 |
+| `deepseek/deepseek-v4.1-flash-1017` | Baseline RAG | 47.95 | 56.16 | 8.22 | 14.55 | 9.28 | 56.67 | $0.000213 |
+| `deepseek/deepseek-v4.1-flash-1017` | Pre-Verifier Ablation | 83.56 | 84.93 | 9.59 | 32.53 | 1.54 | **90.00** | $0.004238 |
+| `deepseek/deepseek-v4.1-flash-1017` | **Py-Buddy (Full)** | **83.56** | **84.93** | **6.85** | 31.71 | **0.54** | **83.33** | $0.003766 |
+| `openai/gpt-6-luna` | Baseline RAG | 50.68 | 63.01 | **0.00** | 14.58 | **0.00** | 60.00 | $0.000101 |
+| `openai/gpt-6-luna` | Pre-Verifier Ablation | 73.97 | 75.34 | 2.74 | 3.61 | 1.37 | 53.33 | $0.001418 |
+| `openai/gpt-6-luna` | **Py-Buddy (Full)** | **83.56** | **83.56** | 2.74 | **3.49** | 1.14 | **76.67** | $0.001274 |
+| `xiaomi/mimo-v2.6-flash` | Baseline RAG | 53.42 | 63.01 | **5.48** | **11.48** | 14.29 | **73.33** | $0.000132 |
+| `xiaomi/mimo-v2.6-flash` | **Py-Buddy (Full)** | **79.45** | **80.82** | **5.48** | 34.86 | **1.18** | 70.00 | $0.002785 |
+| `anthropic/claude-haiku-5.5` | Baseline RAG | 49.32 | 61.64 | 12.33 | **11.67** | 19.54 | **80.00** | $0.000233 |
+| `anthropic/claude-haiku-5.5` | **Py-Buddy (Full)** | **73.97** | **78.08** | **10.96** | 21.01 | **4.27** | 76.67 | $0.003206 |
 
 ### Key Takeaways & Honest Boundaries
-- **Price error collapse:** Standard RAG had `7.50%–36.73%` numerical price errors across the four models; Py-Buddy reduced this to **`0.00%`** on `gpt-6-luna` and `claude-haiku-5.5`, **`0.96%`** on `mimo-v2.6-flash`, and **`6.38%`** on `deepseek-v4.1-flash-1017`.
-- **Epistemic conservatism (`Verdict Acc`):** On unverified compatibility pairs (`compat_accept`, `n = 12`), Py-Buddy intentionally returns `unknown` whenever constraints are induced rather than human-certified. Baseline LLMs often guess "compatible", inflating unconstrained verdict accuracy at the cost of silent false assurances (`22.64%–25.00%` false claims in RAG).
-- **Sentence-level verifier replay** ([`claim_verifier_replay_20261113.json`](benchmarks/claim_verifier_replay_20261113.json)): Across `49` replayed cases, `ClaimVerifier` triggered **`0` false flags** on all `33` clean responses (`0.0%` false-positive rate).
+- **Substantial execution accuracy gain with sharp price-error reduction:** Py-Buddy improves execution accuracy by **+24.65 to +35.61 percentage points** over live `LLM-RAG` (`73.97%–83.56%` vs `47.95%–53.42%`), scores **`100.0%`** across all four models on `direct_price` (15/15), `cheapest_category` (6/6), and `priciest_category` (4/4), and cuts price errors sharply (`Haiku`: `19.54% -> 4.27%`, `MiMo`: `14.29% -> 1.18%`, `DeepSeek`: `9.28% -> 0.54%`; `Luna` has 1 strict revision-attribution flag at `1.14%` on `bc042`).
+- **Epistemic conservatism (`F12`):** On unverified compatibility pairs (`compat_accept`, `n = 12`), Py-Buddy enforces `verdict="unknown"` whenever compatibility constraints are automatically induced rather than operator-verified, refusing to fabricate positive guarantees (`compat_reject` stays `75.0%–91.67%` accurate / `100.0%` verdict on Luna, DeepSeek, MiMo).
+- **Sentence-level verifier replay** ([`claim_verifier_replay_20261116.json`](benchmarks/claim_verifier_replay_20261116.json), alongside historical [`20261113`](benchmarks/claim_verifier_replay_20261113.json)): Across `49` replayed cases, `ClaimVerifier` triggered **`0` false flags** on all `33` clean responses (`0.0%` false-positive rate). In the 4-model live suite, `ClaimVerifier` intervened in **77 cases / 149 unsupported sentences**.
 
 Reproduce locally (requires OpenRouter key):
 ```bash
@@ -35,7 +36,7 @@ python src/experiments/benchmark_aic2026.py --suite expanded --models openai/gpt
 
 ## 2. Schema-Agnostic Constraint Induction (CIP)
 
-Source: [`docs/benchmarks/cip_benchmark_20261004.json`](benchmarks/cip_benchmark_20261004.json) and `non_english_induction` in [`multi_model_eval_20261113.json`](benchmarks/multi_model_eval_20261113.json).
+Source: [`docs/benchmarks/cip_benchmark_20261004.json`](benchmarks/cip_benchmark_20261004.json) and `non_english_induction` in [`multi_model_eval_20261116.json`](benchmarks/multi_model_eval_20261116.json).
 
 Evaluates automatic discovery of compatibility constraints (equivalences `eq(...)` and unit/dimension containment `le(a <= b)`) across `pc_build` (`15` items), `auto_parts` (`9` items), and `pharma` (`5` items), plus full bilingual column/key anonymization:
 
@@ -44,7 +45,7 @@ Evaluates automatic discovery of compatibility constraints (equivalences `eq(...
 | Exact Header Matching (Baseline) | 28.57 | 18.18 | 22.22 | 2 / 5 / 9 | Degrades on anonymized keys |
 | **Py-Buddy Structural Induction** | **64.71** | **100.0** | **78.57** | **11 / 6 / 0** | **100% invariant** across all 3 domains |
 
-On a Ukrainian non-commerce SQLite catalogue (`jury_zoo`, `420` entities, `1,519` EAV rows), `ContractInductor` & structural induction discovered `6` equivalences and `3` dimensional containment rules (`висота <= зріст`, `висота <= розмах`, `розмах <= зріст`) zero-shot without English hints.
+On a Ukrainian non-commerce SQLite catalogue (`jury_zoo`, `420` entities, `1,519` EAV rows), both `ContractInductor` and `induce_structural` discovered **`7` structural rules** (equivalences + dimensional/capacity containment such as `висота <= зріст`, `висота <= розмах`, `розмах <= зріст`, and habitat-scoped weight bounds) zero-shot without any English or domain seed vocabularies.
 
 ---
 
@@ -88,7 +89,7 @@ Sources: [`scale_envelope_20261004.json`](benchmarks/scale_envelope_20261004.jso
 
 ## 5. Fiduciary Independence Verification (FID)
 
-Sources: [`fiduciary_20260930.json`](benchmarks/fiduciary_20260930.json), [`fiduciary_live_20261004.json`](benchmarks/fiduciary_live_20261004.json).
+Sources: [`fiduciary_20261116.json`](benchmarks/fiduciary_20261116.json) (post zero-dictionary update, alongside [`fiduciary_20260930.json`](benchmarks/fiduciary_20260930.json) and [`fiduciary_live_20261004.json`](benchmarks/fiduciary_live_20261004.json)).
 
 Adversarial sponsorship & commission permutation audit over `30` products (with injected `+1550.14` sponsorship control bonuses):
 

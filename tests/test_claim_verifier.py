@@ -340,3 +340,39 @@ def test_affirmative_range_scarcity_denial_not_flagged_as_contradiction():
     assert "суперечить каталогу" in bad.sentences[0].unsupported[0]
 
 
+
+
+def test_surcharge_equal_to_a_product_price_is_not_a_difference():
+    text = ("Якщо готові доплатити 8999 грн за вищу продуктивність, "
+            "Intel Core i5-13400F коштує 8999 грн.")
+    rep = verify_answer(text, EVIDENCE, "порадь процесор")
+    assert rep.n_unsupported >= 1
+    assert any("доплат" in u for s in rep.sentences for u in s.unsupported)
+
+
+def test_surcharge_given_as_a_real_difference_is_accepted():
+    text = ("Різниця: Intel Core i5-13400F коштує 8999 грн, "
+            "Gigabyte B650 AORUS Elite AX коштує 7500 грн, доплата 1499 грн.")
+    rep = verify_answer(text, EVIDENCE, "порадь процесор")
+    assert rep.n_unsupported == 0
+
+
+def test_unknown_compat_verdict_blocks_unqualified_compatibility_assurance():
+    prose_bad = (
+        "Так, Intel Core i5-13400F та Gigabyte B650 AORUS Elite AX сумісні — "
+        "перевірка сумісності пройшла успішно."
+    )
+    rep_bad = verify_answer(
+        prose_bad, EVIDENCE, "Чи сумісні?", compatibility_verdict="unknown"
+    )
+    assert rep_bad.n_unsupported == 1
+    assert any("unknown" in u for u in rep_bad.sentences[0].unsupported)
+
+    prose_honest = (
+        "Для Intel Core i5-13400F та Gigabyte B650 AORUS Elite AX перевірка сумісності "
+        "повернула статус «невідомо»: правила не підтверджені, гарантувати сумісність не можу."
+    )
+    rep_ok = verify_answer(
+        prose_honest, EVIDENCE, "Чи сумісні?", compatibility_verdict="unknown"
+    )
+    assert rep_ok.n_unsupported == 0

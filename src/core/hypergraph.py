@@ -9,6 +9,39 @@ from typing import Set, Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 
+from attribute_algebra import Shape, UNIT_TO_BASE, base_of, canonical_form, spec_of
+
+
+def _canonical_eq_value(raw_val: Any, key_ctx: Optional[str] = None) -> str:
+    """Project an attribute value canonically via Value Algebra; fall back verbatim for free text."""
+    text = str(raw_val)
+    canon = canonical_form(text, key=key_ctx)
+    return canon if canon is not None else text.strip()
+
+
+def _extract_measure_value(raw_val: Any) -> Optional[Tuple[float, Optional[str]]]:
+    """Parse a bare numeric or dimensional quantity (e.g. '120W', '19.0\"', 'R18') to canonical units."""
+    if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
+        return float(raw_val), None
+    s = str(raw_val).strip()
+    if not s:
+        return None
+    try:
+        return float(s), None
+    except ValueError:
+        pass
+    try:
+        sp = spec_of(s)
+        if sp.shape is Shape.MEASURE and sp.dimension and sp.numbers:
+            base = base_of(sp.dimension, sp.unit)
+            factor = UNIT_TO_BASE.get(sp.unit or base, 1.0)
+            return float(sp.numbers[0]) * factor, sp.dimension
+        if sp.numbers:
+            return float(sp.numbers[0]), sp.dimension
+    except Exception:
+        pass
+    return None
+
 @dataclass(frozen=True)
 class ProductNode:
     """
@@ -117,6 +150,12 @@ class EquivalenceConstraint(BaseConstraint):
                 seen.append(k)
         return tuple(seen)
 
+    def _key_ctx(self) -> str:
+        return " ".join(self._all_keys())
+
+    def _canonical_value(self, raw_val: Any) -> str:
+        return _canonical_eq_value(raw_val, self._key_ctx())
+
     def _node_key_value(self, node: ProductNode) -> Optional[Tuple[str, Any]]:
         for k in self._all_keys():
             if k in node.attributes:
@@ -144,8 +183,9 @@ class EquivalenceConstraint(BaseConstraint):
 
         _, _, base_val = matching_nodes[0]
         base_node = matching_nodes[0][0]
+        base_canon = self._canonical_value(base_val)
         for node, _, val in matching_nodes[1:]:
-            if str(val) != str(base_val):
+            if self._canonical_value(val) != base_canon:
                 desc = self.description or f"Невідповідність ключа '{self.attr_name}'"
                 return False, f"{desc}: '{base_node.name}' ({base_val}) несумісний з '{node.name}' ({val})"
         return True, None
@@ -188,6 +228,8 @@ class CumulativeCapacityConstraint(BaseConstraint):
     description: str = ""
     demand_attrs: Tuple[str, ...] = ()
     capacity_attrs: Tuple[str, ...] = ()
+    subject_categories: Optional[Tuple[str, ...]] = None
+    object_categories: Optional[Tuple[str, ...]] = None
 
     def _demand_keys(self) -> Tuple[str, ...]:
         seen = []
@@ -205,44 +247,31 @@ class CumulativeCapacityConstraint(BaseConstraint):
 
     @staticmethod
     def _extract_measure(raw_val: Any) -> Optional[Tuple[float, Optional[str]]]:
-        if isinstance(raw_val, (int, float)) and not isinstance(raw_val, bool):
-            return float(raw_val), None
-        s = str(raw_val).strip()
-        try:
-            return float(s), None
-        except ValueError:
-            pass
-        try:
-            from attribute_algebra import Shape, UNIT_TO_BASE, base_of, spec_of
-            sp = spec_of(s)
-            if sp.shape is Shape.MEASURE and sp.dimension and sp.numbers:
-                base = base_of(sp.dimension, sp.unit)
-                factor = UNIT_TO_BASE.get(sp.unit or base, 1.0)
-                return float(sp.numbers[0]) * factor, sp.dimension
-            if sp.numbers:
-                return float(sp.numbers[0]), sp.dimension
-        except Exception:
-            pass
-        return None
+        return _extract_measure_value(raw_val)
+
+    def _is_demand_node(self, node: ProductNode) -> bool:
+        if self.subject_categories is not None and node.category not in self.subject_categories:
+            return False
+        return any(k in node.attributes for k in self._demand_keys())
+
+    def _is_capacity_node(self, node: ProductNode) -> bool:
+        if self.object_categories is not None and node.category not in self.object_categories:
+            return False
+        return any(k in node.attributes for k in self._capacity_keys())
 
     def applies_to(self, nodes: List[ProductNode]) -> bool:
         # The inequality only speaks when there is both something to carry
         # and something that carries it.
-        d_keys = self._demand_keys()
-        c_keys = self._capacity_keys()
-        return (any(any(k in n.attributes for k in c_keys) for n in nodes)
-                and any(any(k in n.attributes for k in d_keys) for n in nodes))
+        return (any(self._is_capacity_node(n) for n in nodes)
+                and any(self._is_demand_node(n) for n in nodes))
 
     def coverage_gaps(self, nodes: List[ProductNode]) -> List[str]:
-        # Members carrying neither axis were never weighed: the inequality
+        # Members carrying neither role were never weighed: the inequality
         # is silent about them, and silence must not read as a pass.
-        d_keys = self._demand_keys()
-        c_keys = self._capacity_keys()
         return [
             f"'{n.name}' ({n.category}): ні '{self.demand_attr}', ні '{self.capacity_attr}' — поза перевіркою місткості"
             for n in nodes
-            if not any(k in n.attributes for k in d_keys)
-            and not any(k in n.attributes for k in c_keys)
+            if not self._is_demand_node(n) and not self._is_capacity_node(n)
         ]
 
     def validate(self, nodes: List[ProductNode]) -> Tuple[bool, Optional[str]]:
@@ -252,25 +281,27 @@ class CumulativeCapacityConstraint(BaseConstraint):
         d_keys = self._demand_keys()
         c_keys = self._capacity_keys()
         for n in nodes:
-            for dk in d_keys:
-                if dk in n.attributes:
-                    m = self._extract_measure(n.attributes[dk])
-                    if m is not None:
-                        total_demand += m[0]
-                        has_demand = True
-                    break
-            for ck in c_keys:
-                if ck in n.attributes:
-                    m = self._extract_measure(n.attributes[ck])
-                    if m is not None:
-                        cap = m[0]
-                        if self.provider_mode == "additive":
-                            capacity_by_category[n.category] = (
-                                capacity_by_category.get(n.category, 0.0) + cap)
-                        else:
-                            capacity_by_category[n.category] = max(
-                                capacity_by_category.get(n.category, 0.0), cap)
-                    break
+            if self.subject_categories is None or n.category in self.subject_categories:
+                for dk in d_keys:
+                    if dk in n.attributes:
+                        m = self._extract_measure(n.attributes[dk])
+                        if m is not None:
+                            total_demand += m[0]
+                            has_demand = True
+                        break
+            if self.object_categories is None or n.category in self.object_categories:
+                for ck in c_keys:
+                    if ck in n.attributes:
+                        m = self._extract_measure(n.attributes[ck])
+                        if m is not None:
+                            cap = m[0]
+                            if self.provider_mode == "additive":
+                                capacity_by_category[n.category] = (
+                                    capacity_by_category.get(n.category, 0.0) + cap)
+                            else:
+                                capacity_by_category[n.category] = max(
+                                    capacity_by_category.get(n.category, 0.0), cap)
+                        break
 
         if not capacity_by_category or not has_demand or total_demand == 0.0:
             return True, None
@@ -316,28 +347,77 @@ class MutualExclusionConstraint(BaseConstraint):
 class SpatialBoundingConstraint(BaseConstraint):
     """
     Meta-Class 4: Spatial / Tolerance Bounding (e.g. GPU Length vs Case Max Length, Rim vs Arch).
-    Ensures dimension <= max_dimension.
+    Ensures dimension <= max_dimension using canonical dimensional units when present.
     """
     dimension_attr: str
     max_dimension_attr: str
     description: str = ""
+    dimension_attrs: Tuple[str, ...] = ()
+    max_dimension_attrs: Tuple[str, ...] = ()
+    subject_categories: Optional[Tuple[str, ...]] = None
+    object_categories: Optional[Tuple[str, ...]] = None
+
+    def _dim_keys(self) -> Tuple[str, ...]:
+        seen = []
+        for k in (self.dimension_attr, *self.dimension_attrs):
+            if k and k not in seen:
+                seen.append(k)
+        return tuple(seen)
+
+    def _max_keys(self) -> Tuple[str, ...]:
+        seen = []
+        for k in (self.max_dimension_attr, *self.max_dimension_attrs):
+            if k and k not in seen:
+                seen.append(k)
+        return tuple(seen)
+
+    @staticmethod
+    def _first_measure(node: ProductNode, keys: Tuple[str, ...]) -> Optional[float]:
+        for k in keys:
+            if k in node.attributes:
+                m = _extract_measure_value(node.attributes[k])
+                if m is not None:
+                    return m[0]
+        return None
 
     def applies_to(self, nodes: List[ProductNode]) -> bool:
-        # The bound only speaks when there is both an item and a container.
-        return (any(self.dimension_attr in n.attributes for n in nodes)
-                and any(self.max_dimension_attr in n.attributes for n in nodes))
+        d_keys, m_keys = self._dim_keys(), self._max_keys()
+        has_item = any(
+            (self.subject_categories is None or n.category in self.subject_categories)
+            and any(k in n.attributes for k in d_keys)
+            for n in nodes
+        )
+        has_container = any(
+            (self.object_categories is None or n.category in self.object_categories)
+            and any(k in n.attributes for k in m_keys)
+            for n in nodes
+        )
+        return has_item and has_container
 
     def validate(self, nodes: List[ProductNode]) -> Tuple[bool, Optional[str]]:
-        items = [n for n in nodes if self.dimension_attr in n.attributes]
-        containers = [n for n in nodes if self.max_dimension_attr in n.attributes]
-        
+        d_keys, m_keys = self._dim_keys(), self._max_keys()
+        items = [
+            n for n in nodes
+            if (self.subject_categories is None or n.category in self.subject_categories)
+            and any(k in n.attributes for k in d_keys)
+        ]
+        containers = [
+            n for n in nodes
+            if (self.object_categories is None or n.category in self.object_categories)
+            and any(k in n.attributes for k in m_keys)
+        ]
+
         for item in items:
-            dim_val = float(item.attributes[self.dimension_attr])
+            dim_val = self._first_measure(item, d_keys)
+            if dim_val is None:
+                continue
             for container in containers:
-                max_val = float(container.attributes[self.max_dimension_attr])
+                max_val = self._first_measure(container, m_keys)
+                if max_val is None:
+                    continue
                 if dim_val > max_val:
                     desc = self.description or f"Габаритний допуск '{self.dimension_attr}'"
-                    return False, f"{desc}: габарит '{item.name}' ({dim_val}) перевищує допуск '{container.name}' ({max_val})"
+                    return False, f"{desc}: габарит '{item.name}' ({dim_val:g}) перевищує допуск '{container.name}' ({max_val:g})"
         return True, None
 
 class KnowledgeHypergraph:
@@ -417,7 +497,7 @@ class KnowledgeHypergraph:
                 kv = c._node_key_value(node)
                 if kv is not None:
                     _, val = kv
-                    value = str(val)
+                    value = c._canonical_value(val)
                     for ak in c._all_keys():
                         previous = committed.setdefault(ak, value)
                         if previous != value:
@@ -638,7 +718,7 @@ class KnowledgeHypergraph:
                     if c.categories is not None and node.category not in c.categories:
                         continue      # outside the rule's scope: it says nothing
                     for key, value in committed.items():
-                        if key in node.attributes and str(node.attributes[key]) != value:
+                        if key in node.attributes and c._canonical_value(node.attributes[key]) != value:
                             excluded = True
                             break
                     if excluded:

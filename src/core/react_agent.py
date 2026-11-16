@@ -40,7 +40,7 @@ from react_tools import (
     tool_semantic_search,
 )
 from sanitizer import SQLSanitizer
-from source_currency import UNSET_CURRENCY, resolve_source_currency
+from source_currency import UNSET_CURRENCY, format_currency_label, resolve_source_currency
 
 @dataclass
 class ToolExecutionRecord:
@@ -382,6 +382,19 @@ class ReActAgent:
             "reason": "no_improvement",
         }
 
+    def _schema_with_currency(self, schema_prompt: str) -> str:
+        """Append verified source currency provenance to schema_prompt without domain defaults."""
+        cur = getattr(self, "currency", None)
+        label = format_currency_label(cur) if cur else ""
+        if cur and label and label != cur:
+            note = f"### Валюта джерела: {cur} ({label})"
+        elif cur:
+            note = f"### Валюта джерела: {cur}"
+        else:
+            note = "### Валюта джерела: не вказана (не вигадуй валюту)"
+        base = (schema_prompt or "").rstrip()
+        return f"{base}\n\n{note}" if base else note
+
     def _finalize_with_optional_repair(
         self,
         state: SessionState,
@@ -488,6 +501,7 @@ class ReActAgent:
         # F07: evidence belongs to this run. A fresh set per session means
         # rows fetched for one query can never verify another query's answer,
         # and parallel sessions on the same agent stay isolated.
+        schema_prompt = self._schema_with_currency(schema_prompt)
         state.grounding = GroundingSet()
         dialog_history: List[Dict[str, str]] = []
         if conversation_history:

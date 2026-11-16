@@ -105,19 +105,19 @@ def create_ecommerce_database(db_path: str, hypergraph_json_path: Optional[str] 
     meta_records = [
         # CPUs
         ("cpu_am5_1", "socket", "AM5"),
-        ("cpu_am5_1", "tdp_watts", "120"),
+        ("cpu_am5_1", "tdp_watts", "120W"),
         ("cpu_am5_1", "supported_memory", "DDR5"),
 
         ("cpu_am5_2", "socket", "AM5"),
-        ("cpu_am5_2", "tdp_watts", "105"),
+        ("cpu_am5_2", "tdp_watts", "105W"),
         ("cpu_am5_2", "supported_memory", "DDR5"),
 
         ("cpu_intel_1", "socket", "LGA1700"),
-        ("cpu_intel_1", "tdp_watts", "253"),
+        ("cpu_intel_1", "tdp_watts", "253W"),
         ("cpu_intel_1", "supported_memory", "DDR5"),
 
         ("cpu_intel_2", "socket", "LGA1700"),
-        ("cpu_intel_2", "tdp_watts", "181"),
+        ("cpu_intel_2", "tdp_watts", "181W"),
         ("cpu_intel_2", "supported_memory", "DDR5"),
 
         # Motherboards
@@ -143,15 +143,15 @@ def create_ecommerce_database(db_path: str, hypergraph_json_path: Optional[str] 
         ("ram_ddr4_32", "generation", "DDR4"),
 
         # GPUs
-        ("gpu_rtx4070", "min_psu_watts", "650"),
-        ("gpu_rtx4080", "min_psu_watts", "750"),
-        ("gpu_rx7800", "min_psu_watts", "700"),
+        ("gpu_rtx4070", "min_psu_watts", "650W"),
+        ("gpu_rtx4080", "min_psu_watts", "750W"),
+        ("gpu_rx7800", "min_psu_watts", "700W"),
 
         # PSUs
-        ("psu_750w", "wattage", "750"),
-        ("psu_850w", "wattage", "850"),
-        ("psu_1000w", "wattage", "1000"),
-        ("psu_500w", "wattage", "500")
+        ("psu_750w", "wattage", "750W"),
+        ("psu_850w", "wattage", "850W"),
+        ("psu_1000w", "wattage", "1000W"),
+        ("psu_500w", "wattage", "500W")
     ]
 
     cursor.executemany("""

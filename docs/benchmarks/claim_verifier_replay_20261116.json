@@ -1,0 +1,493 @@
+{
+  "artifact": "benchmark_live_20261004.json",
+  "catalog": "marketplace_rozetka.db",
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
+  "n_cases": 49,
+  "confusion": {
+    "caught_flagged": 3,
+    "missed_flagged": 13,
+    "clean_flagged": 0,
+    "clean_passed": 33
+  },
+  "coverage_of_evaluator_flags": 0.1875,
+  "false_flag_rate_on_clean": 0.0,
+  "per_case": [
+    {
+      "case_id": "bc001",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc002",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc003",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc004",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc005",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc006",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc007",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc008",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [
+        "Intel Core i9-14900K"
+      ],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc009",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc010",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc011",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc012",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc013",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc014",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc015",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [
+        "Corsair Vengeance LPX 32GB DDR4-3600"
+      ],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc016",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc017",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc018",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc019",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc020",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc021",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [
+        "Kingston KC3000 1TB PCIe 4.0 (Rev 3)",
+        "Kingston KC3000 1TB PCIe 4.0 (Rev 1)"
+      ],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc022",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc023",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc024",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc025",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [
+        "Gigabyte B650 AORUS Elite AX"
+      ],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc026",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc027",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc028",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc029",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc030",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 3,
+      "verifier_unsupported_claims": [
+        "«a620»",
+        "«b650»",
+        "«x670»",
+        "«13600k»",
+        "«13700k»",
+        "«b650»"
+      ],
+      "supported_fraction": 0.25
+    },
+    {
+      "case_id": "bc031",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [
+        "Gigabyte B650 AORUS Elite AX"
+      ],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 3,
+      "verifier_unsupported_claims": [
+        "«lga1700»",
+        "«b660»",
+        "«h670»",
+        "«z690»",
+        "«z790»",
+        "число 7700",
+        "«ryzen5»",
+        "«ryzen7»",
+        "«7600x»"
+      ],
+      "supported_fraction": 0.25
+    },
+    {
+      "case_id": "bc032",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc033",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc034",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc035",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc036",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc037",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc038",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [
+        [
+          5900.0,
+          5843.74
+        ]
+      ],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc039",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc040",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc041",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc042",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc043",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc044",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc045",
+      "evaluator_flagged": true,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 1,
+      "verifier_unsupported_claims": [
+        "число 64",
+        "число 128"
+      ],
+      "supported_fraction": 0.6667
+    },
+    {
+      "case_id": "bc046",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc047",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc048",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    },
+    {
+      "case_id": "bc049",
+      "evaluator_flagged": false,
+      "evaluator_ungrounded": [],
+      "evaluator_price_errors": [],
+      "verifier_unsupported_sentences": 0,
+      "verifier_unsupported_claims": [],
+      "supported_fraction": 1.0
+    }
+  ]
+}

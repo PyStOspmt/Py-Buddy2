@@ -230,11 +230,12 @@ def test_f12_verified_rules_still_decide():
 def test_f12_contract_inductor_marks_its_output_candidate():
     from contract_inductor import ContractInductor
     products = [
-        ProductNode("c1", "C1", "cpu", 1.0, {"socket": "AM5", "tdp": 100}),
-        ProductNode("m1", "M1", "mb", 1.0, {"socket": "AM5"}),
-        ProductNode("p1", "P1", "psu", 1.0, {"wattage": 700}),
+        ProductNode("c1", "C1", "cpu", 1.0, {"k_sock": "AM5", "k_draw": "100W"}),
+        ProductNode("m1", "M1", "motherboard", 1.0, {"k_sock": "AM5"}),
+        ProductNode("c2", "C2", "cpu", 1.0, {"k_sock": "LGA1700", "k_draw": "180W"}),
+        ProductNode("p1", "P1", "psu", 1.0, {"k_cap": "700W"}),
     ]
-    induced = ContractInductor()._induce_deterministic(products)
+    induced = ContractInductor().induce_contracts_from_products(products)
     assert induced, "the inductor must still discover candidate rules"
     assert all(c.status == "candidate" for c in induced)
 

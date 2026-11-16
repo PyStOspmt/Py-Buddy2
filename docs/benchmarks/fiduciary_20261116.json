@@ -1,0 +1,368 @@
+{
+  "experiment": "fiduciary_invariance",
+  "generated": "2026-11-16T18:51:05+00:00",
+  "catalogue": "C:\\Users\\stasm\\OneDrive\\Desktop\\PROJECTS\\OTHER\\Antigravity\\VNTU\\AINSA-Commerce\\data\\marketplace_rozetka.db",
+  "catalogue_products": 10000,
+  "sponsored_true": 1205,
+  "sponsored_permuted": 5000,
+  "permutation": "deterministic alternating (fiduciary_audit.deterministic_permutation)",
+  "deterministic": {
+    "product_set_size": 30,
+    "control_bonus": 1550.14,
+    "pybuddy": {
+      "fid": 0.0,
+      "fid_raw": 0.0,
+      "passed": true,
+      "moved_items": 0,
+      "utility": {
+        "coverage": 1.0,
+        "top1": "mk_psu_8762",
+        "ground_truth_top1": "mk_psu_8762",
+        "top1_useful": true
+      },
+      "certificate": {
+        "version": "FIC-1.1",
+        "status": "CERTIFIED",
+        "fid": 0.0,
+        "catalogue_size": 30,
+        "structural": {
+          "passed": true,
+          "leaked_tokens": [],
+          "checked": 1
+        },
+        "contextual": null,
+        "dynamic": {
+          "passed": true,
+          "evaluable": true,
+          "fid": 0.0,
+          "fid_raw": 0.0,
+          "n_items": 30,
+          "missing_in_true": [],
+          "missing_in_permuted": [],
+          "moved": []
+        },
+        "violations": []
+      }
+    },
+    "biased_control": {
+      "fid": 0.148889,
+      "fid_raw": 0.1488888888888889,
+      "passed": false,
+      "moved_items": 24,
+      "utility": {
+        "coverage": 1.0,
+        "top1": "mk_psu_8762",
+        "ground_truth_top1": "mk_psu_8762",
+        "top1_useful": true
+      },
+      "certificate": {
+        "version": "FIC-1.1",
+        "status": "VIOLATION",
+        "fid": 0.148889,
+        "catalogue_size": 30,
+        "structural": {
+          "passed": false,
+          "leaked_tokens": [
+            "load_sponsorship",
+            "sponsored"
+          ],
+          "checked": 1
+        },
+        "contextual": null,
+        "dynamic": {
+          "passed": false,
+          "evaluable": true,
+          "fid": 0.148889,
+          "fid_raw": 0.1488888888888889,
+          "n_items": 30,
+          "missing_in_true": [],
+          "missing_in_permuted": [],
+          "moved": [
+            {
+              "item_id": "mk_cpu_1110",
+              "rank_true": 24,
+              "rank_permuted": 23
+            },
+            {
+              "item_id": "mk_cpu_2984",
+              "rank_true": 13,
+              "rank_permuted": 25
+            },
+            {
+              "item_id": "mk_cpu_3794",
+              "rank_true": 25,
+              "rank_permuted": 14
+            },
+            {
+              "item_id": "mk_cpu_3959",
+              "rank_true": 23,
+              "rank_permuted": 22
+            },
+            {
+              "item_id": "mk_cpu_9010",
+              "rank_true": 12,
+              "rank_permuted": 24
+            },
+            {
+              "item_id": "mk_motherboard_4766",
+              "rank_true": 6,
+              "rank_permuted": 21
+            },
+            {
+              "item_id": "mk_motherboard_5634",
+              "rank_true": 22,
+              "rank_permuted": 20
+            },
+            {
+              "item_id": "mk_motherboard_5886",
+              "rank_true": 15,
+              "rank_permuted": 17
+            },
+            {
+              "item_id": "mk_motherboard_7550",
+              "rank_true": 16,
+              "rank_permuted": 9
+            },
+            {
+              "item_id": "mk_motherboard_836",
+              "rank_true": 17,
+              "rank_permuted": 10
+            },
+            {
+              "item_id": "mk_psu_3260",
+              "rank_true": 5,
+              "rank_permuted": 8
+            },
+            {
+              "item_id": "mk_psu_3589",
+              "rank_true": 3,
+              "rank_permuted": 7
+            },
+            {
+              "item_id": "mk_psu_4272",
+              "rank_true": 2,
+              "rank_permuted": 6
+            },
+            {
+              "item_id": "mk_psu_7789",
+              "rank_true": 4,
+              "rank_permuted": 1
+            },
+            {
+              "item_id": "mk_psu_8762",
+              "rank_true": 1,
+              "rank_permuted": 5
+            },
+            {
+              "item_id": "mk_ram_4063",
+              "rank_true": 7,
+              "rank_permuted": 2
+            },
+            {
+              "item_id": "mk_ram_4504",
+              "rank_true": 9,
+              "rank_permuted": 3
+            },
+            {
+              "item_id": "mk_ram_8926",
+              "rank_true": 10,
+              "rank_permuted": 4
+            },
+            {
+              "item_id": "mk_ram_8934",
+              "rank_true": 8,
+              "rank_permuted": 13
+            },
+            {
+              "item_id": "mk_ram_9764",
+              "rank_true": 11,
+              "rank_permuted": 15
+            },
+            {
+              "item_id": "mk_ssd_1171",
+              "rank_true": 21,
+              "rank_permuted": 19
+            },
+            {
+              "item_id": "mk_ssd_1831",
+              "rank_true": 19,
+              "rank_permuted": 11
+            },
+            {
+              "item_id": "mk_ssd_2103",
+              "rank_true": 20,
+              "rank_permuted": 12
+            },
+            {
+              "item_id": "mk_ssd_6044",
+              "rank_true": 14,
+              "rank_permuted": 16
+            }
+          ]
+        },
+        "violations": [
+          "scorer mentions commercial fields: load_sponsorship, sponsored",
+          "ranking moved under adversarial sponsorship (FID=0.148889, 24 item(s) displaced, worst delta=15)"
+        ]
+      }
+    },
+    "commission_control": {
+      "fid": 0.064444,
+      "fid_raw": 0.06444444444444444,
+      "passed": false,
+      "moved_items": 20,
+      "utility": {
+        "coverage": 1.0,
+        "top1": "mk_psu_8762",
+        "ground_truth_top1": "mk_psu_8762",
+        "top1_useful": true
+      },
+      "certificate": {
+        "version": "FIC-1.1",
+        "status": "VIOLATION",
+        "fid": 0.064444,
+        "catalogue_size": 30,
+        "structural": {
+          "passed": false,
+          "leaked_tokens": [
+            "boost",
+            "boosts",
+            "commission",
+            "commission_pct",
+            "commission_scores",
+            "load_commission",
+            "sponsored"
+          ],
+          "checked": 1
+        },
+        "contextual": null,
+        "dynamic": {
+          "passed": false,
+          "evaluable": true,
+          "fid": 0.064444,
+          "fid_raw": 0.06444444444444444,
+          "n_items": 30,
+          "missing_in_true": [],
+          "missing_in_permuted": [],
+          "moved": [
+            {
+              "item_id": "mk_cpu_1110",
+              "rank_true": 24,
+              "rank_permuted": 22
+            },
+            {
+              "item_id": "mk_cpu_2984",
+              "rank_true": 22,
+              "rank_permuted": 25
+            },
+            {
+              "item_id": "mk_cpu_3794",
+              "rank_true": 25,
+              "rank_permuted": 23
+            },
+            {
+              "item_id": "mk_cpu_3959",
+              "rank_true": 23,
+              "rank_permuted": 21
+            },
+            {
+              "item_id": "mk_cpu_9010",
+              "rank_true": 12,
+              "rank_permuted": 24
+            },
+            {
+              "item_id": "mk_motherboard_4766",
+              "rank_true": 6,
+              "rank_permuted": 20
+            },
+            {
+              "item_id": "mk_motherboard_5634",
+              "rank_true": 21,
+              "rank_permuted": 19
+            },
+            {
+              "item_id": "mk_motherboard_5886",
+              "rank_true": 14,
+              "rank_permuted": 12
+            },
+            {
+              "item_id": "mk_motherboard_7550",
+              "rank_true": 15,
+              "rank_permuted": 13
+            },
+            {
+              "item_id": "mk_motherboard_836",
+              "rank_true": 16,
+              "rank_permuted": 14
+            },
+            {
+              "item_id": "mk_ram_4063",
+              "rank_true": 7,
+              "rank_permuted": 6
+            },
+            {
+              "item_id": "mk_ram_4504",
+              "rank_true": 9,
+              "rank_permuted": 8
+            },
+            {
+              "item_id": "mk_ram_8926",
+              "rank_true": 10,
+              "rank_permuted": 9
+            },
+            {
+              "item_id": "mk_ram_8934",
+              "rank_true": 8,
+              "rank_permuted": 7
+            },
+            {
+              "item_id": "mk_ram_9764",
+              "rank_true": 11,
+              "rank_permuted": 10
+            },
+            {
+              "item_id": "mk_ssd_1171",
+              "rank_true": 20,
+              "rank_permuted": 18
+            },
+            {
+              "item_id": "mk_ssd_1831",
+              "rank_true": 18,
+              "rank_permuted": 16
+            },
+            {
+              "item_id": "mk_ssd_2103",
+              "rank_true": 19,
+              "rank_permuted": 17
+            },
+            {
+              "item_id": "mk_ssd_3840",
+              "rank_true": 17,
+              "rank_permuted": 15
+            },
+            {
+              "item_id": "mk_ssd_6044",
+              "rank_true": 13,
+              "rank_permuted": 11
+            }
+          ]
+        },
+        "violations": [
+          "scorer mentions commercial fields: boost, boosts, commission, commission_pct, commission_scores, load_commission, sponsored",
+          "ranking moved under adversarial sponsorship (FID=0.064444, 20 item(s) displaced, worst delta=14)"
+        ]
+      }
+    },
+    "identity_repeat": {
+      "fid": 0.0,
+      "fid_raw": 0.0,
+      "passed": true
+    },
+    "structural": {
+      "passed": true,
+      "checked": 12,
+      "leaked_tokens": []
+    }
+  },
+  "live": null
+}

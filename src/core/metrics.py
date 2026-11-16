@@ -83,9 +83,15 @@ _ACCEPT_CUES = (
 )
 _REJECT_CUES = (
     "несумісн", "не підійд", "не підход", "не мож", "немає", "не знайд",
-    "відхилен", "заборонен", "непідход", "конфлікт", "не вистач",
-    "перевищу", "не сумісн", "не вдасться", "недоступн", "закінчив",
-    "не рекоменду", "нерекоменду", "дефіцит", "не варто", "недоцін",
+    "відсутн", "бракує", "відхилен", "заборонен", "непідход", "конфлікт",
+    "не вистач", "перевищу", "не сумісн", "не вдасться", "недоступн",
+    "закінчив", "не рекоменду", "нерекоменду", "дефіцит", "не варто", "недоцін",
+)
+_NEGATED_CONFLICT_RE = re.compile(
+    r"\b(?:без|немає|нема|не\s+виявлен\w*|не\s+знайден\w*|відсутн\w*|жодн\w*)\s+конфлікт\w*"
+    r"|\bконфлікт\w*\s+(?:не\s+виявлен\w*|немає|нема|не\s+знайден\w*|відсутн\w*)"
+    r"|\bне\s+бракує",
+    re.IGNORECASE | re.UNICODE,
 )
 # A positive cue counts only when NOT immediately preceded by a negation.
 # Without this, the cue "сумісн" fires inside "несумісний" and every
@@ -157,9 +163,15 @@ def extract_verdict(text: str,
     reject_s, reject_c = _cue_variants(_REJECT_CUES)
     accept_s, accept_c = _cue_variants(_ACCEPT_CUES)
 
+    def _mask_negated_rejects(text_win: str) -> Tuple[str, str]:
+        cleaned = _NEGATED_CONFLICT_RE.sub(" ", text_win)
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        return cleaned, re.sub(r"\s+", "", cleaned)
+
     def has_reject(window: str, compact: str) -> bool:
-        return (any(c in window for c in reject_s)
-                or any(c in compact for c in reject_c))
+        w_clean, c_clean = _mask_negated_rejects(window)
+        return (any(c in w_clean for c in reject_s)
+                or any(c in c_clean for c in reject_c))
 
     def has_accept(window: str, compact: str) -> bool:
         """Positive cue that is not negated, e.g. 'сумісна' yes, 'несумісна' no."""
@@ -173,15 +185,31 @@ def extract_verdict(text: str,
 
     # A rejection cue is more specific than a positive one, so it wins when
     # both fire in the same window. Decision is taken on the concluding
-    # sentence first, falling back to the whole answer.
+    # sentence first, falling back to the whole answer unless an opening
+    # rejection is merely followed by alternative suggestions.
     sentences = [s for s in re.split(r"[.!?\n]+", norm) if s.strip()]
     tail = sentences[-1] if sentences else norm
-    for window in (tail, norm):
-        compact = re.sub(r"\s+", "", window)
-        if has_reject(window, compact):
-            return "reject"
-        if has_accept(window, compact):
-            return "accept"
+    tail_compact = re.sub(r"\s+", "", tail)
+    norm_compact = re.sub(r"\s+", "", norm)
+    if has_reject(tail, tail_compact):
+        return "reject"
+    head = sentences[0] if sentences else ""
+    head_compact = re.sub(r"\s+", "", head)
+    head_unavail = len(sentences) >= 2 and bool(
+        re.search(r"\b(?:відсутн\w*|немає|не\s+знайд\w*|бракує)\b", _mask_negated_rejects(head)[0])
+    )
+    tail_overrides = bool(re.search(r"\b(?:проте|однак|але\s+насправді)\b", tail)) or (
+        bool(re.search(r"\b(?:сумісн\w*|підійд\w*|можна\s+встановити)\b", tail))
+        and not re.search(r"\b(?:натомість|замість|альтернатив\w*|схож\w*)\b", tail)
+    )
+    if head_unavail and has_reject(norm, norm_compact) and not tail_overrides:
+        return "reject"
+    if has_accept(tail, tail_compact):
+        return "accept"
+    if has_reject(norm, norm_compact):
+        return "reject"
+    if has_accept(norm, norm_compact):
+        return "accept"
     return "neutral"
 
 
@@ -193,8 +221,17 @@ def extract_verdict(text: str,
 # case-bearing ("RTX", "B650", "7600X"); ordinary prose with a number is not
 # ("за 9 500 грн", "3 штуки"). That single filter removes the false positives
 # without a stop-word list.
+# "Model-ish" tokens. Two shapes are recognised:
+#   letter-led glued    : "LGA1700", "DDR5", "PF500", "i9-15900KS"
+#   spaced ASCII model  : "Ryzen 5", "RTX 4080", "ATX 3" (single space ONLY,
+#                         never across newlines and never trailing unit nouns)
+#   digit-led           : "7800X3D", "9950X", "7600X"
+# Using a literal single space avoids joining Cyrillic intro words ("Ось 5")
+# or multiline list numbers ("Ukraine\n3.") with trailing digits.
 _ENTITY_RE = re.compile(
-    r"(?<![\w])[^\W\d_][\w\-]*\s?\d[\w\-]*"
+    r"(?<![\w])[^\W\d_][\w\-]*\d[\w\-]*"
+    r"|(?<![\w])[A-Za-z]*[A-Z][A-Za-z\-]* \d[\w\-]*"
+    r"(?! *(?:[wW]|вт|Вт|kW|кВт|GB|TB|MB|ТБ|ГБ|МБ|mm|мм|cm|см|кг|kg|г|мг|mg|грн|UAH)\b)"
     r"|(?<![\w])\d[\w\-]*[A-Z][\w\-]*"
 )
 
@@ -213,6 +250,17 @@ def extract_entities(text: str) -> List[str]:
     return out
 
 
+def _extract_ground_tokens(name: str) -> List[str]:
+    """Extract catalog entity tokens plus embedded unit-bearing specs ('LPX 32GB' -> '32gb', 'DDR4-3600' -> 'ddr4')."""
+    toks = extract_entities(name)
+    for part in re.findall(r"[0-9A-Za-z]+", name or ""):
+        if any(ch.isdigit() for ch in part) and any(ch.isupper() for ch in part):
+            tok = re.sub(r"[\s_\-]+", "", normalize(part))
+            if len(tok) >= 3 and tok not in toks:
+                toks.append(tok)
+    return toks
+
+
 def grounded_entities(
     text: str,
     catalog_names: Sequence[str],
@@ -228,11 +276,11 @@ def grounded_entities(
     catalog attribute value when `extra_grounded_terms` is supplied).
     """
     ground: Set[str] = set()
-    for name in catalog_names:
-        ground.update(extract_entities(name))
+    for name in set(catalog_names):
+        ground.update(_extract_ground_tokens(name))
     if extra_grounded_terms:
-        for term in extra_grounded_terms:
-            ground.update(extract_entities(str(term)))
+        for term in {str(t) for t in extra_grounded_terms}:
+            ground.update(_extract_ground_tokens(term))
     return [t for t in extract_entities(text) if t not in ground]
 
 
@@ -240,23 +288,30 @@ def match_products(text: str, known_names: Sequence[str]) -> List[str]:
     """
     Find which catalog products are referred to in the response.
 
-    Matching is on a whitespace/punctuation-stripped key, so
-    "MSI B650 Gaming Plus WiFi" is recognised regardless of the casing,
-    surrounding punctuation or line breaks used in the answer.
+    Matching is on a whitespace/punctuation-stripped key, longest matches first
+    with span masking so "X (Rev 1)" never also emits unsuffixed "X".
     Returns the *original* catalog names, deduplicated, in mention order.
     """
     haystack = _norm_key(text)
     if not haystack:
         return []
     keys: List[Tuple[str, str]] = sorted(
-        ((_norm_key(n), n) for n in known_names if _norm_key(n)),
+        ((_norm_key(n), n) for n in dict.fromkeys(known_names) if _norm_key(n)),
         key=lambda kv: len(kv[0]), reverse=True,
     )
-    found: List[str] = []
+    masked = haystack
+    hits: List[Tuple[int, str]] = []
+    seen: Set[str] = set()
     for key, original in keys:
-        if key in haystack and original not in found:
-            found.append(original)
-    return found
+        if original in seen:
+            continue
+        pos = masked.find(key)
+        if pos != -1:
+            hits.append((pos, original))
+            seen.add(original)
+            masked = masked.replace(key, "\x00" * len(key))
+    hits.sort(key=lambda item: item[0])
+    return [original for _, original in hits]
 
 
 # --------------------------------------------------------------------------
@@ -480,30 +535,106 @@ def score_case(
 
     global_anchors = anchors_for(s.mentioned_products)
 
-    # Positional entity-offer binding: a quoted figure belongs to the
-    # NEAREST PRECEDING product mention, and must be one of THAT product's
-    # prices. Sentence-level binding was not enough -- "A за 6200 грн та
-    # B за 9500 грн" is one sentence, and union-anchoring inside it accepted
-    # the two figures swapped. A figure with no preceding mention falls back
-    # to the union (a bare price line still has to match something the
-    # answer talked about).
-    mention_positions: List[Tuple[int, str]] = []
-    for name in s.mentioned_products:
+    # Positional entity-offer binding within each sentence:
+    # - Preceding product mention in the SAME sentence wins (strict against
+    #   "A за 6200 грн та B за 9500 грн" swaps);
+    # - Otherwise trailing product mention in the SAME sentence ("8327 грн за A");
+    # - Otherwise base-family name mentioned in that sentence ("AMD Ryzen 5 5600"
+    #   across revisions);
+    # - Otherwise summary sentence falls back to global_anchors (all products
+    #   talked about on the page, matching docstring F25 above).
+    _METRICS_REV_SUFFIX_RE = re.compile(r"\s*\(rev\s*\d+\)\s*$", re.IGNORECASE)
+    family_map: Dict[str, List[str]] = {}
+    for cname in dict.fromkeys(catalog_names):
+        fam = _METRICS_REV_SUFFIX_RE.sub("", cname).strip()
+        fk = _norm_key(fam)
+        if fk:
+            family_map.setdefault(fk, []).append(cname)
+
+    sent_spans: List[Tuple[int, int]] = []
+    pos = 0
+    for seg in re.split(r"(?:\n+|(?<!\d)[.!?]+(?=\s|$))", response or ""):
+        if seg:
+            idx = (response or "").find(seg, pos)
+            if idx != -1:
+                sent_spans.append((idx, idx + len(seg)))
+                pos = idx + len(seg)
+    if not sent_spans and response:
+        sent_spans = [(0, len(response))]
+
+    # Keep longest non-overlapping product match at each character span so
+    # a shorter family substring ("AMD Ryzen 5 7600X") never shadows an exact
+    # revision mention ("AMD Ryzen 5 7600X (Rev 2)") at the same offset.
+    mention_spans: List[Tuple[int, int, str]] = []
+    for name in sorted(s.mentioned_products, key=len, reverse=True):
         for m in re.finditer(re.escape(name), response or "", re.IGNORECASE):
-            mention_positions.append((m.start(), name))
-    mention_positions.sort()
+            st_m, en_m = m.start(), m.end()
+            if any(st_m >= prev_st and en_m <= prev_en for prev_st, prev_en, _ in mention_spans):
+                continue
+            mention_spans.append((st_m, en_m, name))
+    mention_positions: List[Tuple[int, str]] = sorted((st_m, nm) for st_m, _en_m, nm in mention_spans)
     query_nums = set(extract_prices(user_query)) if user_query else set()
-    for m in _PRICE_RE.finditer(response or ""):
-        said = parse_number(m.group(1))
-        if said is None:
-            continue
-        if any(abs(said - qn) <= 0.51 for qn in query_nums):
-            continue
-        preceding = [n for p, n in mention_positions if p < m.start()]
-        anchors = anchors_for(preceding[-1:]) if preceding else global_anchors
-        if not any(abs(said - truth) <= 0.51 for truth in anchors):
-            nearest = min((abs(said - t) for t in anchors), default=float("inf"))
-            s.price_errors.append((said, round(nearest, 2)))
+    last_family_fk: Optional[str] = None
+    for st, en in sent_spans:
+        seg = (response or "")[st:en]
+        sent_norm = _norm_key(seg)
+        seg_norm_ws = normalize(seg)
+        sent_fams = [
+            fk for fk in family_map
+            if len(fk) >= 6 and fk in sent_norm
+        ]
+        for m in _PRICE_RE.finditer(seg):
+            abs_pos = st + m.start()
+            said = parse_number(m.group(1))
+            if said is None:
+                continue
+            if any(abs(said - qn) <= 0.51 for qn in query_nums):
+                continue
+            in_sent = [(p, n) for p, n in mention_positions if st <= p < en]
+            same_prec = [n for p, n in in_sent if p < abs_pos]
+            same_trail = [n for p, n in in_sent if p > abs_pos]
+            # Per-price revision specifier: immediate trailing "(Rev N)" or nearest preceding "Rev N"
+            trail_rev = re.match(r"^\s*\(?\s*rev\s*(\d+)\b", seg[m.end():], re.IGNORECASE)
+            prec_revs = list(re.finditer(r"\brev\s*(\d+)\b", seg[:m.start()], re.IGNORECASE))
+            rev_num = trail_rev.group(1) if trail_rev else (prec_revs[-1].group(1) if prec_revs else None)
+            if same_prec:
+                cand_name = same_prec[-1]
+                anchors = anchors_for([cand_name])
+                cand_fk = _norm_key(_METRICS_REV_SUFFIX_RE.sub("", cand_name))
+                if (
+                    rev_num is not None
+                    and not _METRICS_REV_SUFFIX_RE.search(cand_name)
+                    and cand_fk in family_map
+                ):
+                    rev_re = re.compile(rf"\(rev\s*{rev_num}\)\s*$", re.IGNORECASE)
+                    rev_revs = [r for r in family_map[cand_fk] if rev_re.search(r)]
+                    if rev_revs:
+                        anchors = anchors_for(rev_revs)
+            elif same_trail:
+                anchors = anchors_for(same_trail[:1])
+            else:
+                if rev_num is not None and sent_fams:
+                    rev_re = re.compile(rf"\(rev\s*{rev_num}\)\s*$", re.IGNORECASE)
+                    fam_hits = [r for fk in sent_fams for r in family_map[fk] if rev_re.search(r)]
+                else:
+                    fam_hits = [rev for fk in sent_fams for rev in family_map[fk]]
+                if not fam_hits and last_family_fk and last_family_fk in family_map:
+                    if rev_num is not None:
+                        rev_re = re.compile(rf"\(rev\s*{rev_num}\)\s*$", re.IGNORECASE)
+                        fam_hits = [r for r in family_map[last_family_fk] if rev_re.search(r)]
+                    elif re.search(
+                        r"ревізі|цієї\s+(?:ж\s+)?модел|цієї\s+(?:материнської|відеокарти|пам'яті|плати)|"
+                        r"варіант\w*\s+(?:цієї|даної)|їхн\w*\s+цін|"
+                        r"інш\w*(?:\s+перевірен\w*)?\s+варіант\w*\s+кошту|ціни\s+в\s+базі\s+починаються",
+                        seg_norm_ws,
+                    ):
+                        fam_hits = family_map[last_family_fk]
+                anchors = anchors_for(fam_hits) if fam_hits else global_anchors
+            if not any(abs(said - truth) <= 0.51 for truth in anchors):
+                nearest = min((abs(said - t) for t in anchors), default=float("inf"))
+                s.price_errors.append((said, round(nearest, 2)))
+        if sent_fams:
+            last_family_fk = max(sent_fams, key=lambda fk: (sent_norm.rfind(fk), len(fk)))
     s.prices_grounded = not s.price_errors
 
     s.raw_structured_verdict = structured_verdict
@@ -531,6 +662,22 @@ def score_case(
             for seg in re.split(r"(?:[!?]+|\.(?!\d))\s*|\n+", response or "")
             if seg.strip()
         ]
+        def _is_negated_citation(seg: str, tok: str) -> bool:
+            if extract_verdict(seg) == "reject":
+                return True
+            matched = False
+            for m_ent in _ENTITY_RE.finditer(seg or ""):
+                if re.sub(r"[\s_\-]+", "", normalize(m_ent.group(0))) != tok:
+                    continue
+                matched = True
+                pre = normalize(seg[max(0, m_ent.start() - 48):m_ent.start()])
+                if not re.search(
+                    r"(?:^|\b)(?:а\s+не|замість|ніж|крім|без|відсутн\w*|немає)(?:\s+\S+){0,2}$",
+                    pre,
+                ):
+                    return False
+            return matched
+
         kept_ungrounded: List[str] = []
         for tok in s.ungrounded_entities:
             if tok not in query_entities:
@@ -538,7 +685,7 @@ def score_case(
                 continue
             citing = [seg for seg in sents if tok in extract_entities(seg)]
             if citing and all(
-                extract_verdict(seg) == "reject" and not extract_prices(seg)
+                _is_negated_citation(seg, tok) and not extract_prices(seg)
                 for seg in citing
             ):
                 continue

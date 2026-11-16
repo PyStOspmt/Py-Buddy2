@@ -167,6 +167,6 @@ def format_price_with_currency(
     decimals: int = 2,
 ) -> str:
     """Format a numeric price paired with its verified unit (never inventing UAH)."""
-    num = f"{float(price):.{decimals}f}"
+    num = f"{float(price):,.{decimals}f}".replace(",", "\u00a0").replace(".", ",")
     label = format_currency_label(currency, style="prose")
     return f"{num} {label}" if label else num

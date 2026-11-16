@@ -74,8 +74,8 @@ def test_surgical_entity_price_correction():
     prose = "Рекомендую процесор AMD Ryzen 5 7600X за 12000 грн як чудовий варіант для ігор."
     ok, text = agent.finalize_response(state, prose, [{"name": "AMD Ryzen 5 7600X"}])
     assert ok
-    # The false price must be corrected to 9500.00 грн, preserving the surrounding reasoning
-    assert "9500.00 грн" in text
+    # The false price must be corrected to 9 500,00 грн, preserving the surrounding reasoning
+    assert "9\u00a0500,00 грн" in text
     assert "12000 грн" not in text
     assert "чудовий варіант для ігор" in text
 
@@ -288,7 +288,7 @@ def test_orphaned_price_line_pruned_when_item_sentence_is_unsupported():
     assert "8 317" not in final and "8317" not in final
 
     rendered = render_from_rows([{"name": "MSI B650 Gaming Plus WiFi", "price": None, "price_conflicts": [6100.0, 6450.0]}])
-    assert "6100.00" in rendered and "6450.00" in rendered
+    assert "6\u00a0100,00" in rendered and "6\u00a0450,00" in rendered
 
 
 def test_claim_verifier_single_retry_repairs_or_falls_back_cleanly():
@@ -467,7 +467,7 @@ def test_finalize_response_uses_domain_currency_without_hardcoded_uah():
         [{"name": "NVIDIA Quadro M4000"}],
     )
     assert fb is not None
-    assert "837.99 USD" in fb[0]
+    assert "837,99 USD" in fb[0]
     assert "грн" not in fb[0]
 
     ok, fixed = finalize_grounded_response(
@@ -477,7 +477,7 @@ def test_finalize_response_uses_domain_currency_without_hardcoded_uah():
         [{"name": "NVIDIA Quadro M4000"}],
     )
     assert ok is True
-    assert "837.99 USD" in fixed
+    assert "837,99 USD" in fixed
     assert "грн" not in fixed
 
     agent_none = ReActAgent(db_path=db_path, currency=None)
@@ -500,7 +500,7 @@ def test_finalize_response_uses_domain_currency_without_hardcoded_uah():
         [{"name": "NVIDIA Quadro M4000"}],
     )
     assert ok_n is True
-    assert "837.99" in fixed_n
+    assert "837,99" in fixed_n
     assert "грн" not in fixed_n
 
 
@@ -557,4 +557,53 @@ def test_finalize_dedups_recommended_and_binds_pre_name_or_revision_price():
     assert ok is True
     assert state.termination_reason == "SUCCESS_GROUNDED"
     assert [r["name"] for r in state.recommended_items] == ["Chip X (Rev 2)"]
+
+
+def test_extract_tool_statuses_preserves_unknown_and_gate_blocks_false_yes():
+    """F12: hypergraph_check verdict='unknown' must block unqualified 'compatible' prose."""
+    from grounding_gate import extract_tool_statuses, finalize_grounded_response, preserve_tool_status
+    from react_tools import agent_grounding
+
+    rows = [
+        {"id": "cpu_1", "name": "Chip A (Rev 1)", "price": 5000.0},
+        {"id": "mb_1", "name": "Board B (Rev 1)", "price": 4000.0},
+    ]
+    agent = ReActAgent.__new__(ReActAgent)
+    agent.currency = "UAH"
+    agent.grounding = GroundingSet()
+    state = SessionState(
+        session_id="s_unk_f12",
+        user_query="Чи сумісні Chip A і Board B?",
+        execution_history=[
+            {
+                "step": 1,
+                "tool_name": "hypergraph_check",
+                "observation": {"success": True, "verdict": "unknown", "evaluated_rules": 2},
+            }
+        ],
+    )
+    agent_grounding(agent, state).extend_rows(rows)
+
+    _conflicts, verdict, _relax = extract_tool_statuses(state.execution_history)
+    assert verdict == "unknown"
+
+    ok, final_text = finalize_grounded_response(
+        agent,
+        state,
+        "Так, Chip A (Rev 1) та Board B (Rev 1) сумісні — підходять одне до одного.",
+        [{"name": "Chip A (Rev 1)"}, {"name": "Board B (Rev 1)"}],
+    )
+    assert ok is True
+    assert state.termination_reason != "SUCCESS_GROUNDED"
+    assert "перевірка сумісності" in final_text.lower() or "невідомо" in final_text.lower()
+
+    # preserve_tool_status leaves already-honest unknown wording untouched
+    honest = "Статус сумісності невідомий (правила ще не підтверджені)."
+    assert preserve_tool_status(honest, [], "unknown", None, has_verified_items=True) == honest
+
+    # Schema currency provenance helper never fabricates currency when None
+    agent_none = ReActAgent.__new__(ReActAgent)
+    agent_none.currency = None
+    assert "не вказана" in agent_none._schema_with_currency("Schema X")
+    assert "UAH (грн)" in agent._schema_with_currency("Schema X")
 

@@ -144,3 +144,32 @@ def test_parallel_run_model_evaluation_and_shared_budget(rozetka_fixture):
         t.join()
     assert sb.calls == 5
     assert errors == ["BudgetExceeded", "BudgetExceeded", "BudgetExceeded"]
+
+
+def test_multiturn_oracles_and_chronological_openrouter_messages():
+    """Multi-turn non-verdict turns keep checks_verdict=False and prior turns precede current query."""
+    from benchmark_cases import VERDICT_FAMILIES
+    from openrouter_client import OpenRouterAgentRunner
+
+    snap = load_snapshot(DB_PATH)
+    for scen in build_multiturn_scenarios(snap):
+        for turn in scen["turns"]:
+            o = turn["oracle"]
+            expected_cv = o.case_type in VERDICT_FAMILIES or o.case_type == "price_trap"
+            assert o.checks_verdict is expected_cv, (o.case_id, o.case_type)
+
+    msgs = OpenRouterAgentRunner._build_react_messages(
+        "S",
+        "NEW_TURN_3_QUERY",
+        [
+            {"role": "user", "content": "[Попередній хід діалогу — лише контекст наміру]\nOLD_TURN_2"},
+            {"role": "assistant", "content": "[Попередній хід діалогу — лише контекст наміру]\nOLD_ANSWER_2"},
+            {"role": "assistant", "content": "Action: sql_query, Input: {}"},
+        ],
+        1,
+    )
+    contents = [m["content"] for m in msgs]
+    idx_old = next(i for i, c in enumerate(contents) if "OLD_TURN_2" in c)
+    idx_new = next(i for i, c in enumerate(contents) if "NEW_TURN_3_QUERY" in c)
+    idx_act = next(i for i, c in enumerate(contents) if "Action: sql_query" in c)
+    assert idx_old < idx_new < idx_act

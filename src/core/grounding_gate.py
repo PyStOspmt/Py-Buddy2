@@ -31,6 +31,14 @@ _CONFLICT_NOTICE_RE = re.compile(
     r"\b(?:несуміс\w*|не\s*сумісн\w*|конфлікт\w*|не\s+можна|неможлив\w*)\b",
     re.IGNORECASE | re.UNICODE,
 )
+_UNKNOWN_NOTICE_RE = re.compile(
+    r"(?:невідом\w*|unknown|статус\w*\s+«?невідомо»?|"
+    r"сумісн\w*[^.!?\n]{0,30}не\s+підтвердж\w*|"
+    r"не\s+підтверджен\w*[^.!?\n]{0,30}(?:правил\w*|сумісн\w*)|"
+    r"не\s+(?:вдалося|мож\w*)\s+підтвердити\s+сумісн\w*|"
+    r"потрібн\w*\s+підтвердж\w*\s+правил\w*)",
+    re.IGNORECASE | re.UNICODE,
+)
 _NEGATIVE_STATUS_RE = re.compile(
     r"\b(?:на\s+жаль|немає|недоступн\w*|не\s+знайдено|жодн\w*|"
     r"несуміс\w*|не\s*сумісн\w*|послаблен\w*|не\s+виконано|не\s+задовольня\w*)\b",
@@ -248,6 +256,10 @@ def extract_tool_statuses(
                 for c in obs.get("candidate_conflicts") or obs.get("conflicts") or []:
                     if c and str(c) not in hypergraph_conflicts:
                         hypergraph_conflicts.append(str(c))
+            elif v == "unknown" and compat_verdict not in ("incompatible", "candidate_conflict"):
+                compat_verdict = "unknown"
+            elif (v == "compatible" or obs.get("is_compatible") is True) and compat_verdict is None:
+                compat_verdict = "compatible"
         elif tname == "pareto_relax":
             if (
                 obs.get("relaxed") is True
@@ -294,6 +306,7 @@ def preserve_tool_status(
     # must not overwrite an affirmative catalog answer.
     allow_prose_neg = relax_notice is not None or not bool(has_verified_items)
     had_neg_in_pre = allow_prose_neg and bool(_PRE_NEG_RE.search(pre_text or ""))
+    out = text
     if (relax_notice is not None and not _NEGATIVE_STATUS_RE.search(tail_sent)) or (
         had_neg_in_pre and not _NEGATIVE_STATUS_RE.search(text or "")
     ):
@@ -302,8 +315,14 @@ def preserve_tool_status(
             if relax_notice
             else "На жаль, точних варіантів за всіма заданими обмеженнями в каталозі немає."
         )
-        return f"{text}\n{notice}" if text else notice
-    return text
+        out = f"{text}\n{notice}" if text else notice
+    if compat_verdict == "unknown" and not _UNKNOWN_NOTICE_RE.search(out or ""):
+        unk_msg = (
+            "Примітка: перевірка сумісності дала статус «невідомо» "
+            "(автоматичні правила ще не підтверджені оператором)."
+        )
+        out = f"{out}\n{unk_msg}" if out else unk_msg
+    return out
 
 
 def _item_prices(entry: Dict[str, Any]) -> List[float]:
@@ -526,6 +545,19 @@ def _mentioned_rows_in_prose_order(
     return ordered
 
 
+_REVISION_SUFFIX = re.compile(r"\s*\(Rev \d+\)\s*$")
+
+
+def _resolve_base_name(name: str, allowed_by_name: Dict[str, Any]) -> Optional[str]:
+    """Map a revision-less product name onto a grounded revision of the same product."""
+    if not name:
+        return None
+    if name in allowed_by_name:
+        return name
+    matches = [n for n in allowed_by_name if _REVISION_SUFFIX.sub("", n) == name]
+    return matches[0] if matches else None
+
+
 def _collect_grounding_context(
     agent: Any,
     state: Any,
@@ -542,7 +574,10 @@ def _collect_grounding_context(
     allowed = gs.projected_recommendations()
     allowed_by_name = {r["name"]: r for r in allowed}
 
-    ungrounded_mentions = ungrounded_catalog_mentions(agent, synthesis_text, gs)
+    ungrounded_mentions = [
+        m for m in ungrounded_catalog_mentions(agent, synthesis_text, gs)
+        if _resolve_base_name(m, allowed_by_name) is None
+    ]
     user_numbers = extract_query_numbers(state.user_query)
     corrected_text, price_corrected, uncorrectable_stray = _validate_positional_prices(
         synthesis_text,
@@ -555,8 +590,11 @@ def _collect_grounding_context(
 
     mentioned_verified = _mentioned_rows_in_prose_order(effective_text, allowed)
     rec_names = [
-        str(r.get("name", "")) if isinstance(r, dict) else str(r or "")
-        for r in (recommended_items or [])
+        _resolve_base_name(n, allowed_by_name) or n
+        for n in (
+            str(r.get("name", "")) if isinstance(r, dict) else str(r or "")
+            for r in (recommended_items or [])
+        )
     ]
     if mentioned_verified:
         verified = mentioned_verified
@@ -785,7 +823,7 @@ def finalize_grounded_response(
     state.is_terminated = True
     if fabricated or ungrounded_mentions:
         state.termination_reason = "SUCCESS_GROUNDED_WITH_CORRECTION"
-        removed = len(fabricated) + len(ungrounded_mentions)
+        removed = len(set(fabricated) | set(ungrounded_mentions))
         note = (
             f" Частину згаданого ({removed} поз.) не вдалося підтвердити "
             "в каталозі, тому відповідь показує лише перевірені товари."

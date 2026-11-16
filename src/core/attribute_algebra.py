@@ -33,8 +33,10 @@ docs/07_RESEARCH_LOG.md:
       Wheel rims are specified in inches; the catalogue writes `R19` and
       `19.0"` for the same part. Without this the Value Algebra reports
       R19 and 19" as incommensurable.
-  A2. Vendor type markers (`s`, `Socket`, `гніздо`, `Роз'єм процесора`) are
-      decoration and are stripped before comparison.
+  A2. Glued single-character vendor markers (`sAM5`, `sLGA1700`) and key-scoped
+      label prefixes (`key="Socket"`, value `"Socket AM4"`) are stripped by
+      structural projection (F50: only tokens appearing in the catalogue's
+      attribute keys are treated as label prefixes; no baked-in lexicon).
 """
 from __future__ import annotations
 
@@ -55,6 +57,8 @@ from typing import Dict, FrozenSet, Iterable, List, Optional, Sequence, Set, Tup
 UNIT_ALIASES: Dict[str, str] = {
     "w": "W", "watt": "W", "watts": "W", "wattage": "W",
     "вт": "W", "ватт": "W", "ват": "W",
+    "kw": "kW", "kilowatt": "kW", "kilowatts": "kW",
+    "квт": "kW", "кіловат": "kW", "кіловатт": "kW",
     "mm": "mm", "мм": "mm", "міліметр": "mm", "міліметрів": "mm", "міліметри": "mm",
     "cm": "cm", "см": "cm", "сантиметр": "cm",
     "in": "in", "inch": "in", "inches": "in",
@@ -81,7 +85,7 @@ UNIT_ALIASES: Dict[str, str] = {
 }
 
 DIMENSION_OF: Dict[str, str] = {
-    "W": "P",
+    "W": "P", "kW": "P",
     "mm": "L", "cm": "L", "in": "L",
     "GB": "S", "MB": "S", "TB": "S",
     "kg": "M", "g": "M", "mg": "M", "ug": "M",
@@ -92,7 +96,7 @@ DIMENSION_OF: Dict[str, str] = {
 
 # Conversion factor into the dimension's base unit.
 UNIT_TO_BASE: Dict[str, float] = {
-    "W": 1.0,
+    "W": 1.0, "kW": 1000.0,
     "mm": 1.0, "cm": 10.0, "in": 25.4,
     "GB": 1.0, "MB": 0.001, "TB": 1000.0,
     "kg": 1.0, "g": 0.001, "mg": 0.000001, "ug": 0.000000001,

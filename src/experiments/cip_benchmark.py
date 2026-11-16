@@ -128,7 +128,6 @@ from attribute_algebra import canonical_form
 from contract_inductor import (
     EQ,
     LE,
-    ContractInductor,
     StructuralRule as InducedRule,
     _key_scopes,
     _key_values,
@@ -136,12 +135,7 @@ from contract_inductor import (
     _structural_measure as _measure,
     induce_structural_rules as induce_structural,
 )
-from hypergraph import (
-    CumulativeCapacityConstraint,
-    EquivalenceConstraint,
-    ProductNode,
-    SpatialBoundingConstraint,
-)
+from hypergraph import ProductNode
 
 # --------------------------------------------------------------------------
 # Datasets
@@ -163,20 +157,85 @@ class Dataset:
 
 
 # --------------------------------------------------------------------------
-# Structural induction (now unified in src/core/contract_inductor.py)
+# Structural induction vs historical keyword-matching baseline (eval-only)
 # --------------------------------------------------------------------------
 
+_BASELINE_NON_MATCHING = frozenset({
+    "brand", "manufacturer", "color", "status", "warranty", "name", "id",
+    "description", "vendor", "merchant", "seller", "shop", "store",
+    "supplier", "rating", "vendor_rating", "delivery_days", "price",
+    "image", "url", "sku", "колір", "статус", "гарантія", "магазин",
+    "продавець", "рейтинг", "доставка",
+})
+_BASELINE_DEMAND = ("tdp", "watt", "draw", "weight", "mass", "dose", "demand", "consumption")
+_BASELINE_CAPACITY = ("psu_wattage", "wattage", "capacity", "payload", "max_safe_dose", "limit", "psu")
+_BASELINE_CAP_OVERLAP = ("supply", "psu", "capacity", "payload", "max", "limit")
+_BASELINE_DIM = ("length", "width", "height", "diameter", "radius")
+_BASELINE_MAX_DIM = ("max_length", "clearance", "max_width", "max_height", "max_diameter")
+_BASELINE_MAX_OVERLAP = ("max", "clearance")
+
+
 def rules_from_baseline(products: Sequence[ProductNode]) -> List[InducedRule]:
-    """The same rules, read off the keyword-matching inducer."""
+    """Historical English-keyword strawman baseline (strictly for CIP ablation, never in production src/core)."""
+    attr_to_cats: Dict[str, Set[str]] = {}
+    attr_types: Dict[str, Set[str]] = {}
+    attr_values: Dict[str, List[float]] = {}
+    attr_distinct: Dict[str, Set[str]] = {}
+
+    for p in products:
+        for k, v in p.attributes.items():
+            attr_to_cats.setdefault(k, set()).add(p.category)
+            attr_types.setdefault(k, set()).add(type(v).__name__)
+            attr_distinct.setdefault(k, set()).add(repr(v))
+            if isinstance(v, (int, float)) and not isinstance(v, bool):
+                attr_values.setdefault(k, []).append(float(v))
+
     out: List[InducedRule] = []
-    for c in ContractInductor()._induce_deterministic(list(products)):
-        if isinstance(c, EquivalenceConstraint):
-            key = (c.attr_name,)
-            out.append(InducedRule(EQ, key, key))
-        elif isinstance(c, CumulativeCapacityConstraint):
-            out.append(InducedRule(LE, (c.demand_attr,), (c.capacity_attr,)))
-        elif isinstance(c, SpatialBoundingConstraint):
-            out.append(InducedRule(LE, (c.dimension_attr,), (c.max_dimension_attr,)))
+    for attr, cats in attr_to_cats.items():
+        if len(attr_distinct.get(attr, ())) <= 1 or attr.lower() in _BASELINE_NON_MATCHING:
+            continue
+        if len(cats) >= 2 and ("str" in attr_types[attr] or "bool" in attr_types[attr]):
+            out.append(InducedRule(EQ, (attr,), (attr,)))
+
+    demand_cands = [
+        a for a, t in attr_types.items()
+        if any(x in ("int", "float") for x in t)
+        and any(w in a.lower() for w in _BASELINE_DEMAND)
+        and not any(w in a.lower() for w in _BASELINE_CAP_OVERLAP)
+    ]
+    cap_cands = [
+        a for a, t in attr_types.items()
+        if any(x in ("int", "float") for x in t)
+        and any(w in a.lower() for w in _BASELINE_CAPACITY)
+    ]
+    for dem in demand_cands:
+        for cap in cap_cands:
+            dl, cl = dem.lower(), cap.lower()
+            is_pwr = any(w in dl for w in ("tdp", "watt", "draw", "consumption")) and any(w in cl for w in ("watt", "psu"))
+            is_wt = any(w in dl for w in ("weight", "mass")) and any(w in cl for w in ("payload", "capacity", "mass"))
+            is_dose = "dose" in dl and "dose" in cl
+            if not (is_pwr or is_wt or is_dose):
+                continue
+            dv, cv = attr_values.get(dem, []), attr_values.get(cap, [])
+            if dv and cv and (sum(cv) / len(cv) > sum(dv) / len(dv)):
+                out.append(InducedRule(LE, (dem,), (cap,)))
+
+    dim_cands = [
+        a for a, t in attr_types.items()
+        if any(x in ("int", "float") for x in t)
+        and any(w in a.lower() for w in _BASELINE_DIM)
+        and not any(w in a.lower() for w in _BASELINE_MAX_OVERLAP)
+    ]
+    max_cands = [
+        a for a, t in attr_types.items()
+        if any(x in ("int", "float") for x in t)
+        and any(w in a.lower() for w in _BASELINE_MAX_DIM)
+    ]
+    for dim in dim_cands:
+        for md in max_cands:
+            dl, ml = dim.lower(), md.lower()
+            if ("diameter" in dl and "diameter" in ml) or ("length" in dl and "length" in ml):
+                out.append(InducedRule(LE, (dim,), (md,)))
     return sorted(set(out))
 
 

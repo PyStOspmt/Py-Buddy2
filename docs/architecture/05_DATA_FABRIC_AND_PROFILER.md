@@ -4,7 +4,9 @@
 > **Ключові файли модуля:**  
 > - [`src/core/profiler.py`](../../src/core/profiler.py)  
 > - [`src/core/domain_catalog.py`](../../src/core/domain_catalog.py)  
-> - [`src/core/marketplace_normalizer.py`](../../src/core/marketplace_normalizer.py)  
+> - [`src/core/source_eav_discovery.py`](../../src/core/source_eav_discovery.py)  
+> - [`src/core/attribute_algebra.py`](../../src/core/attribute_algebra.py)  
+> - [`src/core/contract_inductor.py`](../../src/core/contract_inductor.py)  
 > - [`src/core/entity_resolution.py`](../../src/core/entity_resolution.py)  
 
 ---
@@ -71,9 +73,9 @@ flowchart TD
 
 ---
 
-### 4. Мультивендорна нормалізація та Entity Resolution
+### 4. Безсловникова структурна нормалізація та Entity Resolution
 
-Файли: [`src/core/marketplace_normalizer.py`](../../src/core/marketplace_normalizer.py) та [`src/core/entity_resolution.py`](../../src/core/entity_resolution.py)
+Файли: [`src/core/attribute_algebra.py`](../../src/core/attribute_algebra.py), [`src/core/contract_inductor.py`](../../src/core/contract_inductor.py) та [`src/core/entity_resolution.py`](../../src/core/entity_resolution.py)
 
 На маркетплейсах один і той самий фізичний товар продають десятки незалежних вендорів:
 - Продавець 1: *«Gigabyte RTX 4060 Windforce (Rev 1)»* — 11 934 грн (AutoDrive Ukraine, рейтинг 4.9);
