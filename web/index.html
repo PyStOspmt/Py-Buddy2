@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Py-Buddy · Neuro-Symbolic Console</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231f1f1f'/%3E%3Cpath d='M16 5l9 11-9 11-9-11z' fill='%230078d4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/style.css?v=20">
+</head>
+<body>
+<div class="app">
+
+  <!-- ======================= Title bar ======================= -->
+  <header class="titlebar">
+    <div class="titlebar-left">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 32 32"><path d="M16 3l12 13-12 13L4 16z" fill="#0078d4"/><path d="M16 9.5L22.5 16 16 22.5 9.5 16z" fill="#1f1f1f"/></svg>
+      </span>
+      <span class="brand-name">Py-Buddy</span>
+      <span class="brand-tag">Neuro-Symbolic Console</span>
+    </div>
+
+    <div class="titlebar-center">
+      <span class="chip chip-ok" id="chip-gate" title="Zero-Hallucination Gate">
+        <span class="dot"></span><span id="chip-gate-text">Gate: …</span>
+      </span>
+      <button class="chip chip-clickable" id="btn-model-selector" type="button" title="Натисніть для вибору моделі OpenRouter (Roo/Cline style)">
+        <span class="dot dot-info"></span><span id="chip-model-text">model: …</span>
+        <span class="chip-chevron"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+      </button>
+      <span class="chip" id="chip-nodes" title="Розмір активного гіперграфа">
+        <span class="dot dot-info"></span><span id="chip-nodes-text">nodes: …</span>
+      </span>
+    </div>
+
+    <div class="titlebar-right">
+      <label class="domain-label" for="domain-select">Catalog</label>
+      <!-- F53: populated at runtime from /api/domains -- the page ships no
+           domain vocabulary of its own. -->
+      <select id="domain-select" class="select" title="Активний каталог"></select>
+      <span class="conn-status" id="conn-status" title="Статус бекенду">
+        <span class="dot dot-muted" id="conn-dot"></span><span id="conn-text">…</span>
+      </span>
+    </div>
+  </header>
+
+  <!-- ======================= Workspace ======================= -->
+  <main class="workspace">
+
+    <!-- ---------- Chat pane ---------- -->
+    <section class="chat-pane" aria-label="Чат з консультантом">
+      <div class="pane-toolbar">
+        <span class="pane-title">Chat</span>
+        <div class="toolbar-actions">
+          <span class="muted mono" id="session-info">session: —</span>
+          <button class="btn btn-sm btn-outline" id="btn-copy-chat-md" type="button" title="Копіювати весь експериментальний діалог у форматі Markdown для звіту"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg> Копіювати звіт (MD)</button>
+          <button class="btn btn-sm btn-outline" id="btn-copy-chat-json" type="button" title="Копіювати повні сирі дані діалогу з усіма тулзами у JSON"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4c-2 0-3 1-3 3v3c0 1.5-1 2-2 2 1 0 2 .5 2 2v3c0 2 1 3 3 3M16 4c2 0 3 1 3 3v3c0 1.5 1 2 2 2-1 0-2 .5-2 2v3c0 2-1 3-3 3"/></svg> JSON</button>
+          <button class="btn btn-ghost" id="clear-chat-btn" type="button" title="Очистити історію чату">Очистити</button>
+        </div>
+      </div>
+
+      <div class="chat-history" id="chat-history">
+        <article class="msg msg-assistant">
+          <div class="msg-role">Консультант</div>
+          <div class="msg-body">
+            <p>Вітаю! Я нейро-символьний консультант <strong>Py-Buddy</strong> з
+              <strong>Zero-Hallucination Gate</strong>: кожне ім'я товару та кожна ціна
+              у відповіді перевіряються проти бази даних, а не приймаються на віру від моделі.</p>
+            <p>Оберіть демо-сценарій нижче або поставте власне запитання. Праворуч — каталог,
+              перевірка сумісності комплектів, Парето-оптимізація та телеметрія.</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- F53: chips are rendered by app.js from the active catalogue's
+           real categories -- no fixture product names are shipped. -->
+      <div class="scenario-row" id="scenario-chips">
+        <span class="scenario-label">Сценарії:</span>
+      </div>
+
+      <form class="chat-dock" id="chat-form">
+        <textarea id="chat-input" rows="1" placeholder="Запитайте про сумісність, ціни або пораду… (Enter — надіслати, Shift+Enter — перенос рядка)" autocomplete="off"></textarea>
+        <button type="submit" class="btn btn-primary btn-send" id="send-btn" aria-label="Надіслати">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- ---------- Sidebar ---------- -->
+    <aside class="sidebar">
+      <nav class="tabbar" role="tablist">
+        <button class="tab active" data-tab="catalog" role="tab" type="button"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg> Каталог</button>
+        <button class="tab" data-tab="taxonomy" role="tab" type="button"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="4.5" r="2.2"/><circle cx="6" cy="19" r="2.2"/><circle cx="18" cy="19" r="2.2"/><path d="M12 6.7 6 16.8M12 6.7l6 10.1M8.2 19h7.6"/></svg> OntoGraph</button>
+        <button class="tab" data-tab="inspection" role="tab" type="button"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg> Інтроспекція</button>
+        <button class="tab" data-tab="semantic" role="tab" type="button"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M7.5 10.5h6M10.5 7.5v6"/></svg> Семантика</button>
+        <button class="tab" data-tab="bundle" role="tab" type="button"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/><path d="M10.5 7h5.5a2 2 0 0 1 2 2v4M13.5 17H8a2 2 0 0 1-2-2v-4"/></svg> Сумісність <span class="tab-count" id="bundle-count" hidden>0</span></button>
+        <button class="tab" data-tab="pareto" role="tab" type="button"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 17l4-6 4 3 6-9"/><circle cx="19" cy="5" r="1.6" fill="currentColor" stroke="none"/></svg> Парето</button>
+        <button class="tab" data-tab="telemetry" role="tab" type="button"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg> Телеметрія</button>
+      </nav>
+
+      <div class="tab-panels">
+
+        <!-- Panel: Catalog -->
+        <section class="tab-panel active" id="panel-catalog" role="tabpanel">
+          <div class="panel-controls">
+            <input type="search" id="catalog-search" class="input" placeholder="Пошук товарів…" autocomplete="off">
+            <span class="muted mono" id="catalog-count">—</span>
+          </div>
+          <div class="scroll-area" id="catalog-list"></div>
+        </section>
+
+        <!-- Panel: Bundle compatibility -->
+        <section class="tab-panel" id="panel-bundle" role="tabpanel">
+          <div class="panel-controls panel-controls-wrap">
+            <div class="bundle-chips" id="bundle-chips"><span class="muted">Кошик порожній</span></div>
+            <div class="bundle-actions">
+              <span class="verdict" id="bundle-status">—</span>
+              <button class="btn btn-ghost" id="clear-bundle-btn" type="button">Очистити</button>
+            </div>
+          </div>
+          <div class="graph-wrap">
+            <svg id="hypergraph-svg" viewBox="0 0 600 380" preserveAspectRatio="xMidYMid meet" aria-label="Граф сумісності"></svg>
+          </div>
+          <div class="conflict-box" id="conflict-box" hidden>
+            <div class="conflict-title"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 2.5 20h19z"/><path d="M12 10v4M12 17.5v.5"/></svg> Порушення інваріантів</div>
+            <ul id="conflict-list"></ul>
+          </div>
+        </section>
+
+        <!-- Panel: Pareto -->
+        <section class="tab-panel" id="panel-pareto" role="tabpanel">
+          <div class="panel-controls panel-controls-wrap">
+            <select class="input pareto-cat-select" id="pareto-category" title="Фільтр категорії для Парето">
+              <option value="">Усі категорії</option>
+            </select>
+            <div class="slider-row">
+              <label for="budget-slider">Бюджет: <span class="mono accent" id="budget-value">12000</span></label>
+              <input type="range" id="budget-slider" min="5000" max="30000" step="500" value="12000">
+            </div>
+            <div class="slider-row">
+              <label for="perf-slider">Мін. продуктивність: <span class="mono accent" id="perf-value">80</span></label>
+              <input type="range" id="perf-slider" min="50" max="100" step="5" value="80">
+            </div>
+          </div>
+          <div class="graph-wrap graph-wrap-canvas">
+            <canvas id="pareto-canvas"></canvas>
+            <div class="pareto-tooltip" id="pareto-tooltip" hidden></div>
+          </div>
+          <div class="pareto-point-card" id="pareto-point-card">
+            <span class="muted">Наведіть або натисніть на будь-яку точку графіка (зелену чи сіру), щоб побачити товар і чому він у такому статусі.</span>
+          </div>
+          <div class="pareto-front" id="pareto-front"></div>
+          <div class="explain-box" id="pareto-explanation">—</div>
+        </section>
+
+        <!-- Panel: Telemetry -->
+        <section class="tab-panel" id="panel-telemetry" role="tabpanel">
+          <div class="panel-controls">
+            <span class="pane-title">Система та остання відповідь</span>
+            <button class="btn btn-ghost" id="refresh-telemetry-btn" type="button"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11A8 8 0 1 0 18.6 16"/><path d="M20 5v6h-6"/></svg> Оновити</button>
+          </div>
+          <div class="scroll-area">
+            <div class="kpi-grid" id="kpi-grid">
+              <div class="kpi"><span class="kpi-title">Latency</span><span class="kpi-val mono" id="kpi-latency">—</span><span class="kpi-sub" id="kpi-tier">очікування</span></div>
+              <div class="kpi"><span class="kpi-title">Кроки ReAct</span><span class="kpi-val mono" id="kpi-steps">0</span><span class="kpi-sub mono" id="kpi-cost">$0.0000</span></div>
+              <div class="kpi"><span class="kpi-title">Модель</span><span class="kpi-val kpi-val-sm" id="kpi-model">—</span><span class="kpi-sub" id="kpi-gate">gate: —</span></div>
+              <div class="kpi"><span class="kpi-title">Домен</span><span class="kpi-val kpi-val-sm" id="kpi-domain">—</span><span class="kpi-sub" id="kpi-scale">—</span></div>
+            </div>
+
+            <div class="section-label">Активні інваріанти</div>
+            <div class="invariant-list" id="invariants-list"></div>
+
+            <div class="section-label">Останній payload (raw JSON)</div>
+            <pre class="raw-json" id="raw-json">{"status": "очікування запиту"}</pre>
+          </div>
+        </section>
+
+        <!-- Panel: OntoGraph Taxonomy Mindmap -->
+        <section class="tab-panel" id="panel-taxonomy" role="tabpanel">
+          <div class="panel-controls">
+            <span class="muted" id="taxonomy-summary">Дерево таксономії каталогу (OntoGraph)</span>
+            <div class="onto-toolbar-btns">
+              <button class="btn btn-sm btn-outline" id="btn-expand-taxonomy" type="button" title="Розгорнути дерево">Розгорнути</button>
+              <button class="btn btn-sm btn-outline" id="btn-collapse-taxonomy" type="button" title="Згорнути до 1 рівня">Згорнути</button>
+              <button class="btn btn-sm btn-outline" id="btn-refresh-taxonomy" type="button"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11A8 8 0 1 0 18.6 16"/><path d="M20 5v6h-6"/></svg> Оновити</button>
+            </div>
+          </div>
+          <div class="scroll-area" id="taxonomy-tree-container">
+            <div class="ontograph-tree" id="ontograph-tree">Завантаження таксономії…</div>
+          </div>
+        </section>
+
+        <!-- Panel: Source Introspection -->
+        <section class="tab-panel" id="panel-inspection" role="tabpanel">
+          <div class="panel-controls">
+            <span class="muted" id="inspection-summary">Як система прочитала цю БД: ролі, докази, EAV, правила, промпт моделі</span>
+            <button class="btn btn-sm btn-outline" id="btn-refresh-inspection" type="button"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11A8 8 0 1 0 18.6 16"/><path d="M20 5v6h-6"/></svg> Оновити</button>
+          </div>
+          <div class="scroll-area" id="inspection-body">
+            <div class="list-note">Завантаження інтроспекції…</div>
+          </div>
+          <details class="insp-register" id="insp-register-block">
+            <summary><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Підключити джерело даних (SQLite, CSV/JSON/MD/PDF)</summary>
+            <div class="insp-register-form">
+              <input class="input" id="reg-domain-id" type="text" placeholder="domain_id (a-z0-9_-)" maxlength="64">
+              <input class="input" id="reg-db-path" type="text" placeholder="Шлях до .db у межах data/ — або оберіть файл нижче">
+              <input class="input" id="reg-file" type="file" accept=".db,.sqlite,.sqlite3,.csv,.tsv,.json,.jsonl,.md,.markdown,.pdf">
+              <input class="input" id="reg-name" type="text" placeholder="Назва (необов'язково)">
+              <label class="insp-check"><input id="reg-llm-assist" type="checkbox"> LLM-асист для нерозв'язаних ролей (модель пропонує → дані верифікують)</label>
+              <input class="input" id="reg-admin-token" type="password" placeholder="X-Admin-Token" autocomplete="off">
+              <button class="btn btn-sm" id="btn-register-domain" type="button">Зареєструвати та ініціалізувати</button>
+              <div class="insp-dim" id="reg-status"></div>
+            </div>
+          </details>
+        </section>
+
+        <!-- Panel: Semantic index lifecycle + search -->
+        <section class="tab-panel" id="panel-semantic" role="tabpanel">
+          <div class="panel-controls">
+            <span class="verdict" id="sem-state" title="Стан семантичного індексу">—</span>
+            <span class="verdict" id="sem-fresh" title="Чи індекс відповідає поточній версії джерела">—</span>
+            <button class="btn btn-sm btn-outline" id="btn-refresh-semantic" type="button" title="Перечитати статус"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8 8 0 1 0 18.6 16"/><path d="M20 5v6h-6"/></svg> Статус</button>
+            <button class="btn btn-sm" id="btn-sem-sync" type="button" title="Точкова синхронізація індексу з джерелом (admin)"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg> Синхронізувати</button>
+          </div>
+          <div class="scroll-area">
+            <div id="sem-status-body"><div class="list-note">Статус ще не запитано.</div></div>
+
+            <div class="section-label">Пошук за змістом (dense / lexical / hybrid)</div>
+            <div class="sem-search-row">
+              <input class="input" id="sem-q" type="search" maxlength="500"
+                     placeholder="Запит за змістом, навіть без спільних слів — напр. «щось заспокійливе на ніч»">
+              <select class="input" id="sem-mode" title="Канал пошуку">
+                <option value="hybrid">hybrid</option>
+                <option value="dense">dense</option>
+                <option value="lexical">lexical</option>
+              </select>
+              <select class="input" id="sem-k" title="Кількість результатів">
+                <option>10</option><option>20</option><option>50</option>
+              </select>
+              <label class="insp-check" title="HyDE: модель пише «ідеальний запис», індекс шукає реальні (повільно, виклик LLM)"><input id="sem-hyde" type="checkbox"> HyDE</label>
+              <button class="btn btn-sm btn-primary" id="btn-sem-search" type="button">Шукати</button>
+            </div>
+            <div class="insp-dim" id="sem-meta"></div>
+            <div id="sem-hits"></div>
+          </div>
+        </section>
+
+      </div>
+    </aside>
+  </main>
+
+  <!-- ======================= Status bar ======================= -->
+  <footer class="statusbar">
+    <span class="sb-item" id="sb-tier" title="Рівень маршрутизації останньої відповіді"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></svg> tier: —</span>
+    <span class="sb-item" id="sb-latency" title="Латентність останньої відповіді"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg> —</span>
+    <span class="sb-item" id="sb-model" title="Модель останньої відповіді"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="13" rx="1.5"/><path d="M9 21h6M12 17v4"/></svg> —</span>
+    <span class="sb-item" id="sb-gate" title="Вердикт Zero-Hallucination Gate"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 4.5 5.5v6c0 5 3.2 8.4 7.5 10 4.3-1.6 7.5-5 7.5-10v-6z"/><path d="m8.8 12 2.2 2.2 4.2-4.5"/></svg> gate: —</span>
+    <span class="sb-item" id="sb-cost" title="Умовна вартість сесії">$0.0000</span>
+    <span class="sb-spacer"></span>
+    <span class="sb-item sb-right" id="sb-domain"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg> —</span>
+    <span class="sb-item sb-right" id="sb-answer-engine">engine: —</span>
+  </footer>
+
+</div>
+
+<!-- ======================= Model Selector Modal (Roo Code / Cline Style) ======================= -->
+<div class="modal-backdrop" id="model-modal" hidden>
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <h3 class="modal-title">Вибір моделі нейро-агента (OpenRouter)</h3>
+        <span class="modal-subtitle" id="modal-models-count">Завантаження каталогу моделей...</span>
+      </div>
+      <button class="btn-icon" id="modal-close-btn" type="button" title="Закрити (Esc)"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    
+    <div class="modal-search-box">
+      <span class="search-icon"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg></span>
+      <input type="text" id="model-search-input" class="search-input" placeholder="Пошук моделі (назва, провайдер, free, claude, deepseek, gpt)..." autocomplete="off" />
+      <button class="btn-clear" id="model-search-clear" type="button" hidden><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+
+    <div class="modal-filters" id="model-filter-tags">
+      <button class="filter-pill active" data-filter="all">Всі моделі</button>
+      <button class="filter-pill filter-pill-free" data-filter="free">Free (Безкоштовні)</button>
+      <button class="filter-pill" data-filter="nvidia">NVIDIA</button>
+      <button class="filter-pill" data-filter="deepseek">DeepSeek</button>
+      <button class="filter-pill" data-filter="meta-llama">Meta Llama</button>
+      <button class="filter-pill" data-filter="google">Google</button>
+      <button class="filter-pill" data-filter="anthropic">Anthropic</button>
+      <button class="filter-pill" data-filter="openai">OpenAI</button>
+      <button class="filter-pill" data-filter="qwen">Qwen</button>
+    </div>
+
+    <div class="modal-list" id="modal-models-list">
+      <!-- Rendered dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- Global Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/static/verifier_ui.js?v=2" defer></script>
+<script src="/static/app.js?v=23" defer></script>
+</body>
+</html>
+
