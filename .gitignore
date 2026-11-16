@@ -1,0 +1,72 @@
+# ---- Secrets (NEVER commit) ----
+.env
+.env.*
+!.env.example
+*.env
+*.key
+*.pem
+secrets.json
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ---- Generated / large data ----
+# Databases are regenerable via data/init_database.py and
+# data/generate_marketplace_scale.py — do not bloat the repo.
+data/*.db
+data/**/*.db
+data/*.db-shm
+data/*.db-wal
+data/knowledge_snapshot.json
+# data/degrade.py writes its degraded copies + JSON reports here; both are
+# regenerable from (source, classes, seed) and must not be committed.
+data/degraded/
+data/.taxonomy_cache*
+data/.ontology_cache*
+data/.question_bank*
+data/openrouter_models_cache.json
+# tests/fixtures/*.db is deliberately NOT ignored: trimmed real catalogues
+# (~2.2 MB total) so the real-data code path is tested without a download.
+
+# ---- Generated media from Antigravity sessions ----
+*.webp
+*.png
+!docs/**/*.png
+
+# ---- Session scratch (diagnostics, dev-server logs) ----
+# Throwaway probe scripts, captures and uvicorn logs written while
+# debugging. They are never part of the deliverable and would otherwise
+# show up as untracked noise in every `git status`.
+/_probe*.py
+/_inspect_*.py
+/_*_out.txt
+/_server_*.log
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+
+# Runtime source registrations (machine-local state)
+data/sources.runtime.json
+*.db.bak
+*.db.ebridx
+*.db.vecidx
+*.db-shm
+*.db-wal
+*.arf/
+
+# semantic-cycle evaluation work dirs (indexes, fixtures; reports live in docs/)
+data/eval_semantic/

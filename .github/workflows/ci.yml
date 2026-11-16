@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [master, public-release]
+  pull_request:
+    branches: [master, public-release]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Set up Node.js for frontend syntax check
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Repository hygiene and secret scan
+        run: |
+          python -c "import subprocess, sys; files = subprocess.check_output(['git', 'ls-files'], text=True).splitlines(); sys.exit(subprocess.call([sys.executable, 'scripts/check_secrets.py', *files]))"
+          python scripts/check_hygiene.py
+
+      - name: Static lint and frontend JS syntax check
+        run: |
+          ruff check src tests scripts --select F401,E9,F63,F7,F82
+          node --check web/app.js
+
+      - name: Bootstrap synthetic demo databases
+        run: python scripts/bootstrap_demo_dbs.py
+
+      - name: Run offline test suite
+        run: python -m pytest tests -q
