@@ -160,7 +160,13 @@ def test_c4_dynamic_domain_registration(client, admin_headers, monkeypatch, tmp_
             "recommended_items": [{"name": "Eneida Ivan Kotliarevsky"}],
         }
 
-    monkeypatch.setattr(ctx.runner, "generate_react_step", _scripted_books_react)
+    import openrouter_client
+
+    monkeypatch.setattr(
+        openrouter_client.OpenRouterAgentRunner,
+        "generate_react_step",
+        lambda self, *args, **kwargs: _scripted_books_react(*args, **kwargs),
+    )
 
     res_chat = client.post("/api/chat", json={
         "query": "Яка найдешевша книга у наявності?",

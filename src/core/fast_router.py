@@ -122,6 +122,7 @@ class FastCascadedRouter:
         belief_state: Optional[Any] = None,
         asked_question_ids: Optional[list] = None,
         conversation_history: Optional[List[Dict[str, str]]] = None,
+        llm_runner: Optional[Any] = None,
     ) -> Dict[str, Any]:
         """
         Routes and executes the query through the optimal execution tier.
@@ -132,6 +133,7 @@ class FastCascadedRouter:
         start_time = time.time()
         tier, fast_sql = self.classify_intent(query)
         router_elapsed_ms = round((time.time() - start_time) * 1000, 2)
+        active_runner = llm_runner if llm_runner is not None else self.runner
 
         if tier == ExecutionTier.TIER1_FAST_PATH and fast_sql:
             # Execute Tier-1 Fast Path
@@ -201,7 +203,7 @@ class FastCascadedRouter:
         self._book_model_call(tier=2)
         state = self.agent.run_live_session(
             user_query=query,
-            llm_runner=self.runner,
+            llm_runner=active_runner,
             schema_prompt=self.schema_prompt,
             session_id=session_id,
             belief_state=belief_state,
@@ -217,7 +219,7 @@ class FastCascadedRouter:
             status = "success"
         elif reason == "HALLUCINATION_GATE_VIOLATION":
             status = "gate_rejected"
-        elif reason in ("PROTOCOL_ERROR", "PROVIDER_ERROR", "UNPARSEABLE_OUTPUT"):
+        elif reason in ("PROTOCOL_ERROR", "PROVIDER_ERROR", "UNPARSEABLE_OUTPUT", "API_KEY_MISSING"):
             status = "error"
         else:
             status = "incomplete"
@@ -228,8 +230,8 @@ class FastCascadedRouter:
         # counters are surfaced alongside when it exposes them.
         token_cost = round(len(state.execution_history) * 0.0001, 6)
         provider_usage: Optional[Dict[str, Any]] = None
-        pt = getattr(self.runner, "total_prompt_tokens", None)
-        ct = getattr(self.runner, "total_completion_tokens", None)
+        pt = getattr(active_runner, "total_prompt_tokens", None)
+        ct = getattr(active_runner, "total_completion_tokens", None)
         if pt is not None or ct is not None:
             provider_usage = {
                 "prompt_tokens": pt, "completion_tokens": ct,
@@ -240,6 +242,15 @@ class FastCascadedRouter:
         stage_timings["router_time_ms"] = router_elapsed_ms
         stage_timings["total_time_ms"] = round(elapsed * 1000, 2)
 
+        reported_model = (
+            None if reason == "API_KEY_MISSING"
+            else (
+                getattr(active_runner, "last_model", None)
+                or (self.last_model if llm_runner is None else None)
+                or getattr(active_runner, "model_name", None)
+            )
+        )
+
         return {
             "query": query,
             "answer": state.final_response or "Не вдалося отримати відповідь від асистента.",
@@ -249,9 +260,7 @@ class FastCascadedRouter:
             # The router's own bookkeeping is None when no model pool is
             # attached; fall back to what the runner actually served, so the
             # UI shows the model that produced this answer, not "unknown".
-            "model": (self.last_model
-                      or getattr(self.runner, "last_model", None)
-                      or getattr(self.runner, "model_name", None)),
+            "model": reported_model,
             "status": status,
             # The gate's verdict on this answer (SUCCESS_GROUNDED, *_CORRECTION,
             # HALLUCINATION_GATE_VIOLATION, ...). The web console renders it as

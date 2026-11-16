@@ -1,16 +1,16 @@
 """Status, domain listing, inspection, attestation, model and telemetry routes."""
 
 from dataclasses import asdict
-from fastapi import HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from typing import Optional
 import os
 import sqlite3
-from server_config import env_setting, load_openrouter_models
+from openrouter_client import fetch_openrouter_models
+from server_config import env_setting
 from server_context import ctx
 from server_resolution import hypergraph_for
 from server_schemas import SetModelRequest
 from server_security import _is_admin_request, _require_admin
-from fastapi import APIRouter
 
 router = APIRouter()
 
@@ -41,13 +41,15 @@ def get_system_status(domain: Optional[str] = None):
     mp_nodes = len(mp.hypergraph.nodes) if (mp and mp.hypergraph) else None
 
     active_bundle = ctx.domains.get(target_domain)
+    llm_ready = bool(getattr(ctx.runner, "api_key", None))
     return {
         "status": "online",
         "architecture": "Py-Buddy (Active-Inference Neuro-Symbolic)",
         "lineage": "Py-Buddy V2.0 Omnichannel Evolution",
         "active_domain": target_domain,
         "active_currency": active_bundle.currency if active_bundle else None,
-        "model": getattr(ctx.runner, "model_name", "deepseek/deepseek-v4-flash-0731"),
+        "llm_available": llm_ready,
+        "model": getattr(ctx.runner, "model_name", None) if llm_ready else None,
         "routing": "Adaptive Fast Cascaded Router (<15ms Tier-0/1 + Deep ReAct)",
         "persistence": "SQLite WAL Session Store",
         "invariants": {
@@ -265,13 +267,33 @@ def get_domain_attestation(domain_id: str):
 
 
 @router.get("/api/models")
-def get_models():
-    models = load_openrouter_models()
-    active = getattr(ctx.runner, "model_name", "nvidia/nemotron-3-super-120b-a12b:free")
+def get_models(request: Request):
+    """Return available OpenRouter models ONLY when a valid key is configured
+    (server env/.env or per-caller X-OpenRouter-Key). Never lists synthetic/offline
+    fallback models as live when no API key exists.
+    """
+    byok_key = (request.headers.get("X-OpenRouter-Key") or "").strip()
+    server_key = getattr(ctx.runner, "api_key", None) or ""
+    effective_key = byok_key or server_key
+    if not effective_key:
+        return {
+            "active_model": None,
+            "key_configured": False,
+            "key_source": "none",
+            "source": "none",
+            "models_count": 0,
+            "models": [],
+            "error": None,
+        }
+    models, err = fetch_openrouter_models(effective_key)
     return {
-        "active_model": active,
+        "active_model": getattr(ctx.runner, "model_name", None),
+        "key_configured": True,
+        "key_source": "client" if byok_key else "server",
+        "source": "openrouter_live" if not err else "error",
         "models_count": len(models),
-        "models": models
+        "models": models,
+        "error": err,
     }
 
 @router.post("/api/set_model")

@@ -139,6 +139,21 @@ def chat_consult(req: ChatQueryRequest, request: Request):
     # F22: the persisted belief travels with the session -- the elicitation
     # dialogue picks up where the last turn ended rather than restarting
     # from a flat prior on every request.
+    # Per-request BYOK (Bring Your Own Key): callers without server-wide
+    # OpenRouter configuration may supply X-OpenRouter-Key for their own turn
+    # without ever mutating shared ctx.runner state or persisting credentials.
+    byok_key = (request.headers.get("X-OpenRouter-Key") or "").strip()
+    request_runner = None
+    if byok_key:
+        from openrouter_client import OpenRouterAgentRunner
+        req_model = (req.model or "").strip() or getattr(ctx.runner, "model_name", None)
+        request_runner = OpenRouterAgentRunner(
+            api_key=byok_key,
+            model_name=req_model,
+            app_title=getattr(ctx.runner, "app_title", "Py-Buddy"),
+            require_key=True,
+        )
+
     domain_router = ctx.get_router_for_domain(domain)
     routed = domain_router.route_and_execute(
         req.query,
@@ -146,6 +161,7 @@ def chat_consult(req: ChatQueryRequest, request: Request):
         belief_state=session.belief_state,
         asked_question_ids=session.asked_question_ids,
         conversation_history=session.conversation_history,
+        llm_runner=request_runner,
     )
 
     # Persist session state into SQLite. The session's domain is NOT

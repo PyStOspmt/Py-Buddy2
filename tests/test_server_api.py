@@ -273,11 +273,60 @@ def test_api_chat_deterministic_hypergraph_branch(client):
 
 
 def test_api_models_and_set_model(client, monkeypatch):
-    res = client.get("/api/models")
+    import openrouter_client
+
+    openrouter_client._clear_models_cache()
+    monkeypatch.setattr(ctx.runner, "api_key", None)
+
+    res_status = client.get("/api/status")
+    assert res_status.status_code == 200
+    assert res_status.json()["llm_available"] is False
+    assert res_status.json()["model"] is None
+
+    res_empty = client.get("/api/models")
+    assert res_empty.status_code == 200
+    empty_data = res_empty.json()
+    assert empty_data["key_configured"] is False
+    assert empty_data["models_count"] == 0
+    assert empty_data["models"] == []
+    assert empty_data["active_model"] is None
+
+    class _Resp:
+        def __init__(self, status_code, payload=None):
+            self.status_code = status_code
+            self._payload = payload or {}
+        def json(self):
+            return self._payload
+
+    monkeypatch.setattr(openrouter_client.requests, "get", lambda *a, **kw: _Resp(401, {"error": "invalid"}))
+    res_bad = client.get("/api/models", headers={"X-OpenRouter-Key": "sk-or-bad"})
+    assert res_bad.status_code == 200
+    bad_data = res_bad.json()
+    assert bad_data["key_configured"] is True
+    assert bad_data["models_count"] == 0
+    assert bad_data["error"]
+
+    openrouter_client._clear_models_cache()
+    def _mock_good_get(url, **kwargs):
+        if url.endswith("/key"):
+            return _Resp(200, {"data": {"label": "test"}})
+        return _Resp(200, {
+            "data": [
+                {"id": "nvidia/nemotron-3-super-120b-a12b:free", "name": "Nemotron (free)",
+                 "context_length": 131072, "pricing": {"prompt": "0", "completion": "0"}},
+                {"id": "openai/gpt-4o-mini", "name": "GPT-4o-mini",
+                 "context_length": 128000, "pricing": {"prompt": "0.00000015", "completion": "0.0000006"}},
+            ]
+        })
+
+    monkeypatch.setattr(openrouter_client.requests, "get", _mock_good_get)
+    res = client.get("/api/models", headers={"X-OpenRouter-Key": "sk-or-valid"})
     assert res.status_code == 200
     data = res.json()
-    assert "active_model" in data
-    assert data["models_count"] > 0
+    assert data["key_configured"] is True
+    assert data["key_source"] == "client"
+    assert data["source"] == "openrouter_live"
+    assert data["models_count"] == 2
     assert any(m["is_free"] for m in data["models"])
 
     target = "nvidia/nemotron-3-super-120b-a12b:free"
@@ -733,4 +782,71 @@ def test_demo_auto_parts_and_pharmacy_assortments_and_pareto(client):
         par = res_par.json()
         assert len(par["all_candidates"]) >= 30
         assert par["performance_range"]["max"] > par["performance_range"]["min"]
+
+
+def test_live_arm_missing_api_key_returns_typed_error_not_500(monkeypatch):
+    """Greeting/chat without OPENROUTER_API_KEY must return typed API_KEY_MISSING, never HTTP 500."""
+    monkeypatch.setattr(ctx.runner, "api_key", None)
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    safe_client = TestClient(app, raise_server_exceptions=False)
+    res = safe_client.post("/api/chat", json={"query": "Привіт", "domain": "pharmacy"})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "error"
+    assert data["termination_reason"] == "API_KEY_MISSING"
+    assert data["model"] is None
+    assert "OpenRouter" in data["final_answer"]
+
+
+def test_live_arm_byok_header_isolates_runner_without_mutating_ctx(monkeypatch):
+    """Caller X-OpenRouter-Key uses isolated per-request runner without leaking or mutating ctx.runner."""
+    import json as _json
+    import openrouter_client
+
+    monkeypatch.setattr(ctx.runner, "api_key", None)
+    before_model = ctx.runner.model_name
+    seen_auth = []
+    seen_models = []
+
+    class _MockPostResp:
+        status_code = 200
+        text = "{}"
+        def json(self):
+            return {
+                "choices": [{
+                    "message": {
+                        "content": _json.dumps({
+                            "thought": "Привітання",
+                            "final_answer": "Вітаю! Чим допомогти у каталозі?",
+                            "recommended_items": [],
+                        })
+                    }
+                }],
+                "usage": {"prompt_tokens": 10, "completion_tokens": 8},
+            }
+
+    def _mock_post(url, headers=None, json=None, timeout=45):
+        seen_auth.append((headers or {}).get("Authorization"))
+        seen_models.append((json or {}).get("model"))
+        return _MockPostResp()
+
+    monkeypatch.setattr(openrouter_client.requests, "post", _mock_post)
+    monkeypatch.setenv("PYBUDDY_ADMIN_TOKEN", "adm-secret")
+    safe_client = TestClient(app, raise_server_exceptions=False)
+    byok_key = "sk-or-byok-session-only-xyz"
+    res = safe_client.post(
+        "/api/chat",
+        json={"query": "Привіт", "domain": "pharmacy", "model": "custom/byok-model"},
+        headers={"X-OpenRouter-Key": byok_key},
+    )
+    assert res.status_code == 200
+    body = res.json()
+    assert body["status"] == "success"
+    assert body["model"] == "custom/byok-model"
+    assert seen_auth == [f"Bearer {byok_key}"]
+    assert seen_models == ["custom/byok-model"]
+    assert ctx.runner.api_key is None
+    assert ctx.runner.model_name == before_model
+    tel = safe_client.get("/api/telemetry", headers={"X-Admin-Token": "adm-secret"}).text
+    assert byok_key not in tel
 

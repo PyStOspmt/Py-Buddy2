@@ -507,13 +507,19 @@ class ReActAgent:
 
         while not state.is_terminated and state.current_step < state.max_steps:
             t_llm_start = time.time()
-            step_output = llm_runner.generate_react_step(
-                schema_prompt=schema_prompt,
-                user_query=user_query,
-                dialog_history=dialog_history,
-                current_step=state.current_step + 1,
-                tools_description=tools_description
-            )
+            try:
+                step_output = llm_runner.generate_react_step(
+                    schema_prompt=schema_prompt,
+                    user_query=user_query,
+                    dialog_history=dialog_history,
+                    current_step=state.current_step + 1,
+                    tools_description=tools_description
+                )
+            except ValueError as exc:
+                step_output = {
+                    "provider_error": str(exc),
+                    "error_code": "API_KEY_MISSING" if "OPENROUTER_API_KEY" in str(exc) else None,
+                }
             t_llm_elapsed = time.time() - t_llm_start
             llm_total_time_ms += t_llm_elapsed * 1000
 
@@ -521,16 +527,26 @@ class ReActAgent:
             action_input = step_output.get("action_input", {})
             final_answer = step_output.get("final_answer")
 
-            # F02: typed protocol outcomes. A provider outage and an
+            # F02: typed protocol outcomes. A missing key, provider outage, and an
             # unparseable model output are failures with their own labels —
             # neither may reach the client as if it were an answer.
             if step_output.get("provider_error"):
                 state.is_terminated = True
-                state.termination_reason = "PROVIDER_ERROR"
-                state.final_response = (
-                    "Модель-провайдер тимчасово недоступна, тому відповідь "
-                    "не сформовано. Спробуйте повторити запит пізніше."
-                )
+                if step_output.get("error_code") == "API_KEY_MISSING":
+                    state.termination_reason = "API_KEY_MISSING"
+                    state.final_response = (
+                        "OpenRouter API-ключ не налаштовано (офлайн-режим). "
+                        "Щоб увімкнути діалог із LLM, натисніть на індикатор моделі вгорі й вставте "
+                        "свій ключ OpenRouter (`sk-or-v1-...`), або задайте `OPENROUTER_API_KEY` у `.env` "
+                        "чи `docker run -e OPENROUTER_API_KEY=...`. Без ключа миттєво працюють прямі запити "
+                        "цін/екстремумів, перевірка сумісності комплектів, Каталог, Парето та Інтроспекція."
+                    )
+                else:
+                    state.termination_reason = "PROVIDER_ERROR"
+                    state.final_response = (
+                        "Модель-провайдер тимчасово недоступна, тому відповідь "
+                        "не сформовано. Спробуйте повторити запит пізніше."
+                    )
                 break
             if step_output.get("protocol_error"):
                 state.is_terminated = True
@@ -597,24 +613,37 @@ class ReActAgent:
         # Mandatory Final Synthesis Gate: If steps were executed but budget exhausted before final_answer
         if not state.final_response:
             t_llm_start = time.time()
-            step_output = llm_runner.generate_react_step(
-                schema_prompt=schema_prompt,
-                user_query=user_query,
-                dialog_history=dialog_history,
-                current_step=state.current_step + 1,
-                tools_description="УВАГА: БЮДЖЕТ ІНСТРУМЕНТІВ ВИЧЕРПАНО. Інструменти більше недоступні. Надай ВИКЛЮЧНО 'final_answer' у JSON на основі вже зібраних фактів та результатів інструментів (Observations)."
-            )
+            try:
+                step_output = llm_runner.generate_react_step(
+                    schema_prompt=schema_prompt,
+                    user_query=user_query,
+                    dialog_history=dialog_history,
+                    current_step=state.current_step + 1,
+                    tools_description="УВАГА: БЮДЖЕТ ІНСТРУМЕНТІВ ВИЧЕРПАНО. Інструменти більше недоступні. Надай ВИКЛЮЧНО 'final_answer' у JSON на основі вже зібраних фактів та результатів інструментів (Observations)."
+                )
+            except ValueError as exc:
+                step_output = {
+                    "provider_error": str(exc),
+                    "error_code": "API_KEY_MISSING" if "OPENROUTER_API_KEY" in str(exc) else None,
+                }
             t_llm_elapsed = time.time() - t_llm_start
             llm_total_time_ms += t_llm_elapsed * 1000
 
             # F02: the same typed outcomes apply to the forced synthesis call.
             if step_output.get("provider_error"):
                 state.is_terminated = True
-                state.termination_reason = "PROVIDER_ERROR"
-                state.final_response = (
-                    "Модель-провайдер тимчасово недоступна, тому відповідь "
-                    "не сформовано. Спробуйте повторити запит пізніше."
-                )
+                if step_output.get("error_code") == "API_KEY_MISSING":
+                    state.termination_reason = "API_KEY_MISSING"
+                    state.final_response = (
+                        "OpenRouter API-ключ не налаштовано (офлайн-режим). "
+                        "Вставте ключ у верхньому індикаторі моделі або передайте OPENROUTER_API_KEY."
+                    )
+                else:
+                    state.termination_reason = "PROVIDER_ERROR"
+                    state.final_response = (
+                        "Модель-провайдер тимчасово недоступна, тому відповідь "
+                        "не сформовано. Спробуйте повторити запит пізніше."
+                    )
             elif step_output.get("protocol_error"):
                 state.is_terminated = True
                 state.termination_reason = "PROTOCOL_ERROR"

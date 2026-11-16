@@ -8,8 +8,120 @@ import json
 import re
 import time
 import random
+import hashlib
+import threading
 import requests
 from typing import Dict, List, Any, Optional, Tuple
+
+
+_MODELS_CACHE_LOCK = threading.Lock()
+_MODELS_CACHE: Dict[str, Tuple[float, List[Dict[str, Any]]]] = {}
+_MODELS_CACHE_TTL_S = 120.0
+
+
+def _clear_models_cache() -> None:
+    """Clear the in-memory live OpenRouter model catalogue cache (tests/reset)."""
+    with _MODELS_CACHE_LOCK:
+        _MODELS_CACHE.clear()
+
+
+def _parse_price_per_mtok(raw_val: Any) -> Optional[float]:
+    try:
+        per_tok = float(raw_val)
+    except (TypeError, ValueError):
+        return None
+    if per_tok < 0:
+        return None
+    return round(per_tok * 1_000_000.0, 4)
+
+
+def fetch_openrouter_models(
+    api_key: str,
+    *,
+    validate_key: bool = True,
+    timeout: float = 8.0,
+) -> Tuple[List[Dict[str, Any]], Optional[str]]:
+    """Validate an OpenRouter key and fetch the live available model catalogue.
+
+    Caches successful listings in memory keyed strictly by SHA-256 of the key
+    (never storing plaintext keys on disk). Returns `(models, error_message)`.
+    """
+    key = (api_key or "").strip()
+    if not key:
+        return [], "OpenRouter API-ключ не задано."
+
+    key_hash = hashlib.sha256(key.encode("utf-8")).hexdigest()
+    now = time.time()
+    with _MODELS_CACHE_LOCK:
+        cached = _MODELS_CACHE.get(key_hash)
+        if cached and (now - cached[0]) < _MODELS_CACHE_TTL_S:
+            return list(cached[1]), None
+
+    headers = {
+        "Authorization": f"Bearer {key}",
+        "HTTP-Referer": "https://github.com/PyStOspmt/Py-Buddy2",
+        "X-Title": "Py-Buddy",
+    }
+
+    if validate_key:
+        try:
+            key_resp = requests.get(
+                "https://openrouter.ai/api/v1/key",
+                headers=headers,
+                timeout=min(timeout, 5.0),
+            )
+            if key_resp.status_code in (401, 403):
+                return [], f"Недійсний або відхилений OpenRouter API-ключ (HTTP {key_resp.status_code})."
+            if key_resp.status_code >= 500:
+                return [], f"Сервер авторизації OpenRouter недоступний (HTTP {key_resp.status_code})."
+        except Exception as exc:
+            return [], f"Не вдалося перевірити ключ OpenRouter: {exc}"
+
+    try:
+        resp = requests.get(
+            "https://openrouter.ai/api/v1/models",
+            headers=headers,
+            timeout=timeout,
+        )
+        if resp.status_code in (401, 403):
+            return [], f"OpenRouter відхилив запит каталогу моделей (HTTP {resp.status_code})."
+        if resp.status_code != 200:
+            return [], f"Помилка OpenRouter /models (HTTP {resp.status_code})."
+        payload = resp.json()
+        raw_models = payload.get("data") if isinstance(payload, dict) else payload
+        if not isinstance(raw_models, list):
+            return [], "Некоректний формат каталогу моделей від OpenRouter."
+    except Exception as exc:
+        return [], f"Не вдалося завантажити моделі з OpenRouter: {exc}"
+
+    parsed: List[Dict[str, Any]] = []
+    for item in raw_models:
+        if not isinstance(item, dict):
+            continue
+        mid = str(item.get("id") or "").strip()
+        if not mid:
+            continue
+        pricing = item.get("pricing") if isinstance(item.get("pricing"), dict) else {}
+        p_in = _parse_price_per_mtok(pricing.get("prompt"))
+        p_out = _parse_price_per_mtok(pricing.get("completion"))
+        is_free = (
+            mid.endswith(":free")
+            or (p_in == 0.0 and p_out == 0.0)
+        )
+        parsed.append({
+            "id": mid,
+            "name": str(item.get("name") or mid),
+            "context_length": int(item.get("context_length") or 0),
+            "is_free": bool(is_free),
+            "prompt_price": 0.0 if is_free else p_in,
+            "completion_price": 0.0 if is_free else p_out,
+            "description": str(item.get("description") or "")[:240],
+        })
+
+    parsed.sort(key=lambda m: (0 if m["is_free"] else 1, m["id"].lower()))
+    with _MODELS_CACHE_LOCK:
+        _MODELS_CACHE[key_hash] = (now, parsed)
+    return parsed, None
 
 
 def _env_fallbacks(env: Optional[Dict[str, str]] = None,
@@ -241,6 +353,11 @@ class OpenRouterAgentRunner:
         current_step: int,
         tools_description: str
     ) -> Dict[str, Any]:
+        if not self.api_key:
+            return {
+                "provider_error": "OPENROUTER_API_KEY is not set. Provide it in .env, environment, or browser header.",
+                "error_code": "API_KEY_MISSING",
+            }
         self._ensure_api_key()
         system_instruction = f"""Ти — ядро універсального нейро-символьного консультанта платформи Py-Buddy з контролем фактів Zero-Hallucination Gate.
 Твоє завдання — допомагати користувачеві виключно в межах підключеного активного каталогу товарів та бази даних.

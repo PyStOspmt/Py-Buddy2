@@ -67,6 +67,8 @@ docker build -t py-buddy .
 docker run --rm -p 8000:8000 -e OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-}" py-buddy
 ```
 
+Open `http://127.0.0.1:8000/` in your browser (not `0.0.0.0:8000`). If you launched without `OPENROUTER_API_KEY`, click the **LLM: без ключа (офлайн)** chip in the top bar to paste your own OpenRouter API key per browser session (`sessionStorage`) and fetch live OpenRouter models without restarting the container.
+
 ### Configuration
 
 Copy `.env.example` to `.env` if you want live LLM planning (`OPENROUTER_API_KEY`). All deterministic core components, Web UI API routes, demo database initialization, and the offline `pytest` suite run completely locally without external API keys.

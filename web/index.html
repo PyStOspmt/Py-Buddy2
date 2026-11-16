@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Py-Buddy · Neuro-Symbolic Console</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231f1f1f'/%3E%3Cpath d='M16 5l9 11-9 11-9-11z' fill='%230078d4'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/static/style.css?v=20">
+  <link rel="stylesheet" href="/static/style.css?v=21">
 </head>
 <body>
 <div class="app">
@@ -24,8 +24,8 @@
       <span class="chip chip-ok" id="chip-gate" title="Zero-Hallucination Gate">
         <span class="dot"></span><span id="chip-gate-text">Gate: …</span>
       </span>
-      <button class="chip chip-clickable" id="btn-model-selector" type="button" title="Натисніть для вибору моделі OpenRouter (Roo/Cline style)">
-        <span class="dot dot-info"></span><span id="chip-model-text">model: …</span>
+      <button class="chip chip-clickable" id="btn-model-selector" type="button" title="OpenRouter API-ключ та вибір моделі">
+        <span class="dot dot-info"></span><span id="chip-model-text">LLM: …</span>
         <span class="chip-chevron"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
       </button>
       <span class="chip" id="chip-nodes" title="Розмір активного гіперграфа">
@@ -268,13 +268,22 @@
   <div class="modal-card">
     <div class="modal-header">
       <div class="modal-title-group">
-        <h3 class="modal-title">Вибір моделі нейро-агента (OpenRouter)</h3>
-        <span class="modal-subtitle" id="modal-models-count">Завантаження каталогу моделей...</span>
+        <h3 class="modal-title">Підключення OpenRouter та вибір моделі</h3>
+        <span class="modal-subtitle" id="modal-models-count">Перевірка статусу OpenRouter...</span>
       </div>
       <button class="btn-icon" id="modal-close-btn" type="button" title="Закрити (Esc)"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
+
+    <div class="modal-key-box">
+      <div class="modal-key-status" id="modal-key-status">Ключ OpenRouter: перевірка…</div>
+      <div class="modal-key-row">
+        <input type="password" id="openrouter-key-input" class="search-input modal-key-input" placeholder="Вставте власний OpenRouter API-ключ (sk-or-v1-...) для цього вікна" autocomplete="off" />
+        <button class="btn btn-sm btn-primary" id="btn-save-openrouter-key" type="button">Підключити</button>
+        <button class="btn btn-sm btn-outline" id="btn-clear-openrouter-key" type="button" hidden>Скинути</button>
+      </div>
+    </div>
     
-    <div class="modal-search-box">
+    <div class="modal-search-box" id="modal-search-box">
       <span class="search-icon"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg></span>
       <input type="text" id="model-search-input" class="search-input" placeholder="Пошук моделі (назва, провайдер, free, claude, deepseek, gpt)..." autocomplete="off" />
       <button class="btn-clear" id="model-search-clear" type="button" hidden><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
@@ -302,7 +311,7 @@
 <div class="toast-container" id="toast-container"></div>
 
 <script src="/static/verifier_ui.js?v=2" defer></script>
-<script src="/static/app.js?v=23" defer></script>
+<script src="/static/app.js?v=24" defer></script>
 </body>
 </html>
 

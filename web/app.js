@@ -47,7 +47,12 @@ class PyBuddyConsole {
       sessionCost: 0,
       pending: false,
       sessionId: PyBuddyConsole.loadSessionId(),
-      model: null,
+      model: PyBuddyConsole.loadByokModel(),
+      llmAvailable: false,
+      adminEnabled: false,
+      keyConfigured: false,
+      keySource: "none",
+      modelsError: null,
       chatHistory: [],
       availableModels: [],
       activeModelFilter: "all",
@@ -114,6 +119,11 @@ class PyBuddyConsole {
       sbEngine: $("sb-answer-engine"),
       modelModal: $("model-modal"),
       modalCloseBtn: $("modal-close-btn"),
+      modalKeyStatus: $("modal-key-status"),
+      openrouterKeyInput: $("openrouter-key-input"),
+      btnSaveOpenrouterKey: $("btn-save-openrouter-key"),
+      btnClearOpenrouterKey: $("btn-clear-openrouter-key"),
+      modalSearchBox: $("modal-search-box"),
       modelSearchInput: $("model-search-input"),
       modelSearchClear: $("model-search-clear"),
       modalModelsCount: $("modal-models-count"),
@@ -189,6 +199,38 @@ class PyBuddyConsole {
     } catch (_) {
       return "web_" + Math.random().toString(36).slice(2, 10);
     }
+  }
+
+  static loadByokModel() {
+    try {
+      return sessionStorage.getItem("pb_openrouter_model") || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  getByokKey() {
+    try {
+      return (sessionStorage.getItem("pb_openrouter_key") || "").trim();
+    } catch (_) {
+      return "";
+    }
+  }
+
+  setByokKey(key) {
+    try {
+      const clean = (key || "").trim();
+      if (clean) {
+        sessionStorage.setItem("pb_openrouter_key", clean);
+      } else {
+        sessionStorage.removeItem("pb_openrouter_key");
+        sessionStorage.removeItem("pb_openrouter_model");
+      }
+    } catch (_) { /* ignore storage restrictions */ }
+  }
+
+  hasLlmAccess() {
+    return Boolean(this.state.llmAvailable || this.getByokKey());
   }
 
   debounce(fn, wait) {
@@ -299,6 +341,20 @@ class PyBuddyConsole {
         this.renderModelsList();
       });
     }
+    if (this.dom.btnSaveOpenrouterKey) {
+      this.dom.btnSaveOpenrouterKey.addEventListener("click", () => this.applyByokKey());
+    }
+    if (this.dom.openrouterKeyInput) {
+      this.dom.openrouterKeyInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          this.applyByokKey();
+        }
+      });
+    }
+    if (this.dom.btnClearOpenrouterKey) {
+      this.dom.btnClearOpenrouterKey.addEventListener("click", () => this.clearByokKey());
+    }
     if (this.dom.modalModelsList) {
       this.dom.modalModelsList.addEventListener("click", (e) => {
         const card = e.target.closest("[data-model-id]");
@@ -346,6 +402,12 @@ class PyBuddyConsole {
     this.dom.chatHistory.addEventListener("click", (e) => {
       const addBtn = e.target.closest("[data-add-id]");
       if (addBtn) this.addToBundle(addBtn.getAttribute("data-add-id"));
+
+      const openKeyBtn = e.target.closest("[data-open-model-modal]");
+      if (openKeyBtn) {
+        this.openModelSelector();
+        return;
+      }
 
       const copyBtn = e.target.closest("[data-copy-turn]");
       if (copyBtn) {
@@ -559,9 +621,13 @@ class PyBuddyConsole {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeout);
     try {
+      const byokKey = (path.startsWith("/api/models") || path.startsWith("/api/chat"))
+        ? this.getByokKey()
+        : "";
       const headers = Object.assign(
         {},
         opts.body ? { "Content-Type": "application/json" } : {},
+        byokKey ? { "X-OpenRouter-Key": byokKey } : {},
         opts.headers || {}
       );
       const res = await fetch(path, {
@@ -604,12 +670,9 @@ class PyBuddyConsole {
       const gateActive = gate === "ACTIVE";
       this.dom.chipGateText.textContent = "Gate: " + (gate || "?");
       this.dom.chipGate.className = "chip " + (gateActive ? "chip-ok" : "chip-err");
-      if (s.model) {
-        this.dom.chipModelText.textContent = "model: " + s.model;
-        this.state.model = s.model;
-      } else {
-        this.dom.chipModelText.textContent = "model: —";
-      }
+      this.state.llmAvailable = Boolean(s.llm_available);
+      this.state.adminEnabled = Boolean(s.admin_enabled);
+      this.updateModelChip(s.model);
       this.dom.chipNodesText.textContent = "nodes: " + (s.nodes_count != null ? s.nodes_count : "—");
       if (s.active_domain && s.active_domain !== this.state.domain
           && !this.state.domainLocked) {
@@ -750,6 +813,8 @@ class PyBuddyConsole {
       STEP_BUDGET_EXCEEDED: ['<span class="badge badge-warn"><svg class=\"ic\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"vertical-align:-1px\"><path d=\"M12 4 2.5 20h19z\"/><path d=\"M12 10v4M12 17.5v.5\"/></svg> Ліміт кроків ReAct</span>', "ліміт кроків", "react"],
       STAGNATION_DETECTED: ['<span class="badge badge-warn">⚠ Зупинено: стагнація</span>', "стагнація", "react"],
       UNPARSEABLE_OUTPUT: ['<span class="badge badge-err">⛔ Не розпізнано вихід моделі</span>', "нерозпізнано", "react"],
+      API_KEY_MISSING: ['<span class="badge badge-warn">🔑 Немає ключа OpenRouter</span>', "без ключа", "offline"],
+      PROVIDER_ERROR: ['<span class="badge badge-err">⚠ OpenRouter недоступний</span>', "помилка LLM", "provider"],
     };
     if (tr && map[tr]) {
       return { badge: map[tr][0], short: map[tr][1], engine: map[tr][2] };
@@ -807,9 +872,13 @@ class PyBuddyConsole {
       : md(data.final_answer || "");
     const relaxHtml = vui ? vui.renderRelaxationCard(data, esc) : "";
     const verifierHtml = vui ? vui.renderVerificationPanel(data, esc, md) : "";
+    const keyCtaHtml = data.termination_reason === "API_KEY_MISSING"
+      ? '<div style="margin-top:10px"><button type="button" class="btn btn-sm btn-primary" data-open-model-modal="1">🔑 Вставити OpenRouter API-ключ</button></div>'
+      : "";
 
     const body =
       answerHtml +
+      keyCtaHtml +
       relaxHtml +
       verifierHtml +
       this.renderRecommendations(data.recommended_items, data.currency !== undefined ? data.currency : this.activeCurrency(data.domain)) +
@@ -3473,19 +3542,38 @@ class PyBuddyConsole {
     }, 3200);
   }
 
+  updateModelChip(serverModel) {
+    if (!this.dom.chipModelText || !this.dom.btnModelSelector) return;
+    const byokKey = this.getByokKey();
+    if (this.state.llmAvailable || byokKey) {
+      const active = (byokKey && this.state.model) ? this.state.model : (serverModel || this.state.model);
+      if (active) this.state.model = active;
+      this.dom.btnModelSelector.className = "chip chip-clickable";
+      this.dom.chipModelText.textContent = "model: " + (active || "OpenRouter готовий");
+    } else {
+      this.dom.btnModelSelector.className = "chip chip-clickable chip-warn";
+      this.dom.chipModelText.textContent = "LLM: без ключа (офлайн)";
+    }
+  }
+
   /* ------------------------------------------------------------------ */
   /* Model Selector Modal (Cline / Roo Code Style)                       */
   /* ------------------------------------------------------------------ */
   async openModelSelector() {
     if (!this.dom.modelModal) return;
     this.dom.modelModal.hidden = false;
-    if (this.dom.modelSearchInput) {
-      this.dom.modelSearchInput.focus();
+    if (this.dom.btnClearOpenrouterKey) {
+      this.dom.btnClearOpenrouterKey.hidden = !this.getByokKey();
     }
-    if (!this.state.availableModels || this.state.availableModels.length === 0) {
-      await this.fetchAvailableModels();
-    } else {
-      this.renderModelsList();
+    if (this.dom.openrouterKeyInput) {
+      this.dom.openrouterKeyInput.value = "";
+      this.dom.openrouterKeyInput.placeholder = this.getByokKey()
+        ? "Ключ цього вікна активний (можна ввести новий для заміни)"
+        : "Вставте власний OpenRouter API-ключ (sk-or-v1-...) для цього вікна";
+    }
+    await this.fetchAvailableModels();
+    if (this.dom.modelSearchInput && !this.dom.modalSearchBox.hidden) {
+      this.dom.modelSearchInput.focus();
     }
   }
 
@@ -3494,30 +3582,103 @@ class PyBuddyConsole {
     this.dom.modelModal.hidden = true;
   }
 
-  async fetchAvailableModels(retries = 1) {
+  async applyByokKey() {
+    const raw = (this.dom.openrouterKeyInput && this.dom.openrouterKeyInput.value || "").trim();
+    if (!raw) {
+      this.showToast("Вставте OpenRouter API-ключ у поле вище.");
+      return;
+    }
+    this.setByokKey(raw);
+    if (this.dom.openrouterKeyInput) this.dom.openrouterKeyInput.value = "";
+    await this.fetchAvailableModels();
+    if (this.state.modelsError) {
+      this.setByokKey("");
+      this.updateModelChip(null);
+      if (this.dom.btnClearOpenrouterKey) this.dom.btnClearOpenrouterKey.hidden = true;
+      this.showToast("Помилка ключа: " + this.state.modelsError);
+      return;
+    }
+    if (this.dom.btnClearOpenrouterKey) this.dom.btnClearOpenrouterKey.hidden = false;
+    this.updateModelChip(this.state.model);
+    this.showToast(`✓ OpenRouter підключено: ${this.state.availableModels.length} моделей`);
+  }
+
+  async clearByokKey() {
+    this.setByokKey("");
+    this.state.model = null;
+    this.state.availableModels = [];
+    if (this.dom.btnClearOpenrouterKey) this.dom.btnClearOpenrouterKey.hidden = true;
+    await this.fetchAvailableModels();
+    this.updateModelChip(null);
+    this.showToast("Ключ браузерної сесії очищено.");
+  }
+
+  async fetchAvailableModels(retries = 0) {
     try {
-      this.dom.modalModelsCount.textContent = "Завантаження каталогу моделей з OpenRouter...";
+      this.dom.modalModelsCount.textContent = "Перевірка ключа та завантаження каталогу OpenRouter...";
       const res = await this.api("/api/models");
+      this.state.keyConfigured = Boolean(res.key_configured);
+      this.state.keySource = res.key_source || "none";
+      this.state.modelsError = res.error || null;
       this.state.availableModels = res.models || [];
-      // backend may answer with an empty catalogue while its model cache
-      // is still warming up -- retry once instead of showing "0 з 0"
-      if (this.state.availableModels.length === 0 && retries > 0) {
-        await new Promise((r) => setTimeout(r, 2000));
-        return this.fetchAvailableModels(retries - 1);
-      }
-      if (res.active_model) {
+      if (this.state.keySource === "server" && res.active_model && !this.getByokKey()) {
         this.state.model = res.active_model;
-        this.dom.chipModelText.textContent = "model: " + res.active_model;
       }
+      if (this.dom.modalKeyStatus) {
+        if (this.state.keySource === "client" && !this.state.modelsError) {
+          this.dom.modalKeyStatus.textContent = "🟢 Ключ OpenRouter підключено (локально для цієї вкладки браузера; не зберігається на сервері).";
+        } else if (this.state.keySource === "server" && !this.state.modelsError) {
+          this.dom.modalKeyStatus.textContent = "🟢 Серверний ключ OpenRouter активний (передано через .env або env).";
+        } else if (this.state.modelsError) {
+          this.dom.modalKeyStatus.textContent = "🔴 " + this.state.modelsError;
+        } else {
+          this.dom.modalKeyStatus.textContent = "🟡 Ключ не налаштовано — вставте OpenRouter API-ключ нижче або запустіть із OPENROUTER_API_KEY.";
+        }
+      }
+      if (this.dom.btnClearOpenrouterKey) {
+        this.dom.btnClearOpenrouterKey.hidden = !this.getByokKey();
+      }
+      this.updateModelChip(res.active_model);
       this.renderModelsList();
     } catch (err) {
-      this.dom.modalModelsCount.textContent = "Помилка завантаження: " + (err.message || String(err));
+      this.state.availableModels = [];
+      this.state.modelsError = err.message || String(err);
+      this.dom.modalModelsCount.textContent = "Помилка завантаження: " + this.state.modelsError;
+      this.renderModelsList();
     }
   }
 
   renderModelsList() {
     if (!this.dom.modalModelsList) return;
     const all = this.state.availableModels || [];
+    const hasList = all.length > 0;
+    if (this.dom.modalSearchBox) this.dom.modalSearchBox.hidden = !hasList;
+    if (this.dom.modelFilterTags) this.dom.modelFilterTags.hidden = !hasList;
+
+    if (!this.state.keyConfigured) {
+      this.dom.modalModelsCount.textContent = "Офлайн-режим: список моделей з'явиться після підключення ключа OpenRouter";
+      this.dom.modalModelsList.innerHTML = `
+        <div class="modal-empty-state">
+          <strong>Чому список порожній?</strong> Сервер запущено без <code>OPENROUTER_API_KEY</code> — без перевіреного ключа моделі OpenRouter недоступні.<br><br>
+          <strong>Як підключити LLM зараз:</strong><br>
+          1. Вставте свій ключ <code>sk-or-v1-...</code> у поле вище й натисніть <strong>Підключити</strong> (працює миттєво в цьому вікні без перезапуску Docker).<br>
+          2. Або передайте ключ при запуску контейнера:<br>
+          <code>docker run --rm -p 8000:8000 -e OPENROUTER_API_KEY=sk-or-v1-... py-buddy:latest</code><br><br>
+          <span style="color:var(--muted)">Усі детерміновані модулі (прямі ціни, Сумісність, Парето, Каталог, Інтроспекція) працюють повністю без ключа.</span>
+        </div>`;
+      return;
+    }
+
+    if (this.state.modelsError && !hasList) {
+      this.dom.modalModelsCount.textContent = "Не вдалося отримати список моделей від OpenRouter";
+      this.dom.modalModelsList.innerHTML = `
+        <div class="modal-empty-state" style="border-color:rgba(229,83,75,0.45)">
+          <strong>Помилка OpenRouter:</strong> ${this.escapeHtml(this.state.modelsError)}<br><br>
+          Перевірте правильність API-ключа та доступ до <code>openrouter.ai</code>.
+        </div>`;
+      return;
+    }
+
     const query = (this.state.modelSearchQuery || "").toLowerCase();
     const filter = this.state.activeModelFilter || "all";
 
@@ -3539,7 +3700,7 @@ class PyBuddyConsole {
       return true;
     });
 
-    this.dom.modalModelsCount.textContent = `Доступно: ${filtered.length} з ${all.length} моделей`;
+    this.dom.modalModelsCount.textContent = `Доступно: ${filtered.length} з ${all.length} моделей OpenRouter`;
 
     if (filtered.length === 0) {
       this.dom.modalModelsList.innerHTML = `
@@ -3580,21 +3741,28 @@ class PyBuddyConsole {
   }
 
   async selectModel(modelId) {
-    try {
+    const byokKey = this.getByokKey();
+    if (byokKey) {
       this.state.model = modelId;
-      this.dom.chipModelText.textContent = "model: " + modelId;
-      this.dom.sbModel.innerHTML = "<svg class='ic' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='2.5' y='4' width='19' height='13' rx='1.5'/><path d='M9 21h6M12 17v4'/></svg> " + modelId;
-      this.dom.kpiModel.textContent = modelId;
+      try { sessionStorage.setItem("pb_openrouter_model", modelId); } catch (_) {}
+      this.updateModelChip(modelId);
       this.closeModelSelector();
-
+      this.showToast(`✓ Обрано модель для поточної сесії: ${modelId}`);
+      return;
+    }
+    try {
+      const token = this.adminToken();
       await this.api("/api/set_model", {
         method: "POST",
+        headers: token ? { "X-Admin-Token": token } : {},
         body: { model: modelId }
       });
-
+      this.state.model = modelId;
+      this.updateModelChip(modelId);
+      this.closeModelSelector();
       this.showToast(`✓ Модель перемкнуто: ${modelId}`);
     } catch (err) {
-      this.showToast(`Помилка зміни моделі: ${err.message || String(err)}`);
+      this.showToast(`Помилка зміни моделі (потрібен X-Admin-Token або BYOK-ключ): ${err.message || String(err)}`);
     }
   }
 }
