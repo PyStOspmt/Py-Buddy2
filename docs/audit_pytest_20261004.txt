@@ -1,0 +1,12 @@
+AUDIT: offline subset; excludes server API, dynamic domain isolation, live arm; outbound socket connections blocked.
+PYTEST_ARGS ['tests', '-q', '-ra', '--tb=short', '--ignore=tests/test_server_api.py', '--ignore=tests/test_dynamic_domain_isolation.py', '--ignore=tests/test_live_arm.py', '-p', 'no:cacheprovider']
+........................................................................ [ 18%]
+........................................................................ [ 36%]
+........................................................................ [ 54%]
+........................................................................ [ 72%]
+........................................................................ [ 90%]
+..........s.........................                                     [100%]
+=========================== short test summary info ===========================
+SKIPPED [1] tests\test_real_data_validation.py:136: this catalogue carries no prices; price families are skipped
+395 passed, 1 skipped in 44.40s
+PYTEST_EXIT_CODE ExitCode.OK

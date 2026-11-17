@@ -1,0 +1,1214 @@
+{
+ "meta": {
+  "seed": 20261112,
+  "n_each": 18,
+  "model": "deepseek/deepseek-v4.1-flash-1017",
+  "calls": 49,
+  "prompt_tokens": 11915,
+  "completion_tokens": 6711,
+  "spent_usd": 0.00627,
+  "cap_usd": 0.1,
+  "request_file_sha256": "71737732bff09396439913702945e95c61a3b27209938ae6bdd5e4365fb937e5"
+ },
+ "inserts": [
+  {
+   "record": {
+    "source_book_id": 43615,
+    "title": "Poems",
+    "issued": "2013-09-01",
+    "lang": "en",
+    "loc_class": "PR",
+    "authors": [
+     "Manning, Frederic, 1882-1935"
+    ],
+    "subjects": [
+     "Poetry"
+    ],
+    "shelves": [
+     "Category: Poetry"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a book of verse by Frederic Manning, a poet who lived from 1882 to 1935.",
+    "en_strict": "I need a collection of rhyming or metrical writing by a writer who lived from the early 1880s to the mid-1930s.",
+    "uk": "Мені потрібна збірка віршів письменника, який жив з 1882 по 1935 рік."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 3792,
+    "title": "Capitola the madcap",
+    "issued": "2003-02-01",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "Southworth, Emma Dorothy Eliza Nevitte, 1819-1899"
+    ],
+    "subjects": [
+     "Women -- United States -- Fiction"
+    ],
+    "shelves": [
+     "Category: Adventure",
+     "Category: Novels"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a nineteenth-century American novel about a spirited young woman, written by a prolific female author of that era.",
+    "en_strict": "I need an old American story about a lively female character, penned by a productive lady writer from the eighteen hundreds.",
+    "uk": "Шукаю американський роман дев'ятнадцятого століття про жваву молоду жінку, написану плідною письменницею тієї епохи."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 12017,
+    "title": "The Mirror of Literature, Amusement, and Instruction. Volume 13 — Index to Volume 13",
+    "issued": "2004-04-01",
+    "lang": "en",
+    "loc_class": "AP",
+    "authors": [
+     "Various"
+    ],
+    "subjects": [
+     "Popular literature -- Great Britain -- Periodicals"
+    ],
+    "shelves": [
+     "The Mirror of Literature, Amusement, and Instruction",
+     "Category: Poetry",
+     "Category: Biographies",
+     "Category: Essays, Letters & Speeches",
+     "Category: Encyclopedias/Dictionaries/Reference"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm trying to track down an old bound collection of a nineteenth-century British miscellany magazine, specifically the thirteenth instalment, which includes a table of contents at the front.",
+    "en_strict": "I need a nineteenth-century English magazine of general reading and entertainment, the thirteenth yearly part, whose opening pages list the contents.",
+    "uk": "Шукаю старий том англійського журналу дев'ятнадцятого століття із загальним читанням і розвагами, саме тринадцяту річну частину, що починається зі списку змісту."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 38175,
+    "title": "Perils in the Transvaal and Zululand",
+    "issued": "2011-11-30",
+    "lang": "en",
+    "loc_class": "PZ",
+    "authors": [
+     "Adams, H. C. (Henry Cadwallader), 1817-1899"
+    ],
+    "subjects": [
+     "Zulu War, 1879 -- Juvenile fiction",
+     "British -- South Africa -- Juvenile fiction",
+     "South Africa -- Description and travel -- Juvenile fiction",
+     "South Africa -- English-Afrikaner relations -- Juvenile fiction"
+    ],
+    "shelves": [
+     "Travel",
+     "Category: Historical Novels",
+     "Category: Adventure"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a nineteenth-century adventure novel for young readers set during the Anglo-Zulu War and in southern Africa, involving British settlers and Boer tensions.",
+    "en_strict": "A Victorian-era adventure story aimed at younger readers, set during a colonial war in the southern part of the African continent, involving settlers and conflict between colonists of different European backgrounds.",
+    "uk": "Шукаю пригодницький роман дев'ятнадцятого століття для юних читачів, дія якого відбувається під час англо-зулуської війни та на півдні Африки, з британськими поселенцями й напруженням між колоністами."
+   },
+   "flags": {
+    "strict_ok": false,
+    "uk_ok": true,
+    "attempts": 3
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 55722,
+    "title": "Woman and Her Wits: Epigrams on Woman, Love, and Beauty",
+    "issued": "2017-10-09",
+    "lang": "en",
+    "loc_class": "PN",
+    "authors": [
+     "Monkshood, G. F., 1872- [Compiler]"
+    ],
+    "subjects": [
+     "Women",
+     "Epigrams"
+    ],
+    "shelves": [
+     "Category: Essays, Letters & Speeches"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a small collection of short, witty sayings about women, romance, and attractiveness, put together by someone else.",
+    "en_strict": "I need a slim gathering of brief clever sayings concerning the female sex, romance, and attractiveness, assembled by an editor.",
+    "uk": "Шукаю невелику збірку коротких дотепних висловів про жінок, кохання та вроду, укладену іншою людиною."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 67753,
+    "title": "Don Miguel Lehumada: discoverer of liquid from the sun's rays an occult romance of Mexico and the United States",
+    "issued": "2022-04-01",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "Greenleaf, Sue"
+    ],
+    "subjects": [
+     "Reincarnation -- Fiction",
+     "Paranormal fiction",
+     "Spiritualism -- Fiction",
+     "Memory -- Fiction"
+    ],
+    "shelves": [
+     "Category: Science-Fiction & Fantasy",
+     "Category: Romance",
+     "Category: Novels",
+     "Category: American Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a book about a man who finds a way to extract fluid from sunlight, set in Mexico and the United States, with themes of past lives, the supernatural, communication with spirits, and recollection.",
+    "en_strict": "Seeking a tale of a man who extracts fluid from sunshine, set in two North American nations, blending themes of rebirth, uncanny events, contact with departed souls, and remembering.",
+    "uk": "Шукаю книжку про чоловіка, який добуває рідину з сонячних променів, дія якої відбувається в Мексиці та Сполучених Штатах, із темами перевтілення, надприродного, спіритизму та пам'яті."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 2
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 5192,
+    "title": "On a Dynamical Top, for exhibiting the phenomena of the motion of a system of invariable form about a fixed point, with some suggestions as to the Earth's motion",
+    "issued": "2004-02-01",
+    "lang": "en",
+    "loc_class": "QA",
+    "authors": [
+     "Maxwell, James Clerk, 1831-1879"
+    ],
+    "subjects": [
+     "Force and energy",
+     "Motion"
+    ],
+    "shelves": [
+     "Mathematics",
+     "Physics",
+     "Category: Science - Physics",
+     "Category: Mathematics"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for an old scientific paper about a spinning top that demonstrates how a rigid body rotates around a stationary pivot, and which also touches on the movement of our planet.",
+    "en_strict": "I need a nineteenth-century scientific writing concerning a rotating toy that shows how a rigid body turns around one stationary pivot, and that also offers ideas about the way our planet moves through space.",
+    "uk": "Шукаю давню наукову працю про дзиґу, яка демонструє обертання твердого тіла навколо нерухомої опори та містить міркування про рух нашої планети."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 42612,
+    "title": "The Mother's Nursery Songs",
+    "issued": "2013-04-29",
+    "lang": "en",
+    "loc_class": "PZ",
+    "authors": [
+     "Hastings, Thomas, 1784-1872"
+    ],
+    "subjects": [
+     "Children's songs"
+    ],
+    "shelves": [
+     "Category: Children & Young Adult Reading",
+     "Category: Poetry",
+     "Category: Music",
+     "Category: Teaching & Education"
+    ]
+   },
+   "queries": {
+    "en_natural": "I’m looking for an old collection of little-kid rhymes and singing pieces by a nineteenth-century American compiler.",
+    "en_strict": "I need a vintage book of simple tunes and verses for very young ones, compiled by an early American music educator.",
+    "uk": "Шукаю старовинну збірку дитячих пісеньок і віршиків для найменших, укладену американським музичним педагогом дев’ятнадцятого століття."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 60983,
+    "title": "The Queen of Farrandale: A Novel",
+    "issued": "2019-12-20",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "Burnham, Clara Louise, 1854-1927"
+    ],
+    "subjects": [
+     "Love stories",
+     "Older women -- Fiction",
+     "United States -- Social life and customs -- 20th century -- Fiction",
+     "World War, 1914-1918 -- Veterans -- Fiction",
+     "Families -- Fiction"
+    ],
+    "shelves": [
+     "Category: Novels"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a book about an elderly woman and her family in America during the early 1900s, with a romance plot and a returning soldier from the First World War.",
+    "en_strict": "I need a piece of prose about an elderly lady and her relatives in America in the early nineteen-hundreds, featuring a romance and a soldier back from the Great Conflict.",
+    "uk": "Шукаю книжку про літню жінку та її родину в Америці на початку двадцятого століття, з романтичною лінією та солдатом, що повернувся з Першої світової."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 2
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 9409,
+    "title": "Five Thousand Dollars Reward",
+    "issued": "2005-12-01",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "Pinkerton, A. Frank"
+    ],
+    "subjects": [
+     "American fiction -- 19th century",
+     "Mystery fiction"
+    ],
+    "shelves": [
+     "Category: Crime, Thrillers and Mystery",
+     "Category: Novels"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm trying to recall a detective novel from the 1800s by A. Frank Pinkerton about a large cash bounty, listed under American fiction and mystery fiction.",
+    "en_strict": "Looking for an old detective story from the eighteen-hundreds about a big cash prize offered for a capture, written by a person whose surname is shared with a famous detective agency.",
+    "uk": "Шукаю детективний роман дев'ятнадцятого століття про велику грошову винагороду, автором якого є письменник на прізвище Пінкертон."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 2
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 63628,
+    "title": "The Children's Story of Westminster Abbey",
+    "issued": "2020-11-04",
+    "lang": "en",
+    "loc_class": "DA",
+    "authors": [
+     "Troutbeck, G. E. (Georgina E.)"
+    ],
+    "subjects": [
+     "Westminster Abbey"
+    ],
+    "shelves": [
+     "Category: Children & Young Adult Reading",
+     "Category: History - British"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a book that introduces young readers to the history of a famous London church where British monarchs are crowned and buried.",
+    "en_strict": "I want a volume written for young people about the historic London church used for royal coronations and burials.",
+    "uk": "Шукаю книжку для дітей про історію відомої лондонської церкви, де коронують і ховають британських монархів."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 75726,
+    "title": "Driven to bay, Vol. 1 (of 3)",
+    "issued": "2025-03-27",
+    "lang": "en",
+    "loc_class": "PR",
+    "authors": [
+     "Marryat, Florence, 1833-1899"
+    ],
+    "subjects": [
+     "Sea stories",
+     "English fiction -- 19th century",
+     "Ships -- Fiction"
+    ],
+    "shelves": [
+     "Category: Romance",
+     "Category: Novels",
+     "Category: British Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a three-volume Victorian novel by a woman writer, set at sea with nautical themes and a plot involving a vessel and its crew.",
+    "en_strict": "I need a three-part novel from the eighteen-hundreds written by a female novelist, with a maritime setting and a plot about a boat and the people aboard.",
+    "uk": "Шукаю тритомний роман вікторіанської письменниці з морським сюжетом, де йдеться про корабель та його екіпаж."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 35008,
+    "title": "Concerning Belinda",
+    "issued": "2011-01-19",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "Brainerd, Eleanor Hoyt, 1868-1942",
+     "Fisher, Harrison, 1875-1934 [Illustrator]",
+     "Richardson, Katharine N. [Illustrator]"
+    ],
+    "subjects": [
+     "Schools -- Fiction",
+     "New York (N.Y.) -- Fiction",
+     "Young women -- Fiction",
+     "Teachers -- Fiction"
+    ],
+    "shelves": [
+     "Category: Humour",
+     "Category: Novels",
+     "Category: American Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for an early twentieth-century novel about a young woman in New York who works as a schoolteacher, with illustrations by Harrison Fisher and Katharine N. Richardson.",
+    "en_strict": "A novel from the early nineteen-hundreds about a female educator in a big American city, with pictures by two artists, one of them a well-known magazine painter.",
+    "uk": "Шукаю роман початку двадцятого століття про молоду вчительку в Нью-Йорку з ілюстраціями двох художників."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 39625,
+    "title": "History of Llangollen and Its Vicinity Including a Circuit of About Seven Miles",
+    "issued": "2012-05-05",
+    "lang": "en",
+    "loc_class": "DA",
+    "authors": [
+     "Simpson, W. T. (Wilfrid Tord)"
+    ],
+    "subjects": [
+     "Llangollen (Wales)"
+    ],
+    "shelves": [
+     "Category: History - British"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm trying to find a book about a town in Wales and the area around it, covering roughly a seven-mile radius, written by someone named W. T. Simpson.",
+    "en_strict": "I am looking for a book describing a small Welsh town and the surrounding countryside within a short distance, written by a person whose initials are W. T.",
+    "uk": "Шукаю книжку про невелике валлійське містечко та його околиці в радіусі приблизно семи миль, написану автором на ім'я В. Т. Сімпсон."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 2
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 35260,
+    "title": "Rubáiyát of Omar Khayyam, Rendered into English Verse",
+    "issued": "2011-02-12",
+    "lang": "en",
+    "loc_class": "PK",
+    "authors": [
+     "Omar Khayyam, 1048-1122",
+     "Dulac, Edmund, 1882-1953 [Illustrator]",
+     "FitzGerald, Edward, 1809-1883 [Translator]"
+    ],
+    "subjects": [
+     "Persian poetry -- Translations into English"
+    ],
+    "shelves": [
+     "Category: Poetry",
+     "Category: Classics of Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for an illustrated book of quatrains by a medieval Middle Eastern poet, translated into English by a Victorian writer.",
+    "en_strict": "I would like a decorated collection of four-line stanzas by a classic writer from the Near East, put into our language by a nineteenth-century man of letters.",
+    "uk": "Шукаю ілюстровану збірку чотиривіршів середньовічного східного поета в перекладі вікторіанського літератора."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 68502,
+    "title": "A note on the position and extent of the great temple enclosure of Tenochtitlan, and the position, structure and orientation of the Teocolli of Huitzilopochtli.",
+    "issued": "2022-07-11",
+    "lang": "en",
+    "loc_class": "F1201",
+    "authors": [
+     "Maudslay, Alfred Percival, 1850-1931"
+    ],
+    "subjects": [
+     "Mexico City (Mexico) -- Antiquities",
+     "Indian architecture -- Mexico",
+     "Huitzilopochtli (Aztec deity)"
+    ],
+    "shelves": [
+     "Category: History - Other",
+     "Category: History - Ancient",
+     "Category: Architecture",
+     "Category: Archaeology & Anthropology"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a scholarly piece about the layout and placement of the main sacred precinct at Tenochtitlan and the design, build, and alignment of the shrine to Huitzilopochtli.",
+    "en_strict": "I need a short scholarly study describing where the principal sacred precinct of the old central-American capital lay and how the shrine of its patron god was built and aligned.",
+    "uk": "Мені потрібна наукова праця про розташування й межі головної священної огорожі Теночтітлана та про будову й орієнтацію храму Уїцилопочтлі."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 2
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 7153,
+    "title": "Elder Conklin and Other Stories",
+    "issued": "2004-12-01",
+    "lang": "en",
+    "loc_class": "PR",
+    "authors": [
+     "Harris, Frank, 1856-1931"
+    ],
+    "subjects": [
+     "Fiction",
+     "Short stories"
+    ],
+    "shelves": [
+     "Category: Short Stories",
+     "Category: American Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a collection of short fiction by Frank Harris, including the story about Elder Conklin.",
+    "en_strict": "I need a book of brief prose narratives by a late nineteenth-century writer, one of which concerns an older religious leader.",
+    "uk": "Мені потрібна збірка короткої прози Френка Гарріса, зокрема оповідання про старшого церковного наставника."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "record": {
+    "source_book_id": 31524,
+    "title": "The Price of the Prairie: A Story of Kansas",
+    "issued": "2010-03-06",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "McCarter, Margaret Hill, 1860-1938",
+     "Marchand, J. N. [Illustrator]"
+    ],
+    "subjects": [
+     "Western stories",
+     "Kansas -- Fiction"
+    ],
+    "shelves": [
+     "US Civil War",
+     "Category: Historical Novels",
+     "Category: Novels",
+     "Category: American Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I’m looking for an old novel set on the American plains about pioneer life, with a romantic or dramatic plot and illustrations by J. N. Marchand.",
+    "en_strict": "I need a vintage book set on the Great Plains about settlers and frontier life, with a dramatic tale and pictures by a named artist.",
+    "uk": "Шукаю старий роман про життя переселенців на американських рівнинах, із драматичним сюжетом і малюнками художника."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  }
+ ],
+ "updates": [
+  {
+   "book_id": 71806,
+   "new_content": {
+    "source_book_id": 2822,
+    "title": "London in 1731",
+    "issued": "2001-09-01",
+    "lang": "en",
+    "loc_class": "DA",
+    "authors": [
+     "Gonzales, Manoel, Don",
+     "Defoe, Daniel, 1661?-1731 [Unknown role]"
+    ],
+    "subjects": [
+     "London (England) -- History -- 18th century",
+     "London (England) -- Description and travel"
+    ],
+    "shelves": [
+     "Category: History - British",
+     "Category: History - Early Modern (c. 1450-1750)"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for an early eighteenth-century book about the city of London, covering both its past and what a visitor would see there, with a Portuguese-sounding author and another contributor whose name I can't quite recall.",
+    "en_strict": "I need an old book from the seventeen-hundreds about a major British city, covering both its past and what a visitor would find there, written by a Portuguese-named person together with a second contributor.",
+    "uk": "Шукаю старовинну книжку початку вісімнадцятого століття про велике британське місто, у якій ідеться і про його минуле, і про те, що там можна побачити, а серед авторів є людина з португальським іменем та ще один співавтор."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 42828,
+   "new_content": {
+    "source_book_id": 1161,
+    "title": "Jerry of the Islands",
+    "issued": "1998-01-01",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "London, Jack, 1876-1916"
+    ],
+    "subjects": [
+     "Dogs -- Fiction",
+     "Solomon Islands -- Fiction"
+    ],
+    "shelves": [
+     "Category: Adventure",
+     "Category: Novels",
+     "Category: American Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for an early twentieth-century novel by the American writer who created White Fang, set in the South Pacific and featuring a canine protagonist.",
+    "en_strict": "A classic adventure story from the early nineteen hundreds about a four-legged companion in a remote Pacific archipelago, written by an American novelist known for animal tales.",
+    "uk": "Шукаю пригодницький роман початку двадцятого століття американського письменника про собаку на далеких тихоокеанських островах."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 49350,
+   "new_content": {
+    "source_book_id": 30322,
+    "title": "The Helpful Hand of God",
+    "issued": "2009-10-24",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "Godwin, Tom, 1915-1980",
+     "Barberis [Illustrator]"
+    ],
+    "subjects": [
+     "Science fiction"
+    ],
+    "shelves": [
+     "Science Fiction",
+     "Category: Short Stories",
+     "Category: Science-Fiction & Fantasy"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a science fiction book by Tom Godwin that also credits an illustrator named Barberis.",
+    "en_strict": "I need a speculative tale written by a mid-twentieth-century American storyteller whose work was accompanied by pictures from a certain artist.",
+    "uk": "Мені потрібна науково-фантастична книжка Тома Годвіна з ілюстраціями Барберіса."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 2
+   }
+  },
+  {
+   "book_id": 32454,
+   "new_content": {
+    "source_book_id": 49691,
+    "title": "Constantinople and the Scenery of the Seven Churches of Asia Minor Series One and Series Two in one Volume",
+    "issued": "2015-08-12",
+    "lang": "en",
+    "loc_class": "DR",
+    "authors": [
+     "Allom, Thomas, 1804-1872 [Illustrator]",
+     "Walsh, R. (Robert), 1772-1852"
+    ],
+    "subjects": [
+     "Istanbul (Turkey) -- History",
+     "Istanbul (Turkey) -- Pictorial works"
+    ],
+    "shelves": [
+     "Category: Travel Writing",
+     "Category: History - Other"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for an old illustrated book about the city on the Bosphorus and the landscapes around the seven congregations of Anatolia, with text and pictures bound together.",
+    "en_strict": "An antique book of drawings and descriptions of a great Turkish city and the surrounding regions of the ancient congregations, bound as a single book.",
+    "uk": "Шукаю старовинну ілюстровану книгу про місто на Босфорі та краєвиди давніх малоазійських громад, де текст і малюнки зібрані в одній книзі."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 34854,
+   "new_content": {
+    "source_book_id": 54376,
+    "title": "Pleasant Ways in Science",
+    "issued": "2017-03-17",
+    "lang": "en",
+    "loc_class": "Q",
+    "authors": [
+     "Proctor, Richard A. (Richard Anthony), 1837-1888"
+    ],
+    "subjects": [
+     "Science"
+    ],
+    "shelves": [
+     "Category: Science - Physics",
+     "Category: Science - Earth/Agricultural/Farming"
+    ]
+   },
+   "queries": {
+    "en_natural": "I’m looking for a book by Richard A. Proctor about science, with the title Pleasant Ways in Science.",
+    "en_strict": "I need a nineteenth-century volume of general knowledge essays written by a British popularizer, covering topics such as astronomy and physics.",
+    "uk": "Мені потрібна книжка Річарда Проктора про науку, яка має назву «Приємні шляхи в науці»."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 56664,
+   "new_content": {
+    "source_book_id": 69881,
+    "title": "Preservation of forests as a measure of public safety Address before the 17th National Irrigation Congress, Spokane, Wash., August, 1909",
+    "issued": "2023-01-26",
+    "lang": "en",
+    "loc_class": "SD",
+    "authors": [
+     "Baeta Neves, Lourenço, 1876-1948"
+    ],
+    "subjects": [
+     "Forests and forestry",
+     "Forests and forestry -- Brazil"
+    ],
+    "shelves": [
+     "Category: Health & Medicine",
+     "Category: Environmental Issues"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for an early twentieth-century speech or paper arguing that protecting woodland is a matter of public welfare, given before a national gathering on water management in the Pacific Northwest in 1909, and also covering tree cover in South America.",
+    "en_strict": "I need an early twentieth-century spoken paper contending that safeguarding wooded land serves the common good, delivered to a large gathering on water management in the northwestern United States in 1909, which also discusses tree cover in a South American country.",
+    "uk": "Шукаю доповідь початку двадцятого століття, у якій охорона лісів обґрунтовується як справа суспільного добробуту, виголошену на великому зібранні з питань водного господарства на північному заході Сполучених Штатів 1909 року, що також висвітлює лісові масиви Південної Америки."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 6453,
+   "new_content": {
+    "source_book_id": 37698,
+    "title": "Dawn of the Morning",
+    "issued": "2013-04-07",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "Hill, Grace Livingston, 1865-1947"
+    ],
+    "subjects": [
+     "New York (State) -- Fiction"
+    ],
+    "shelves": [
+     "Category: Romance",
+     "Category: Novels",
+     "Category: American Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a novel set in New York that was written by Grace Livingston Hill.",
+    "en_strict": "I need a work of imaginative prose whose setting is in the Empire region of the northeastern United States, penned by a female writer of the late nineteenth and early twentieth centuries.",
+    "uk": "Шукаю роман, дія якого відбувається в Нью-Йорку, написаний Грейс Лівінгстон Гілл."
+   },
+   "flags": {
+    "strict_ok": false,
+    "uk_ok": true,
+    "attempts": 3
+   }
+  },
+  {
+   "book_id": 44444,
+   "new_content": {
+    "source_book_id": 788,
+    "title": "The Red One",
+    "issued": "1997-01-01",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "London, Jack, 1876-1916"
+    ],
+    "subjects": [
+     "Fiction",
+     "Short stories",
+     "Adventure stories, American"
+    ],
+    "shelves": [
+     "Category: Science-Fiction & Fantasy",
+     "Category: Adventure",
+     "Category: Novels",
+     "Category: American Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I’m trying to find a collection of tales by an early twentieth-century writer, including sea and wilderness narratives with a restless, far-traveling mood.",
+    "en_strict": "I’m looking for a book of brief imaginative narratives by a late nineteenth- to early twentieth-century writer, with a restless, far-traveling mood and rugged outdoor themes.",
+    "uk": "Шукаю збірку коротких оповідань письменника кінця дев’ятнадцятого — початку двадцятого століття з пригодницьким і мандрівним настроєм."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 45129,
+   "new_content": {
+    "source_book_id": 45859,
+    "title": "Patrañas; or, Spanish Stories, Legendary and Traditional",
+    "issued": "2014-06-01",
+    "lang": "en",
+    "loc_class": "PZ",
+    "authors": [
+     "Busk, Rachel Harriette, 1831-1907",
+     "Corbould, Edward Henry, 1815-1905 [Illustrator]"
+    ],
+    "subjects": [
+     "Children's stories",
+     "Adventure stories",
+     "Kings and rulers -- Juvenile fiction",
+     "Spain -- History -- Juvenile fiction",
+     "Spain -- Civilization -- African influences -- Juvenile fiction",
+     "Spain -- Civilization -- Classical influences -- Juvenile fiction",
+     "Spain -- Social life and customs -- Juvenile fiction"
+    ],
+    "shelves": [
+     "Category: Short Stories",
+     "Category: Mythology, Legends & Folklore"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for an old illustrated collection of folk tales from Spain for young readers, with stories about royalty and the country's past and everyday culture.",
+    "en_strict": "I need a vintage picture book of folk narratives from a European country, meant for young readers, featuring tales about monarchs and that nation's past and daily ways.",
+    "uk": "Шукаю старовинну ілюстровану збірку народних оповідань з Іспанії для юних читачів, з історіями про монархів та минуле й повсякденну культуру цієї країни."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 10468,
+   "new_content": {
+    "source_book_id": 1062,
+    "title": "First Project Gutenberg Collection of Edgar Allan Poe",
+    "issued": "1997-10-01",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "Poe, Edgar Allan, 1809-1849"
+    ],
+    "subjects": [
+     "Horror tales, American",
+     "Fantasy poetry, American"
+    ],
+    "shelves": [
+     "Category: Short Stories",
+     "Category: Poetry",
+     "Category: Classics of Literature",
+     "Category: American Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for an old public-domain book that gathers some of Edgar Allan Poe's eerie short stories and imaginative poems.",
+    "en_strict": "I need a freely available older volume bringing together a writer's unsettling short fiction and imaginative verse.",
+    "uk": "Мені потрібна стара книжка у вільному доступі, яка зібрала моторошні оповідання та фантастичні вірші одного письменника."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 58765,
+   "new_content": {
+    "source_book_id": 30969,
+    "title": "The Big Five Motorcycle Boys on the Battle Line; Or, With the Allies in France",
+    "issued": "2010-01-15",
+    "lang": "en",
+    "loc_class": "PZ",
+    "authors": [
+     "Marlow, Ralph"
+    ],
+    "subjects": [
+     "Boys -- Juvenile fiction",
+     "World War, 1914-1918 -- Juvenile fiction",
+     "Motorcycles -- Juvenile fiction"
+    ],
+    "shelves": [
+     "Category: Historical Novels",
+     "Category: Children & Young Adult Reading",
+     "Category: Adventure"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a children's adventure story about a group of young riders on two-wheeled machines who get caught up in the First World War in France.",
+    "en_strict": "A story for young readers about a gang of lads riding two-wheeled vehicles who end up involved in the 1914–1918 conflict on the western front.",
+    "uk": "Шукаю дитячу пригодницьку книжку про хлопців на двоколісних машинах, які потрапили на фронт Першої світової війни у Франції."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 3
+   }
+  },
+  {
+   "book_id": 3565,
+   "new_content": {
+    "source_book_id": 37906,
+    "title": "The Whirligig of Time",
+    "issued": "2011-11-02",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "Williams, Wayland Wells, 1888-1945"
+    ],
+    "subjects": [
+     "Triangles (Interpersonal relations) -- Fiction",
+     "College students -- Fiction",
+     "Brothers -- Fiction",
+     "Yale University -- Fiction"
+    ],
+    "shelves": [
+     "Category: Novels"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm trying to find a novel about two siblings attending a prestigious New England school whose bond is complicated by a romantic rivalry over the same person.",
+    "en_strict": "Looking for a novel about two male siblings at an elite northeastern academy whose closeness is strained by a romantic rivalry over the same partner.",
+    "uk": "Шукаю роман про двох братів, які навчаються в престижному навчальному закладі на північному сході, чия близькість ускладнюється суперництвом за одного й того самого коханого."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 60874,
+   "new_content": {
+    "source_book_id": 43098,
+    "title": "Selected Works of Voltairine de Cleyre",
+    "issued": "2013-07-06",
+    "lang": "en",
+    "loc_class": "PS",
+    "authors": [
+     "De Cleyre, Voltairine, 1866-1912",
+     "Havel, Hippolyte, 1871-1950 [Contributor]",
+     "Berkman, Alexander, 1870-1936 [Editor]"
+    ],
+    "subjects": [
+     "Feminism -- Literary collections",
+     "Anarchism -- Literary collections"
+    ],
+    "shelves": [
+     "Category: Biographies",
+     "Category: Essays, Letters & Speeches",
+     "Category: Philosophy & Ethics"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a book about progressive writings by a specific female writer.",
+    "en_strict": "I need a volume containing gathered writings by a female writer known for her progressive views.",
+    "uk": "Мені потрібна книга зі збіркою творів відомої письменниці, яка виступала за прогресивні ідеї."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 32654,
+   "new_content": {
+    "source_book_id": 51204,
+    "title": "Corticelli Home Needlework, 1898: A Manual of Art, Embroidery and Knitting",
+    "issued": "2016-02-14",
+    "lang": "en",
+    "loc_class": "TT",
+    "authors": [
+     "Nonotuck Silk Company [Publisher]"
+    ],
+    "subjects": [
+     "Knitting",
+     "Embroidery"
+    ],
+    "shelves": [
+     "Crafts",
+     "Category: Art",
+     "Category: How To ..."
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for an 1898 Victorian guide to fancy sewing and yarn crafts published by a textile firm.",
+    "en_strict": "I need a late nineteenth-century instructional volume about decorative stitching and yarn crafts, issued by a thread manufacturer.",
+    "uk": "Мені потрібен посібник дев'ятнадцятого століття про декоративне шиття та в'язання, випущений виробником ниток."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 55070,
+   "new_content": {
+    "source_book_id": 32840,
+    "title": "One Of Them",
+    "issued": "2010-06-16",
+    "lang": "en",
+    "loc_class": "PR",
+    "authors": [
+     "Lever, Charles, 1806-1872",
+     "Browne, Hablot Knight, 1815-1882 [Illustrator]"
+    ],
+    "subjects": [
+     "Fiction"
+    ],
+    "shelves": [
+     "Category: Humour",
+     "Category: Novels",
+     "Category: British Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a Victorian-era novel by Charles Lever with illustrations by Hablot Knight Browne, probably a work of fiction.",
+    "en_strict": "I need a nineteenth-century storybook written by a long-dead Irish novelist whose pictures were drawn by a famous caricaturist.",
+    "uk": "Шукаю роман дев'ятнадцятого століття ірландського письменника з ілюстраціями відомого карикатуриста."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 2
+   }
+  },
+  {
+   "book_id": 33521,
+   "new_content": {
+    "source_book_id": 58480,
+    "title": "Perry's Saints; Or, The Fighting Parson's Regiment in the War of the Rebellion",
+    "issued": "2018-12-17",
+    "lang": "en",
+    "loc_class": "E456",
+    "authors": [
+     "Nichols, James Moses, 1835-1886"
+    ],
+    "subjects": [
+     "United States -- History -- Civil War, 1861-1865 -- Regimental histories",
+     "New York (State) -- History -- Civil War, 1861-1865 -- Regimental histories",
+     "Perry, James H., 1811-1862",
+     "United States. Army. New York Infantry Regiment, 48th (1861-1865)"
+    ],
+    "shelves": [
+     "Category: History - American",
+     "Category: History - Warfare"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a book about a Union colonel who was a Methodist minister and led a New York volunteer unit during the American Civil War, with material on the 48th New York Volunteers.",
+    "en_strict": "I need a volume concerning a wartime chaplain-turned-commander of a volunteer battalion from a northeastern province during the 1860s American conflict, including unit-level campaign accounts.",
+    "uk": "Шукаю книжку про полковника-священика, який командував нью-йоркським добровольчим полком під час Громадянської війни в Америці, з описами бойового шляху цього підрозділу."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 30754,
+   "new_content": {
+    "source_book_id": 6148,
+    "title": "Narrative and Miscellaneous Papers",
+    "issued": "2004-07-01",
+    "lang": "en",
+    "loc_class": "PR",
+    "authors": [
+     "De Quincey, Thomas, 1785-1859"
+    ],
+    "subjects": [
+     "English essays",
+     "English fiction"
+    ],
+    "shelves": [
+     "Category: Essays, Letters & Speeches",
+     "Category: British Literature"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm looking for a collection by a nineteenth-century British writer that gathers together his short prose pieces and some of his invented storytelling, alongside his critical writings.",
+    "en_strict": "I want a volume by a nineteenth-century British writer collecting his shorter prose writings and some invented storytelling.",
+    "uk": "Шукаю збірку коротких прозових творів і вигаданих оповідань британського письменника дев'ятнадцятого століття."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  },
+  {
+   "book_id": 73652,
+   "new_content": {
+    "source_book_id": 44571,
+    "title": "Points of Humour, Part 1 (of 2)",
+    "issued": "2014-01-03",
+    "lang": "en",
+    "loc_class": "PN",
+    "authors": [
+     "Cruikshank, George, 1792-1878 [Illustrator]"
+    ],
+    "subjects": [
+     "Anecdotes"
+    ],
+    "shelves": [
+     "Category: Humour"
+    ]
+   },
+   "queries": {
+    "en_natural": "I'm trying to find a two-part collection of comic drawings and witty visual jokes, with the first part available, that was illustrated by an early nineteenth-century artist and catalogued under funny stories or amusing sayings.",
+    "en_strict": "I am looking for the first volume of a two-part set of comic drawings and visual jokes by an early nineteenth-century artist, filed under amusing tales or witty sayings.",
+    "uk": "Шукаю першу частину двотомної збірки комічних малюнків і жартівливих візуальних дотепів, створених художником початку дев'ятнадцятого століття, у каталозі під розділом кумедних історій та дотепних висловів."
+   },
+   "flags": {
+    "strict_ok": true,
+    "uk_ok": true,
+    "attempts": 1
+   }
+  }
+ ],
+ "deletes": [
+  {
+   "book_id": 12139
+  },
+  {
+   "book_id": 479
+  },
+  {
+   "book_id": 78829
+  },
+  {
+   "book_id": 11949
+  },
+  {
+   "book_id": 53766
+  },
+  {
+   "book_id": 26317
+  },
+  {
+   "book_id": 3416
+  },
+  {
+   "book_id": 3398
+  },
+  {
+   "book_id": 43825
+  },
+  {
+   "book_id": 133
+  },
+  {
+   "book_id": 71539
+  },
+  {
+   "book_id": 46345
+  },
+  {
+   "book_id": 21477
+  },
+  {
+   "book_id": 48778
+  },
+  {
+   "book_id": 3927
+  },
+  {
+   "book_id": 14743
+  },
+  {
+   "book_id": 12882
+  },
+  {
+   "book_id": 63332
+  }
+ ]
+}

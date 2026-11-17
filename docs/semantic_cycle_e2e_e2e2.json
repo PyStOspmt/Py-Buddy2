@@ -1,0 +1,1281 @@
+{
+ "protocol": "docs/18_SEMANTIC_CYCLE_PREREGISTRATION.md",
+ "tag": "e2e2",
+ "split": "test",
+ "environment": {
+  "python": "3.10.11",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "code_sha256_16": {
+   "embedders": "b062fbe82a62c1cb",
+   "entity_select": "7e6a01a46173c9f1",
+   "record_documents": "fc5c6beb033e645f",
+   "record_docs_plan": "2097383ab57ea44d",
+   "record_docs_render": "6188cf8d868fa984",
+   "semantic_search": "06ba3e49c02115ef",
+   "semantic_sync": "625db21d2aa03b4f",
+   "source_projection": "ce5d3be8da925945",
+   "vector_store": "be531c975bb4d505",
+   "vector_store_io": "7f77927eb078bfc8",
+   "rwlock": "6b8350107cc583d1"
+  },
+  "cpu_logical": 12,
+  "ram_gb": 31.9,
+  "numpy": "2.2.6",
+  "torch": "2.12.1+cpu",
+  "sentence_transformers": "3.4.1",
+  "sqlite": "3.40.1",
+  "git_head": "fa0988ee24d6ef456b6b0e34bc938cb1c8a6e3fd",
+  "git_dirty_entries": 143
+ },
+ "request_file_sha256": "71737732bff09396439913702945e95c61a3b27209938ae6bdd5e4365fb937e5",
+ "sources": {
+  "library": {
+   "onboarding": {
+    "ok": true,
+    "onboard_wall_s": 341.0,
+    "final_status": {
+     "state": "ready",
+     "reason": "index up to date",
+     "progress": {
+      "processed": 8000,
+      "total": 8000,
+      "embedded": 8000
+     },
+     "index": {
+      "generation": 125,
+      "live": 8000,
+      "model_id": "st:intfloat/multilingual-e5-small@614241f622f53c4eeff9890bdc4f31cfecc418b3:len512",
+      "dim": 384,
+      "disk_bytes": 18230304
+     },
+     "coverage": {
+      "source_rows": 8000,
+      "indexed": 8000,
+      "excluded": {},
+      "truncated_docs": 0,
+      "model_truncated_docs": 0,
+      "max_tokens": 512,
+      "null_ref_rows": 0,
+      "orphan_rows": 0
+     },
+     "fresh": true,
+     "source_stamp_indexed": "[[1794481486524621900, 3350528], null]",
+     "source_stamp_now": "[[1794481486524621900, 3350528], null]",
+     "last_sync": {
+      "source_rows": 8000,
+      "inserted": 8000,
+      "updated": 0,
+      "deleted": 0,
+      "unchanged": 0,
+      "excluded": {},
+      "embedded_texts": 8000,
+      "truncated_docs": 0,
+      "null_ref_rows": 0,
+      "orphan_rows": 0,
+      "model_truncated_docs": 0,
+      "max_tokens": 512,
+      "elapsed_s": 266.209,
+      "complete": true,
+      "generation": 125,
+      "error": null
+     },
+     "entity": {
+      "table": "books",
+      "ambiguous": false,
+      "alternatives": []
+     }
+    },
+    "timeline": [
+     {
+      "t": 8.9,
+      "state": "absent",
+      "progress": {
+       "processed": 0,
+       "total": 0,
+       "embedded": 0
+      }
+     },
+     {
+      "t": 24.0,
+      "state": "absent",
+      "progress": {
+       "processed": 0,
+       "total": 0,
+       "embedded": 0
+      }
+     },
+     {
+      "t": 39.2,
+      "state": "absent",
+      "progress": {
+       "processed": 0,
+       "total": 0,
+       "embedded": 0
+      }
+     },
+     {
+      "t": 54.3,
+      "state": "absent",
+      "progress": {
+       "processed": 0,
+       "total": 0,
+       "embedded": 0
+      }
+     },
+     {
+      "t": 69.4,
+      "state": "absent",
+      "progress": {
+       "processed": 0,
+       "total": 0,
+       "embedded": 0
+      }
+     },
+     {
+      "t": 84.5,
+      "state": "absent",
+      "progress": {
+       "processed": 256,
+       "total": 8000,
+       "embedded": 256
+      }
+     },
+     {
+      "t": 99.5,
+      "state": "absent",
+      "progress": {
+       "processed": 704,
+       "total": 8000,
+       "embedded": 704
+      }
+     },
+     {
+      "t": 114.6,
+      "state": "absent",
+      "progress": {
+       "processed": 1216,
+       "total": 8000,
+       "embedded": 1216
+      }
+     },
+     {
+      "t": 129.7,
+      "state": "absent",
+      "progress": {
+       "processed": 1728,
+       "total": 8000,
+       "embedded": 1728
+      }
+     },
+     {
+      "t": 144.8,
+      "state": "absent",
+      "progress": {
+       "processed": 2240,
+       "total": 8000,
+       "embedded": 2240
+      }
+     },
+     {
+      "t": 159.9,
+      "state": "absent",
+      "progress": {
+       "processed": 2688,
+       "total": 8000,
+       "embedded": 2688
+      }
+     },
+     {
+      "t": 175.0,
+      "state": "absent",
+      "progress": {
+       "processed": 3136,
+       "total": 8000,
+       "embedded": 3136
+      }
+     },
+     {
+      "t": 190.1,
+      "state": "absent",
+      "progress": {
+       "processed": 3584,
+       "total": 8000,
+       "embedded": 3584
+      }
+     },
+     {
+      "t": 205.2,
+      "state": "absent",
+      "progress": {
+       "processed": 4096,
+       "total": 8000,
+       "embedded": 4096
+      }
+     },
+     {
+      "t": 220.2,
+      "state": "absent",
+      "progress": {
+       "processed": 4608,
+       "total": 8000,
+       "embedded": 4608
+      }
+     },
+     {
+      "t": 235.4,
+      "state": "absent",
+      "progress": {
+       "processed": 5056,
+       "total": 8000,
+       "embedded": 5056
+      }
+     },
+     {
+      "t": 250.4,
+      "state": "absent",
+      "progress": {
+       "processed": 5504,
+       "total": 8000,
+       "embedded": 5504
+      }
+     },
+     {
+      "t": 265.5,
+      "state": "absent",
+      "progress": {
+       "processed": 5888,
+       "total": 8000,
+       "embedded": 5888
+      }
+     },
+     {
+      "t": 280.6,
+      "state": "absent",
+      "progress": {
+       "processed": 6336,
+       "total": 8000,
+       "embedded": 6336
+      }
+     },
+     {
+      "t": 295.7,
+      "state": "absent",
+      "progress": {
+       "processed": 6720,
+       "total": 8000,
+       "embedded": 6720
+      }
+     },
+     {
+      "t": 310.8,
+      "state": "absent",
+      "progress": {
+       "processed": 7232,
+       "total": 8000,
+       "embedded": 7232
+      }
+     },
+     {
+      "t": 325.9,
+      "state": "absent",
+      "progress": {
+       "processed": 7616,
+       "total": 8000,
+       "embedded": 7616
+      }
+     },
+     {
+      "t": 341.0,
+      "state": "ready",
+      "progress": {
+       "processed": 8000,
+       "total": 8000,
+       "embedded": 8000
+      }
+     }
+    ],
+    "reconciliation": {
+     "ok": true,
+     "count_star": 8000,
+     "reported_source_rows": 8000,
+     "indexed": 8000,
+     "excluded": 0
+    },
+    "server_memory": {
+     "uss_mb": 1197.5,
+     "rss_mb": 1428.9
+    }
+   },
+   "baseline": {
+    "groups": [
+     {
+      "source": "library",
+      "kind": "label_set",
+      "group": "en_natural",
+      "mode": "hybrid",
+      "n": 29,
+      "failures": 0,
+      "recall@10": {
+       "mean": 0.2853,
+       "lo": 0.1991,
+       "hi": 0.381
+      },
+      "recall@50": {
+       "mean": 0.4073,
+       "lo": 0.2918,
+       "hi": 0.5304
+      },
+      "precision@10": {
+       "mean": 0.2724,
+       "lo": 0.1897,
+       "hi": 0.3621
+      },
+      "ndcg@10": {
+       "mean": 0.3039,
+       "lo": 0.2105,
+       "hi": 0.4071
+      },
+      "mrr": {
+       "mean": 0.5051,
+       "lo": 0.3638,
+       "hi": 0.6608
+      }
+     },
+     {
+      "source": "library",
+      "kind": "label_set",
+      "group": "en_strict",
+      "mode": "hybrid",
+      "n": 28,
+      "failures": 0,
+      "recall@10": {
+       "mean": 0.0688,
+       "lo": 0.0357,
+       "hi": 0.1036
+      },
+      "recall@50": {
+       "mean": 0.1341,
+       "lo": 0.0759,
+       "hi": 0.2016
+      },
+      "precision@10": {
+       "mean": 0.0679,
+       "lo": 0.0357,
+       "hi": 0.1036
+      },
+      "ndcg@10": {
+       "mean": 0.0684,
+       "lo": 0.0331,
+       "hi": 0.1074
+      },
+      "mrr": {
+       "mean": 0.1701,
+       "lo": 0.0825,
+       "hi": 0.2802
+      }
+     },
+     {
+      "source": "library",
+      "kind": "label_set",
+      "group": "en_strict_unvalidated",
+      "mode": "hybrid",
+      "n": 1,
+      "failures": 0,
+      "recall@10": {
+       "mean": 0.375,
+       "lo": 0.375,
+       "hi": 0.375
+      },
+      "recall@50": {
+       "mean": 0.625,
+       "lo": 0.625,
+       "hi": 0.625
+      },
+      "precision@10": {
+       "mean": 0.3,
+       "lo": 0.3,
+       "hi": 0.3
+      },
+      "ndcg@10": {
+       "mean": 0.539,
+       "lo": 0.539,
+       "hi": 0.539
+      },
+      "mrr": {
+       "mean": 1.0,
+       "lo": 1.0,
+       "hi": 1.0
+      }
+     },
+     {
+      "source": "library",
+      "kind": "label_set",
+      "group": "uk",
+      "mode": "hybrid",
+      "n": 29,
+      "failures": 0,
+      "recall@10": {
+       "mean": 0.1422,
+       "lo": 0.0629,
+       "hi": 0.2284
+      },
+      "recall@50": {
+       "mean": 0.2344,
+       "lo": 0.1343,
+       "hi": 0.3485
+      },
+      "precision@10": {
+       "mean": 0.1345,
+       "lo": 0.0621,
+       "hi": 0.2138
+      },
+      "ndcg@10": {
+       "mean": 0.1676,
+       "lo": 0.0787,
+       "hi": 0.2646
+      },
+      "mrr": {
+       "mean": 0.3286,
+       "lo": 0.1771,
+       "hi": 0.4896
+      }
+     },
+     {
+      "source": "library",
+      "kind": "record",
+      "group": "en_natural",
+      "mode": "hybrid",
+      "n": 40,
+      "failures": 0,
+      "hit@1": {
+       "mean": 0.45,
+       "lo": 0.3,
+       "hi": 0.6
+      },
+      "hit@5": {
+       "mean": 0.6,
+       "lo": 0.45,
+       "hi": 0.75
+      },
+      "hit@10": {
+       "mean": 0.675,
+       "lo": 0.525,
+       "hi": 0.8
+      },
+      "hit@50": {
+       "mean": 0.775,
+       "lo": 0.65,
+       "hi": 0.9
+      },
+      "mrr": {
+       "mean": 0.517,
+       "lo": 0.374,
+       "hi": 0.6554
+      }
+     },
+     {
+      "source": "library",
+      "kind": "record",
+      "group": "en_strict",
+      "mode": "hybrid",
+      "n": 36,
+      "failures": 0,
+      "hit@1": {
+       "mean": 0.0278,
+       "lo": 0.0,
+       "hi": 0.0833
+      },
+      "hit@5": {
+       "mean": 0.1667,
+       "lo": 0.0556,
+       "hi": 0.3056
+      },
+      "hit@10": {
+       "mean": 0.2222,
+       "lo": 0.0833,
+       "hi": 0.3611
+      },
+      "hit@50": {
+       "mean": 0.3889,
+       "lo": 0.2222,
+       "hi": 0.5556
+      },
+      "mrr": {
+       "mean": 0.0884,
+       "lo": 0.0314,
+       "hi": 0.1578
+      }
+     },
+     {
+      "source": "library",
+      "kind": "record",
+      "group": "en_strict_unvalidated",
+      "mode": "hybrid",
+      "n": 4,
+      "failures": 0,
+      "hit@1": {
+       "mean": 0.25,
+       "lo": 0.0,
+       "hi": 0.75
+      },
+      "hit@5": {
+       "mean": 0.25,
+       "lo": 0.0,
+       "hi": 0.75
+      },
+      "hit@10": {
+       "mean": 0.25,
+       "lo": 0.0,
+       "hi": 0.75
+      },
+      "hit@50": {
+       "mean": 0.75,
+       "lo": 0.25,
+       "hi": 1.0
+      },
+      "mrr": {
+       "mean": 0.281,
+       "lo": 0.0179,
+       "hi": 0.7679
+      }
+     },
+     {
+      "source": "library",
+      "kind": "record",
+      "group": "uk",
+      "mode": "hybrid",
+      "n": 40,
+      "failures": 0,
+      "hit@1": {
+       "mean": 0.3,
+       "lo": 0.175,
+       "hi": 0.45
+      },
+      "hit@5": {
+       "mean": 0.4,
+       "lo": 0.25,
+       "hi": 0.55
+      },
+      "hit@10": {
+       "mean": 0.45,
+       "lo": 0.3,
+       "hi": 0.6
+      },
+      "hit@50": {
+       "mean": 0.575,
+       "lo": 0.425,
+       "hi": 0.725
+      },
+      "mrr": {
+       "mean": 0.3619,
+       "lo": 0.2315,
+       "hi": 0.5065
+      }
+     }
+    ],
+    "n": 207
+   },
+   "server_memory_after_queries": {
+    "uss_mb": 1206.4,
+    "rss_mb": 1441.8
+   },
+   "chat": {
+    "model": "deepseek/deepseek-v4.1-flash-1017",
+    "spent_usd": 0.0046,
+    "n": 12,
+    "used_semantic_search": 8,
+    "target_in_retrieved": 3,
+    "chats_with_ungrounded_mentions": 3,
+    "http_failures": 0,
+    "rows": [
+     {
+      "target_id": "10468",
+      "query": "I’m looking for a light old-fashioned novel about a young woman’s introduction into fashionable city circles, with relatives and a touch of intrigue.",
+      "http": 200,
+      "status": "success",
+      "termination_reason": "SUCCESS_GROUNDED_WITH_CORRECTION",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0005,
+      "latency_s": 19.9,
+      "tools": [
+       "semantic_search",
+       "sql_query",
+       "sql_query",
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 1,
+      "retrieved_ids": [
+       "15883",
+       "33456",
+       "37348",
+       "58731",
+       "59273",
+       "73596"
+      ],
+      "target_in_retrieved": false,
+      "recommended_ids": [
+       "59273"
+      ],
+      "mentioned_record_ids": [
+       "51951",
+       "59273"
+      ],
+      "ungrounded_mentions": [
+       "51951"
+      ],
+      "final_answer": "Ось що реально є в каталозі за вашими критеріями:\n- Discovering \"Evelina\": An Old-fashioned Romance A Companion Book to \"The Jessamy Bride\"\n Частину згаданого (3 поз.) не вдалося підтвердити в каталозі, тому відповідь показує лише перевірені товари."
+     },
+     {
+      "target_id": "11949",
+      "query": "I'm looking for a collection of suspenseful crime fiction pieces put together by an editor, the third book in a series of such anthologies.",
+      "http": 200,
+      "status": "success",
+      "termination_reason": "SUCCESS_GROUNDED",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0005,
+      "latency_s": 24.7,
+      "tools": [
+       "semantic_search",
+       "sql_query",
+       "sql_query",
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 1,
+      "retrieved_ids": [
+       "14095",
+       "29407",
+       "40718",
+       "59319",
+       "67890",
+       "78878"
+      ],
+      "target_in_retrieved": false,
+      "recommended_ids": [
+       "59319"
+      ],
+      "mentioned_record_ids": [
+       "59319"
+      ],
+      "ungrounded_mentions": [],
+      "final_answer": "Чесно кажу: у каталозі немає книги, яка точно відповідає опису — антологія напруженої кримінальної прози, укладена редактором, і саме третя в серії таких збірок. Я перевірив каталог за назвами («third series», «anthology», «edited by», «stories», «tales») і за тематичними рубриками (Detective and mystery stories, Crime, Suspense) — точного збігу не знайшлося.\n\nНайближчий за духом і структурою варіант — «Adventures of Martin Hewitt, Third Series»: це справді «третя серія» детективно-містичних оповідань, але це збірка одного автора (Arthur Morrison), а не редакторська антологія різних письменників. Якщо вам принципово потрібна саме антологія під редакцією — уточніть, будь ласка, редактора, видавництво або хоча б приблизні роки, і я пошукаю ще раз уважніше."
+     },
+     {
+      "target_id": "12139",
+      "query": "I'm looking for an old adventure novel set during the 1849 rush for riches in the American West, with a rugged frontier feel and illustrations.",
+      "http": 200,
+      "status": "success",
+      "termination_reason": "SUCCESS_GROUNDED",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0003,
+      "latency_s": 13.6,
+      "tools": [
+       "semantic_search",
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 1,
+      "retrieved_ids": [
+       "12139",
+       "12518",
+       "20126",
+       "21727",
+       "54125",
+       "71572"
+      ],
+      "target_in_retrieved": true,
+      "recommended_ids": [
+       "71572",
+       "12139",
+       "20126",
+       "21727"
+      ],
+      "mentioned_record_ids": [
+       "21727",
+       "71572"
+      ],
+      "ungrounded_mentions": [],
+      "final_answer": "Знайшов у каталозі кілька старовинних пригодницьких книжок саме про каліфорнійську золоту лихоманку 1849 року. Ось найкращі збіги:\n\n1. «The Gold Seekers of '49» (ID 71572) — найточніший збіг: теми «California — Gold discoveries» і «Frontier and pioneer life — California» (суворий дух фронтиру, перехід через прерії), а серед авторів вказано ілюстратора Frank Holland. Це саме та книга, яку ви описали.\n2. «The Gringos: A Story of the Old California Days in 1849» (ID 12139) — художня повість, у темах прямо позначено «Western stories» та «Gold mines and mining — Fiction», ілюстратор — Anton Otto Fischer. Дуже «вестерновий» колорит Старої Каліфорнії.\n3. «The Cave of Gold: A Tale of California in '49» (ID 20126) — пригодницька повість про 1849 рік (у каталозі позначена як юнацька пригода); ілюстратора в записі не вказано.\n4. «Digging for Gold: Adventures in California» (ID 21727) — пригоди золотошукачів у Каліфорнії (R. M. Ballantyne), також юнацька пригода, без ілюстратора в записі.\n\nОкремо згадаю «The Adventures of a Forty-niner» (ID 12518) — там є ілюстратор Sigismond de Ivanowski і тема «California — Gold discoveries», але це радше історико-мемуарний опис Сан-Франциско тих часів, а не пригодницький роман.\n\nЯкщо хочете саме «роман з ілюстраціями і духом фронтиру» — раджу почати з № 71572, а № 12139 як художню альтернативу. Зауважу: у цьому каталозі немає полів ціни чи наявності, тому вартість і статус примірників я підтвердити не можу."
+     },
+     {
+      "target_id": "12882",
+      "query": "I'm looking for the second part of Walter Scott's anthology of old Scottish verse and verse narratives gathered from the southern region, including some newer pieces based on regional legend.",
+      "http": 200,
+      "status": "gate_rejected",
+      "termination_reason": "HALLUCINATION_GATE_VIOLATION",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0002,
+      "latency_s": 10.1,
+      "tools": [
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 0,
+      "retrieved_ids": [],
+      "target_in_retrieved": false,
+      "recommended_ids": [],
+      "mentioned_record_ids": [],
+      "ungrounded_mentions": [],
+      "final_answer": "Не зміг знайти жодного товару, який підтверджується даними каталогу. Уточніть, будь ласка, запит — я не стану називати ціни або характеристики, яких немає в базі."
+     },
+     {
+      "target_id": "133",
+      "query": "I'm looking for a novel about a Methodist minister in upstate New York whose certainties begin to unravel, leading him into a crisis of faith and self-understanding.",
+      "http": 200,
+      "status": "success",
+      "termination_reason": "SUCCESS_GROUNDED_AFTER_CORRECTION",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0004,
+      "latency_s": 84.2,
+      "tools": [
+       "semantic_search",
+       "sql_query",
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 1,
+      "retrieved_ids": [
+       "13282",
+       "26016",
+       "41916",
+       "57785",
+       "59899",
+       "73085"
+      ],
+      "target_in_retrieved": false,
+      "recommended_ids": [
+       "41916",
+       "57785",
+       "59899"
+      ],
+      "mentioned_record_ids": [
+       "41916",
+       "57785"
+      ],
+      "ungrounded_mentions": [],
+      "final_answer": "Ось що реально є в каталозі за вашими критеріями:\n- Nestleton Magna: A Story of Yorkshire Methodism\n- New York: Its Upper Ten and Lower Million\n- Ten Days in a Mad-House; or, Nellie Bly's Experience on Blackwell's Island. Feigning Insanity in Order to Reveal Asylum \n Частину згаданого не вдалося підтвердити в каталозі, тому показую лише те, що реально є в наявності."
+     },
+     {
+      "target_id": "14743",
+      "query": "I'm looking for a humorous older book about slimming down and trimming your midsection while staying cheerful.",
+      "http": 200,
+      "status": "success",
+      "termination_reason": "SUCCESS_GROUNDED",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0003,
+      "latency_s": 27.9,
+      "tools": [
+       "semantic_search",
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 1,
+      "retrieved_ids": [
+       "14743",
+       "56697",
+       "61945",
+       "66948",
+       "74252",
+       "75279"
+      ],
+      "target_in_retrieved": true,
+      "recommended_ids": [
+       "14743",
+       "56697"
+      ],
+      "mentioned_record_ids": [
+       "14743",
+       "56697"
+      ],
+      "ungrounded_mentions": [],
+      "final_answer": "Знайшов у каталозі точний збіг — і він майже дослівно відповідає вашому опису:\n\n📗 «The Fun of Getting Thin: How to Be Happy and Reduce the Waist Line»\n• Автор: Samuel G. (Samuel George) Blythe (1868–1947)\n• ID запису: 14743\n• Мова: англійська (en)\n• Класифікація LC: RC (медицина / внутрішні хвороби)\n• Тематика: Obesity; Weight loss\n• Полиці: Health & Medicine, How To ..., Nutrition\n• Дата в записі: 2005-01-20\n\nНазва буквально перекладається як «Веселощі від схуднення: як бути щасливим і зменшити лінію талії» — тобто це саме гумористично-мотиваційна стара книжка про схуднення й талію, написана з жартівливим, бадьорим тоном.\n\nДодатково, якщо вам хочеться саме гумористичного старого тексту (без теми схуднення), у каталозі є «A Little Book of Bores» Олівера Херфорда (ID 56697) — гумористична поезія та лімерики.\n\nЗауваження щодо даних: у цьому каталозі немає полів ціни та наявності на складі — це бібліотечний каталог записів, тому я не можу назвати вартість чи статус примірника. Дата 2005-01-20 — це дата, зазначена в записі, а не обов'язково рік першого видання."
+     },
+     {
+      "target_id": "21477",
+      "query": "I'm looking for a nineteenth-century maritime adventure novel set in the Indian Ocean, written by William Henry Giles Kingston.",
+      "http": 200,
+      "status": "gate_rejected",
+      "termination_reason": "HALLUCINATION_GATE_VIOLATION",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0004,
+      "latency_s": 12.3,
+      "tools": [
+       "sql_query",
+       "sql_query",
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 0,
+      "retrieved_ids": [],
+      "target_in_retrieved": false,
+      "recommended_ids": [],
+      "mentioned_record_ids": [],
+      "ungrounded_mentions": [],
+      "final_answer": "Не зміг знайти жодного товару, який підтверджується даними каталогу. Уточніть, будь ласка, запит — я не стану називати ціни або характеристики, яких немає в базі."
+     },
+     {
+      "target_id": "26317",
+      "query": "I'm looking for an old nineteenth-century American magazine issue from May 1887 that covers the study of the mind and skull shape along with general scientific and medical topics.",
+      "http": 200,
+      "status": "gate_rejected",
+      "termination_reason": "HALLUCINATION_GATE_VIOLATION",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0003,
+      "latency_s": 12.3,
+      "tools": [
+       "sql_query",
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 0,
+      "retrieved_ids": [],
+      "target_in_retrieved": false,
+      "recommended_ids": [],
+      "mentioned_record_ids": [],
+      "ungrounded_mentions": [],
+      "final_answer": "Не зміг знайти жодного товару, який підтверджується даними каталогу. Уточніть, будь ласка, запит — я не стану називати ціни або характеристики, яких немає в базі."
+     },
+     {
+      "target_id": "30754",
+      "query": "I’m looking for a multi-part nineteenth-century work about buildings and design in a famous Italian canal city, written by a Victorian critic.",
+      "http": 200,
+      "status": "gate_rejected",
+      "termination_reason": "HALLUCINATION_GATE_VIOLATION",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0005,
+      "latency_s": 16.7,
+      "tools": [
+       "sql_query",
+       "sql_query",
+       "sql_query",
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 0,
+      "retrieved_ids": [],
+      "target_in_retrieved": false,
+      "recommended_ids": [],
+      "mentioned_record_ids": [],
+      "ungrounded_mentions": [],
+      "final_answer": "Не зміг знайти жодного товару, який підтверджується даними каталогу. Уточніть, будь ласка, запит — я не стану називати ціни або характеристики, яких немає в базі."
+     },
+     {
+      "target_id": "32454",
+      "query": "I'm looking for a book about how the early settlements of two neighbouring colonies fostered freedom of worship and civic rights, focusing on the two founding figures and the era before the Revolution.",
+      "http": 200,
+      "status": "success",
+      "termination_reason": "SUCCESS_GROUNDED_WITH_CORRECTION",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0004,
+      "latency_s": 21.4,
+      "tools": [
+       "semantic_search",
+       "sql_query",
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 1,
+      "retrieved_ids": [
+       "12953",
+       "20791",
+       "46400",
+       "56033",
+       "62757",
+       "66135"
+      ],
+      "target_in_retrieved": false,
+      "recommended_ids": [
+       "56033"
+      ],
+      "mentioned_record_ids": [
+       "56033"
+      ],
+      "ungrounded_mentions": [],
+      "final_answer": "Ось що реально є в каталозі за вашими критеріями:\n- Old Virginia and Her Neighbours, Vol. 2 (of 2)\n Частину згаданого (2 поз.) не вдалося підтвердити в каталозі, тому відповідь показує лише перевірені товари."
+     },
+     {
+      "target_id": "32654",
+      "query": "I'm looking for a collection of speculative short stories, possibly illustrated, about a voyage to the lunar surface, written by an author whose pen name sounds like a man's surname.",
+      "http": 200,
+      "status": "success",
+      "termination_reason": "SUCCESS_GROUNDED",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0003,
+      "latency_s": 28.8,
+      "tools": [
+       "semantic_search",
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 1,
+      "retrieved_ids": [
+       "16415",
+       "32484",
+       "32654",
+       "44278",
+       "51286",
+       "63890",
+       "68393",
+       "68860"
+      ],
+      "target_in_retrieved": true,
+      "recommended_ids": [
+       "68393",
+       "32484",
+       "32654"
+      ],
+      "mentioned_record_ids": [
+       "32654",
+       "68393",
+       "70541"
+      ],
+      "ungrounded_mentions": [
+       "70541"
+      ],
+      "final_answer": "Схоже, ви шукаєте збірку «My sweetheart's the Man in the Moon» (ID 68393). Це збірка фантастичних оповідань (у каталозі позначена предметами «Science fiction» та «Short stories»), присвячена темі польоту на Місяць («Space flight to the moon -- Fiction»), і вона має ілюстратора — Еммануеля Сталлмана (Emmanuel Stallman, 1927–1997). Автор — Стівен Марлоу (Stephen Marlowe, 1928–2008), що є літературним псевдонімом, а «Марлоу» звучить як чоловіче прізвище.\n\nДля порівняння, в каталозі є ще кілька близьких за темою видань:\n• «Project Hush» (ID 32654) — Вільям Тенн (теж псевдонім) + ілюстратор Дік Френсіс, теж про політ на Місяць і оповідання;\n• «Moon Glow» (ID 32484) — Дж. Л. Ванденбург, оповідання про політ на Місяць, без ілюстратора;\n• «Star bright» (ID 70541) — Брайс Волтон (справжнє ім'я, не псевдонім).\n\nЗауважте: у цій базі даних немає полів із ціною чи наявністю на складі, тому я не можу вказати вартість — лише бібліографічні дані."
+     },
+     {
+      "target_id": "33521",
+      "query": "I'm looking for an old moral tale for young readers that features a boy, his pets, and everyday family scenes, with a strong religious and good-behavior message.",
+      "http": 200,
+      "status": "success",
+      "termination_reason": "SUCCESS_GROUNDED_AFTER_CORRECTION",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "token_cost": 0.0005,
+      "latency_s": 38.0,
+      "tools": [
+       "semantic_search",
+       "sql_query",
+       "sql_query",
+       "sql_query",
+       "ZeroHallucinationGate"
+      ],
+      "semantic_calls": 1,
+      "retrieved_ids": [
+       "15034",
+       "1953",
+       "26295",
+       "51095",
+       "61151",
+       "77634"
+      ],
+      "target_in_retrieved": false,
+      "recommended_ids": [
+       "1953",
+       "16779",
+       "51095"
+      ],
+      "mentioned_record_ids": [
+       "16779",
+       "1953"
+      ],
+      "ungrounded_mentions": [
+       "16779"
+      ],
+      "final_answer": "Ось що реально є в каталозі за вашими критеріями:\n- A Book of Strife in the Form of The Diary of an Old Soul\n- A Ryght Profytable Treatyse Compendiously Drawen Out Of Many and Dyvers Wrytynges Of Holy Men\n- Book of Mormon Stories. No. 1. Adapted to the Capacity of Young Children, and Designed for Use in Sabbath Schools, Prima\n Частину згаданого не вдалося підтвердити в каталозі, тому показую лише те, що реально є в наявності."
+     }
+    ]
+   },
+   "mutation": {
+    "expected": {
+     "inserted": 18,
+     "updated": 18,
+     "deleted": 18
+    },
+    "status_before": {
+     "state": "ready",
+     "reason": "index up to date",
+     "progress": {
+      "processed": 8000,
+      "total": 8000,
+      "embedded": 8000
+     },
+     "index": {
+      "generation": 125,
+      "live": 8000,
+      "model_id": "st:intfloat/multilingual-e5-small@614241f622f53c4eeff9890bdc4f31cfecc418b3:len512",
+      "dim": 384,
+      "disk_bytes": 18230304
+     },
+     "coverage": {
+      "source_rows": 8000,
+      "indexed": 8000,
+      "excluded": {},
+      "truncated_docs": 0,
+      "model_truncated_docs": 0,
+      "max_tokens": 512,
+      "null_ref_rows": 0,
+      "orphan_rows": 0
+     },
+     "fresh": true,
+     "source_stamp_indexed": "[[1794481486524621900, 3350528], null]",
+     "source_stamp_now": "[[1794481486524621900, 3350528], null]",
+     "last_sync": {
+      "source_rows": 8000,
+      "inserted": 8000,
+      "updated": 0,
+      "deleted": 0,
+      "unchanged": 0,
+      "excluded": {},
+      "embedded_texts": 8000,
+      "truncated_docs": 0,
+      "null_ref_rows": 0,
+      "orphan_rows": 0,
+      "model_truncated_docs": 0,
+      "max_tokens": 512,
+      "elapsed_s": 266.209,
+      "complete": true,
+      "generation": 125,
+      "error": null
+     },
+     "entity": {
+      "table": "books",
+      "ambiguous": false,
+      "alternatives": []
+     }
+    },
+    "probe_after_change": {
+     "status": "ok",
+     "index": {
+      "state": "stale",
+      "reason": "source changed since last sync",
+      "progress": {
+       "processed": 8000,
+       "total": 8000,
+       "embedded": 8000
+      },
+      "index": {
+       "generation": 125,
+       "live": 8000,
+       "model_id": "st:intfloat/multilingual-e5-small@614241f622f53c4eeff9890bdc4f31cfecc418b3:len512",
+       "dim": 384,
+       "disk_bytes": 18230304
+      },
+      "coverage": {
+       "source_rows": 8000,
+       "indexed": 8000,
+       "excluded": {},
+       "truncated_docs": 0,
+       "model_truncated_docs": 0,
+       "max_tokens": 512,
+       "null_ref_rows": 0,
+       "orphan_rows": 0
+      },
+      "fresh": false,
+      "source_stamp_indexed": "[[1794481486524621900, 3350528], null]",
+      "source_stamp_now": "[[1794499767759991500, 3420160], null]",
+      "last_sync": {
+       "source_rows": 8000,
+       "inserted": 8000,
+       "updated": 0,
+       "deleted": 0,
+       "unchanged": 0,
+       "excluded": {},
+       "embedded_texts": 8000,
+       "truncated_docs": 0,
+       "null_ref_rows": 0,
+       "orphan_rows": 0,
+       "model_truncated_docs": 0,
+       "max_tokens": 512,
+       "elapsed_s": 266.209,
+       "complete": true,
+       "generation": 125,
+       "error": null
+      },
+      "entity": {
+       "table": "books",
+       "ambiguous": false,
+       "alternatives": []
+      }
+     },
+     "notes": [
+      "index stale; refresh started, serving the previous generation"
+     ]
+    },
+    "time_to_fresh_s": 2.2,
+    "status_after": {
+     "state": "ready",
+     "reason": "index up to date",
+     "progress": {
+      "processed": 8000,
+      "total": 8000,
+      "embedded": 36
+     },
+     "index": {
+      "generation": 127,
+      "live": 8000,
+      "model_id": "st:intfloat/multilingual-e5-small@614241f622f53c4eeff9890bdc4f31cfecc418b3:len512",
+      "dim": 384,
+      "disk_bytes": 18257952
+     },
+     "coverage": {
+      "source_rows": 8000,
+      "indexed": 8000,
+      "excluded": {},
+      "truncated_docs": 0,
+      "model_truncated_docs": 0,
+      "max_tokens": 512,
+      "null_ref_rows": 0,
+      "orphan_rows": 0
+     },
+     "fresh": true,
+     "source_stamp_indexed": "[[1794499767759991500, 3420160], null]",
+     "source_stamp_now": "[[1794499767759991500, 3420160], null]",
+     "last_sync": {
+      "source_rows": 8000,
+      "inserted": 18,
+      "updated": 18,
+      "deleted": 18,
+      "unchanged": 7964,
+      "excluded": {},
+      "embedded_texts": 36,
+      "truncated_docs": 0,
+      "null_ref_rows": 0,
+      "orphan_rows": 0,
+      "model_truncated_docs": 0,
+      "max_tokens": 512,
+      "elapsed_s": 1.538,
+      "complete": true,
+      "generation": 127,
+      "error": null
+     },
+     "entity": {
+      "table": "books",
+      "ambiguous": false,
+      "alternatives": []
+     }
+    },
+    "independent": {
+     "unchanged_checked": 7964,
+     "unchanged_vector_mismatches": 0,
+     "appended_vector_slots": 36,
+     "expected_embeds": 36,
+     "deleted_still_live": [],
+     "inserted_missing": [],
+     "updated_vector_changed": 18,
+     "live_before": 8000,
+     "live_after": 8000
+    },
+    "expected_ids": {
+     "inserted": [
+      "43615",
+      "3792",
+      "12017",
+      "38175",
+      "55722",
+      "67753",
+      "5192",
+      "42612",
+      "60983",
+      "9409",
+      "63628",
+      "75726",
+      "35008",
+      "39625",
+      "35260",
+      "68502",
+      "7153",
+      "31524"
+     ],
+     "updated": [
+      "71806",
+      "42828",
+      "49350",
+      "32454",
+      "34854",
+      "56664",
+      "6453",
+      "44444",
+      "45129",
+      "10468",
+      "58765",
+      "3565",
+      "60874",
+      "32654",
+      "55070",
+      "33521",
+      "30754",
+      "73652"
+     ],
+     "deleted": [
+      "12139",
+      "479",
+      "78829",
+      "11949",
+      "53766",
+      "26317",
+      "3416",
+      "3398",
+      "43825",
+      "133",
+      "71539",
+      "46345",
+      "21477",
+      "48778",
+      "3927",
+      "14743",
+      "12882",
+      "63332"
+     ]
+    },
+    "summary": {
+     "system_reported_sync": {
+      "source_rows": 8000,
+      "inserted": 18,
+      "updated": 18,
+      "deleted": 18,
+      "unchanged": 7964,
+      "excluded": {},
+      "embedded_texts": 36,
+      "truncated_docs": 0,
+      "null_ref_rows": 0,
+      "orphan_rows": 0,
+      "model_truncated_docs": 0,
+      "max_tokens": 512,
+      "elapsed_s": 1.538,
+      "complete": true,
+      "generation": 127,
+      "error": null
+     },
+     "embedded_texts_reported": 36,
+     "independent_appended_slots": 36,
+     "unchanged_vector_mismatches": 0,
+     "deleted_ids_returned_in_requests": 0,
+     "deleted_still_live": [],
+     "baseline_hit10_strict_uk": 0.3421,
+     "inserted_hit10_strict_uk": 0.4444,
+     "updated_new_hit10_strict_uk": 0.3889,
+     "updated_old_content_hit10_strict_uk": 0.0,
+     "time_to_fresh_s": 2.2
+    },
+    "noop_refresh": {
+     "http": 202,
+     "last_sync": {
+      "source_rows": 8000,
+      "inserted": 0,
+      "updated": 0,
+      "deleted": 0,
+      "unchanged": 8000,
+      "excluded": {},
+      "embedded_texts": 0,
+      "truncated_docs": 0,
+      "null_ref_rows": 0,
+      "orphan_rows": 0,
+      "model_truncated_docs": null,
+      "max_tokens": null,
+      "elapsed_s": 0.438,
+      "complete": true,
+      "generation": 127,
+      "error": null
+     }
+    }
+   }
+  }
+ },
+ "startup_s": 2.1,
+ "server_memory_final": {
+  "uss_mb": 1252.1,
+  "rss_mb": 1489.3
+ }
+}

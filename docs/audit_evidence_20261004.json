@@ -1,0 +1,1115 @@
+{
+  "created_utc": "2026-10-04T13:01:02.694621+00:00",
+  "python": "3.10.11",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "external_network": "blocked",
+  "method": "Existing functions with scripted model outputs; server functions AST-extracted without global initialization; not a live model evaluation",
+  "dependencies": {
+    "pytest": "9.0.2",
+    "fastapi": "0.115.6",
+    "pydantic": "2.9.2",
+    "requests": "2.32.3",
+    "httpx": "0.28.1"
+  },
+  "probe_count": 25,
+  "defects_reproduced": 25,
+  "probes": [
+    {
+      "id": "P01_thought_leak",
+      "defect_reproduced": true,
+      "observation": {
+        "answer": "{'thought': 'I should query the catalogue'}",
+        "termination": "UNPARSEABLE_OUTPUT",
+        "recommended_items": [],
+        "tool_hash_count": 0,
+        "steps": []
+      }
+    },
+    {
+      "id": "P02_no_evidence_factual_answer",
+      "defect_reproduced": true,
+      "observation": {
+        "answer": "Imaginary product is available and safe.",
+        "termination": "SUCCESS_GROUNDED",
+        "recommended_items": [],
+        "tool_hash_count": 0,
+        "steps": [
+          {
+            "step": 1,
+            "tool_name": "DirectConversationalLLM",
+            "action": {
+              "tool": "DirectConversationalSynthesis",
+              "recommended_items_count": 0
+            },
+            "args": {
+              "recommended_items": []
+            },
+            "thought": "Фінальний синтез відповіді на основі зібраних фактів каталогу",
+            "observation": "Пряма нейро-генерація без виклику інструментів",
+            "result": {
+              "status": "GROUNDED",
+              "recommended_count": 0
+            },
+            "llm_latency_s": 0.0,
+            "gate_latency_s": 0.001,
+            "latency_s": 0.001
+          }
+        ]
+      }
+    },
+    {
+      "id": "P03_SQL_literal_laundering",
+      "defect_reproduced": true,
+      "observation": {
+        "answer": "Phantom widget — 1 грн",
+        "termination": "SUCCESS_GROUNDED",
+        "recommended_items": [
+          {
+            "name": "Phantom widget",
+            "price": 1
+          }
+        ],
+        "tool_hash_count": 1,
+        "steps": [
+          {
+            "step": 1,
+            "tool_name": "sql_query",
+            "action": {
+              "tool": "sql_query",
+              "input": {
+                "query": "SELECT 'Phantom widget' AS name, 1 AS price"
+              }
+            },
+            "args": {
+              "query": "SELECT 'Phantom widget' AS name, 1 AS price"
+            },
+            "thought": "Аналіз та виклик інструменту sql_query",
+            "observation": {
+              "success": true,
+              "sanitized_query": "SELECT 'Phantom widget' AS name, 1 AS price LIMIT 20",
+              "columns": [
+                "name",
+                "price"
+              ],
+              "rows": [
+                {
+                  "name": "Phantom widget",
+                  "price": 1
+                }
+              ],
+              "row_count": 1
+            },
+            "result": {
+              "success": true,
+              "sanitized_query": "SELECT 'Phantom widget' AS name, 1 AS price LIMIT 20",
+              "columns": [
+                "name",
+                "price"
+              ],
+              "rows": [
+                {
+                  "name": "Phantom widget",
+                  "price": 1
+                }
+              ],
+              "row_count": 1
+            },
+            "tool_latency_s": 0.001,
+            "latency_s": 0.001,
+            "error": null,
+            "llm_latency_s": 0.0
+          },
+          {
+            "step": 2,
+            "tool_name": "ZeroHallucinationGate",
+            "action": {
+              "tool": "FinalSynthesisGate",
+              "recommended_items_count": 1
+            },
+            "args": {
+              "recommended_items": [
+                {
+                  "name": "Phantom widget",
+                  "price": 1
+                }
+              ]
+            },
+            "thought": "Фінальний синтез відповіді на основі зібраних фактів каталогу",
+            "observation": "Верифікація Zero-Hallucination Gate пройдена успішно (100% достовірність)",
+            "result": {
+              "status": "GROUNDED",
+              "recommended_count": 1
+            },
+            "llm_latency_s": 0.0,
+            "gate_latency_s": 0.0,
+            "latency_s": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "P04_swapped_entity_prices",
+      "defect_reproduced": true,
+      "observation": {
+        "answer": "Alpha — 200 грн. Beta — 100 грн.",
+        "termination": "SUCCESS_GROUNDED",
+        "recommended_items": [
+          {
+            "name": "Alpha",
+            "price": 200
+          },
+          {
+            "name": "Beta",
+            "price": 100
+          }
+        ],
+        "tool_hash_count": 0,
+        "steps": []
+      }
+    },
+    {
+      "id": "P05_linguistic_price_bypass",
+      "defect_reproduced": true,
+      "observation": {
+        "answer": "Alpha — від 999 грн.",
+        "termination": "SUCCESS_GROUNDED",
+        "recommended_items": [
+          {
+            "name": "Alpha",
+            "price": 999
+          }
+        ],
+        "tool_hash_count": 0,
+        "steps": []
+      }
+    },
+    {
+      "id": "P06_budget_reused_as_product_price",
+      "defect_reproduced": true,
+      "observation": {
+        "answer": "Alpha — 900 грн.",
+        "termination": "SUCCESS_GROUNDED",
+        "recommended_items": [
+          {
+            "name": "Alpha",
+            "price": 900
+          }
+        ],
+        "tool_hash_count": 0,
+        "steps": []
+      }
+    },
+    {
+      "id": "P07_fabricated_name_remains_in_prose",
+      "defect_reproduced": true,
+      "observation": {
+        "answer": "Alpha and Ghost are available. Частину рекомендацій не вдалося підтвердити в каталозі — їх прибрано.",
+        "termination": "SUCCESS_GROUNDED_WITH_CORRECTION",
+        "recommended_items": [
+          {
+            "name": "Alpha",
+            "price": 100
+          }
+        ],
+        "tool_hash_count": 0,
+        "steps": []
+      }
+    },
+    {
+      "id": "P08_cross_session_grounding",
+      "defect_reproduced": true,
+      "observation": {
+        "first": {
+          "answer": "Alpha — 100 грн",
+          "termination": "SUCCESS_GROUNDED",
+          "recommended_items": [
+            {
+              "name": "Alpha",
+              "price": 100
+            }
+          ],
+          "tool_hash_count": 1,
+          "steps": [
+            {
+              "step": 1,
+              "tool_name": "sql_query",
+              "action": {
+                "tool": "sql_query",
+                "input": {
+                  "query": "SELECT * FROM products WHERE id='a'"
+                }
+              },
+              "args": {
+                "query": "SELECT * FROM products WHERE id='a'"
+              },
+              "thought": "Аналіз та виклик інструменту sql_query",
+              "observation": {
+                "success": true,
+                "sanitized_query": "SELECT * FROM products WHERE id='a' LIMIT 20",
+                "columns": [
+                  "id",
+                  "name",
+                  "category",
+                  "price",
+                  "stock_quantity"
+                ],
+                "rows": [
+                  {
+                    "id": "a",
+                    "name": "Alpha",
+                    "category": "general",
+                    "price": 100.0,
+                    "stock_quantity": 1
+                  }
+                ],
+                "row_count": 1
+              },
+              "result": {
+                "success": true,
+                "sanitized_query": "SELECT * FROM products WHERE id='a' LIMIT 20",
+                "columns": [
+                  "id",
+                  "name",
+                  "category",
+                  "price",
+                  "stock_quantity"
+                ],
+                "rows": [
+                  {
+                    "id": "a",
+                    "name": "Alpha",
+                    "category": "general",
+                    "price": 100.0,
+                    "stock_quantity": 1
+                  }
+                ],
+                "row_count": 1
+              },
+              "tool_latency_s": 0.0,
+              "latency_s": 0.0,
+              "error": null,
+              "llm_latency_s": 0.0
+            },
+            {
+              "step": 2,
+              "tool_name": "ZeroHallucinationGate",
+              "action": {
+                "tool": "FinalSynthesisGate",
+                "recommended_items_count": 1
+              },
+              "args": {
+                "recommended_items": [
+                  {
+                    "name": "Alpha",
+                    "price": 100
+                  }
+                ]
+              },
+              "thought": "Фінальний синтез відповіді на основі зібраних фактів каталогу",
+              "observation": "Верифікація Zero-Hallucination Gate пройдена успішно (100% достовірність)",
+              "result": {
+                "status": "GROUNDED",
+                "recommended_count": 1
+              },
+              "llm_latency_s": 0.0,
+              "gate_latency_s": 0.0015,
+              "latency_s": 0.0015
+            }
+          ]
+        },
+        "second": {
+          "answer": "Alpha — 100 грн",
+          "termination": "SUCCESS_GROUNDED",
+          "recommended_items": [
+            {
+              "name": "Alpha",
+              "price": 100
+            }
+          ],
+          "tool_hash_count": 0,
+          "steps": [
+            {
+              "step": 1,
+              "tool_name": "DirectConversationalLLM",
+              "action": {
+                "tool": "DirectConversationalSynthesis",
+                "recommended_items_count": 1
+              },
+              "args": {
+                "recommended_items": [
+                  {
+                    "name": "Alpha",
+                    "price": 100
+                  }
+                ]
+              },
+              "thought": "Фінальний синтез відповіді на основі зібраних фактів каталогу",
+              "observation": "Пряма нейро-генерація без виклику інструментів",
+              "result": {
+                "status": "GROUNDED",
+                "recommended_count": 1
+              },
+              "llm_latency_s": 0.0,
+              "gate_latency_s": 0.0,
+              "latency_s": 0.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "P09_rejected_but_GROUNDED_trace",
+      "defect_reproduced": true,
+      "observation": {
+        "answer": "У відповіді була ціна, якої немає в каталозі, тому її не показую. Уточніть, будь ласка, запит — я не називаю ціни, яких немає в базі.",
+        "termination": "HALLUCINATION_GATE_VIOLATION",
+        "recommended_items": [],
+        "tool_hash_count": 1,
+        "steps": [
+          {
+            "step": 1,
+            "tool_name": "sql_query",
+            "action": {
+              "tool": "sql_query",
+              "input": {
+                "query": "SELECT * FROM products WHERE 0"
+              }
+            },
+            "args": {
+              "query": "SELECT * FROM products WHERE 0"
+            },
+            "thought": "Аналіз та виклик інструменту sql_query",
+            "observation": {
+              "success": true,
+              "sanitized_query": "SELECT * FROM products WHERE 0 LIMIT 20",
+              "columns": [
+                "id",
+                "name",
+                "category",
+                "price",
+                "stock_quantity"
+              ],
+              "rows": [],
+              "row_count": 0
+            },
+            "result": {
+              "success": true,
+              "sanitized_query": "SELECT * FROM products WHERE 0 LIMIT 20",
+              "columns": [
+                "id",
+                "name",
+                "category",
+                "price",
+                "stock_quantity"
+              ],
+              "rows": [],
+              "row_count": 0
+            },
+            "tool_latency_s": 0.0,
+            "latency_s": 0.0,
+            "error": null,
+            "llm_latency_s": 0.0
+          },
+          {
+            "step": 2,
+            "tool_name": "ZeroHallucinationGate",
+            "action": {
+              "tool": "FinalSynthesisGate",
+              "recommended_items_count": 1
+            },
+            "args": {
+              "recommended_items": [
+                {
+                  "name": "Ghost",
+                  "price": 777
+                }
+              ]
+            },
+            "thought": "Фінальний синтез відповіді на основі зібраних фактів каталогу",
+            "observation": "Верифікація Zero-Hallucination Gate пройдена успішно (100% достовірність)",
+            "result": {
+              "status": "GROUNDED",
+              "recommended_count": 1
+            },
+            "llm_latency_s": 0.0,
+            "gate_latency_s": 0.0,
+            "latency_s": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "P10_unresolved_items_reported_compatible",
+      "defect_reproduced": true,
+      "observation": {
+        "success": true,
+        "is_compatible": true,
+        "conflicts": [],
+        "checked_items": []
+      }
+    },
+    {
+      "id": "P11_parameter_limit_not_clamped",
+      "defect_reproduced": true,
+      "observation": {
+        "success": true,
+        "sanitized_query": "SELECT * FROM products LIMIT ?",
+        "columns": [
+          "id",
+          "name",
+          "category",
+          "price",
+          "stock_quantity"
+        ],
+        "rows": [
+          {
+            "id": "a",
+            "name": "Alpha",
+            "category": "general",
+            "price": 100.0,
+            "stock_quantity": 1
+          },
+          {
+            "id": "b",
+            "name": "Beta",
+            "category": "general",
+            "price": 200.0,
+            "stock_quantity": 1
+          }
+        ],
+        "row_count": 2
+      }
+    },
+    {
+      "id": "P12_failed_loop_relabelled_conversation",
+      "defect_reproduced": true,
+      "observation": {
+        "query": "Find Alpha",
+        "answer": "{'thought': 'Need SQL'}",
+        "tier": "tier0_conversational",
+        "latency_seconds": 0.0,
+        "token_cost": 0.0,
+        "model": null,
+        "status": "success",
+        "termination_reason": "UNPARSEABLE_OUTPUT",
+        "recommended_items": [],
+        "stage_timings": {
+          "llm_time_ms": 0.0,
+          "tool_time_ms": 0.0,
+          "gate_time_ms": 0.0,
+          "router_time_ms": 0.0,
+          "total_time_ms": 0.0
+        },
+        "steps": []
+      }
+    },
+    {
+      "id": "P13_unpriced_schema_failure",
+      "defect_reproduced": true,
+      "observation": {
+        "error": "no such column: p.price"
+      }
+    },
+    {
+      "id": "P14_projection_not_idempotent",
+      "defect_reproduced": true,
+      "observation": [
+        "sd",
+        "d"
+      ]
+    },
+    {
+      "id": "P15_merge_not_associative",
+      "defect_reproduced": true,
+      "observation": {
+        "left": "'d'",
+        "right": "CONFLICT"
+      }
+    },
+    {
+      "id": "P16_fold_not_permutation_invariant",
+      "defect_reproduced": true,
+      "observation": {
+        "forward": "'am5'",
+        "backward": "CONFLICT"
+      }
+    },
+    {
+      "id": "P17_projection_not_closed",
+      "defect_reproduced": true,
+      "observation": {
+        "projected": "1000000GB",
+        "reparsed": null
+      }
+    },
+    {
+      "id": "P18_false_infeasibility_kept_constraint",
+      "defect_reproduced": true,
+      "observation": {
+        "status": "UNSATISFIABLE",
+        "items": [],
+        "relaxation": null,
+        "regret": 0.0,
+        "relative_regret": 0.0,
+        "relaxation_text": "",
+        "informative": true,
+        "grounded": false,
+        "non_vacuous": false,
+        "explanation": "Не знайдено жодного товару за цими критеріями. Обмеження, яке не можна послабити, все ще не виконане: Required tag = 1."
+      }
+    },
+    {
+      "id": "P19_truncated_search_claims_infeasibility",
+      "defect_reproduced": true,
+      "observation": {
+        "status": "UNSATISFIABLE",
+        "items": [],
+        "relaxation": null,
+        "regret": 0.0,
+        "relative_regret": 0.0,
+        "relaxation_text": "",
+        "informative": true,
+        "grounded": false,
+        "non_vacuous": false,
+        "explanation": "Не знайдено жодного товару за цими критеріями. Жоден товар не відповідає цим вимогам навіть без верхніх меж."
+      }
+    },
+    {
+      "id": "P20_dominated_relaxation_retained",
+      "defect_reproduced": true,
+      "observation": [
+        [
+          200.0
+        ],
+        [
+          300.0
+        ]
+      ]
+    },
+    {
+      "id": "P21_missing_hard_attribute_passes",
+      "defect_reproduced": true,
+      "observation": {
+        "satisfied": true
+      }
+    },
+    {
+      "id": "P22_unsound_spatial_candidate_prefilter",
+      "defect_reproduced": true,
+      "observation": {
+        "bundle_compatible": true,
+        "additions": []
+      }
+    },
+    {
+      "id": "P23_entity_resolver_token_branch_dead",
+      "defect_reproduced": true,
+      "observation": {
+        "Диски Mansory": [],
+        "Чи підійдуть диски Mansory на VW Golf?": [],
+        "Диск Mansory 21-дюймів": [
+          "rim_mansory"
+        ]
+      }
+    },
+    {
+      "id": "P24_auto_rule_coverage",
+      "defect_reproduced": true,
+      "observation": {
+        "nodes": {
+          "hub_golf": {
+            "pcd": "5x112",
+            "vendor": "AutoHub Ukraine",
+            "vendor_rating": 4.9,
+            "delivery_days": 1,
+            "center_bore": "57.1",
+            "max_diameter": "19"
+          },
+          "rim_mansory": {
+            "pcd": "5x112",
+            "diameter": 21.0,
+            "vendor": "Tuning & Wheels",
+            "vendor_rating": 4.7,
+            "delivery_days": 3,
+            "weight_kg": "13.5"
+          }
+        },
+        "rules": [
+          "EquivalenceConstraint(attr_name='pcd', categories=['rim', 'wheel_hub'], description=\"Авто-індукована еквівалентність за ключем 'pcd' між категоріями ['rim', 'wheel_hub']\")"
+        ],
+        "compatible": true,
+        "conflicts": []
+      }
+    },
+    {
+      "id": "P25_two_names_hijack_noncompatibility_intent",
+      "defect_reproduced": true,
+      "observation": {
+        "query": "Compare the prices of Alpha and Beta",
+        "final_answer": "✅ **Комплект повністю сумісний!** Alpha, Beta.",
+        "steps": [
+          {
+            "step": 1,
+            "thought": "Розпізнано сутності каталогу за точним збігом назв",
+            "action": {
+              "tool": "HypergraphValidate",
+              "input": [
+                "a",
+                "b"
+              ]
+            },
+            "observation": "[]"
+          }
+        ],
+        "tier": null,
+        "latency_seconds": 0.0,
+        "token_cost": 0.0,
+        "model": null,
+        "termination_reason": "DETERMINISTIC_HYPERGRAPH",
+        "recommended_items": [
+          {
+            "id": "a",
+            "name": "Alpha",
+            "category": "general",
+            "price": 100
+          },
+          {
+            "id": "b",
+            "name": "Beta",
+            "category": "general",
+            "price": 200
+          }
+        ],
+        "status": "success",
+        "domain": "audit"
+      }
+    }
+  ],
+  "databases": [
+    {
+      "name": "catalog",
+      "tables": [
+        "products",
+        "product_meta",
+        "sqlite_sequence",
+        "commercial"
+      ],
+      "bytes": 28672,
+      "product_count": 18,
+      "distinct_names": 18,
+      "distinct_categories": 5,
+      "top_categories": [
+        [
+          "psu",
+          4
+        ],
+        [
+          "motherboard",
+          4
+        ],
+        [
+          "cpu",
+          4
+        ],
+        [
+          "ram",
+          3
+        ],
+        [
+          "gpu",
+          3
+        ]
+      ],
+      "zero_prices": 0
+    },
+    {
+      "name": "auto_parts",
+      "tables": [
+        "merchants",
+        "products",
+        "product_eav_meta",
+        "sqlite_sequence"
+      ],
+      "bytes": 28672,
+      "product_count": 10,
+      "distinct_names": 10,
+      "distinct_categories": 3,
+      "top_categories": [
+        [
+          "tire",
+          4
+        ],
+        [
+          "rim",
+          4
+        ],
+        [
+          "wheel_hub",
+          2
+        ]
+      ],
+      "zero_prices": 0
+    },
+    {
+      "name": "marketplace_rozetka",
+      "tables": [
+        "merchants",
+        "products",
+        "product_eav_meta",
+        "sqlite_sequence",
+        "commercial"
+      ],
+      "bytes": 5386240,
+      "product_count": 10000,
+      "distinct_names": 190,
+      "distinct_categories": 8,
+      "top_categories": [
+        [
+          "psu",
+          1271
+        ],
+        [
+          "ssd",
+          1268
+        ],
+        [
+          "ram",
+          1264
+        ],
+        [
+          "wheel_hub",
+          1264
+        ],
+        [
+          "gpu",
+          1256
+        ]
+      ],
+      "zero_prices": 0
+    },
+    {
+      "name": "real_pharmacy",
+      "tables": [
+        "products",
+        "product_eav_meta",
+        "merchants"
+      ],
+      "bytes": 28672,
+      "product_count": 10,
+      "distinct_names": 10,
+      "distinct_categories": 8,
+      "top_categories": [
+        [
+          "nsaid",
+          2
+        ],
+        [
+          "analgesic",
+          2
+        ],
+        [
+          "urological",
+          1
+        ],
+        [
+          "probiotic",
+          1
+        ],
+        [
+          "cardiovascular",
+          1
+        ]
+      ],
+      "zero_prices": 0
+    },
+    {
+      "name": "real_off",
+      "tables": [
+        "merchants",
+        "products",
+        "product_eav_meta",
+        "sqlite_sequence",
+        "ingest_meta",
+        "commercial"
+      ],
+      "bytes": 27316224,
+      "product_count": 3000,
+      "distinct_names": 2622,
+      "distinct_categories": 364,
+      "top_categories": [
+        [
+          "en:null",
+          1010
+        ],
+        [
+          "en:undefined",
+          402
+        ],
+        [
+          "unknown",
+          324
+        ],
+        [
+          "en:chocolate-candies",
+          88
+        ],
+        [
+          "en:snacks",
+          85
+        ]
+      ],
+      "zero_prices": 3000
+    },
+    {
+      "name": "real_prices",
+      "tables": [
+        "merchants",
+        "products",
+        "product_eav_meta",
+        "sqlite_sequence",
+        "ingest_meta",
+        "commercial"
+      ],
+      "bytes": 8437760,
+      "product_count": 6554,
+      "distinct_names": 5794,
+      "distinct_categories": 1,
+      "top_categories": [
+        [
+          "unknown",
+          6554
+        ]
+      ],
+      "zero_prices": 0
+    },
+    {
+      "name": "real_wdc",
+      "tables": [
+        "merchants",
+        "products",
+        "product_eav_meta",
+        "sqlite_sequence",
+        "ingest_meta",
+        "commercial"
+      ],
+      "bytes": 3305472,
+      "product_count": 3781,
+      "distinct_names": 2899,
+      "distinct_categories": 9,
+      "top_categories": [
+        [
+          "Computers_and_Accessories",
+          3612
+        ],
+        [
+          "Other_Electronics",
+          57
+        ],
+        [
+          "Office_Products",
+          37
+        ],
+        [
+          "Video_Games",
+          32
+        ],
+        [
+          "Camera_and_Photo",
+          14
+        ]
+      ],
+      "zero_prices": 3289
+    }
+  ],
+  "historical_adversarial_results": [
+    {
+      "case": "PHARM-01",
+      "old_passed": false,
+      "tools": [],
+      "answer": "ERROR: timed out",
+      "latency": 30.001
+    },
+    {
+      "case": "PHARM-02",
+      "old_passed": true,
+      "tools": [
+        "sql_query",
+        "hypergraph_check",
+        "FinalSynthesisGate"
+      ],
+      "answer": "Ні, приймати Аспірин Кардіо (ацетилсаліцилова кислота) разом з Варфарином небезпечно. Обидва препарати зменшують згортання крові, і їх спільне використання значно підвищує ризик кровотеч, включаючи гастроінтестинальні та внутрішні кровотечі. У базі даних зазначено прямі протипоказання: Аспірин Кардіо зазначений у списку contraindicated_with Варфарину (і навпаки). Якщо потрібен анальгетик або антиагрегант, варто обговорити з лікарем альтернативні препарати, які не взаємодіють з Варфарином (наприклад, парацетамол у рекомендованих дозах або інші препарати, які ваш лікар вважає безпечними).",
+      "latency": 9.011
+    },
+    {
+      "case": "PHARM-03",
+      "old_passed": true,
+      "tools": [
+        "sql_query"
+      ],
+      "answer": "{'thought': 'Знайдено один товар Амоксиклав. Потрібно перевірити, чи він без рецепта (EAV meta prescription). Якщо без рецепта – можемо запропонувати. Якщо з рецептом – повідомити, що неможливо без рецепта та запропонувати альтернативи (може бути інші антибіотики без рецепта). Спочатку отримати метадані.'}",
+      "latency": 4.577
+    },
+    {
+      "case": "PHARM-04",
+      "old_passed": true,
+      "tools": [
+        "sql_query",
+        "FinalSynthesisGate"
+      ],
+      "answer": "Знайдено один препарат для серця, що відповідає вашому запиту:\n\n- **Нітрогліцерин 0.5 мг табл. сублінгв. №40** (ID: med_07) – ціна 32,00 грн.\n\nЦе найдешевший варіант серед доступних серцевих препаратів у нашій аптеці. Якщо потрібні інші варіанти або консультація щодо застосування – дайте знати!",
+      "latency": 4.792
+    },
+    {
+      "case": "AUTO-01",
+      "old_passed": true,
+      "tools": [],
+      "answer": "{'thought': \"Потрібно знайти диски (rim) для Volkswagen Golf 7 (VAG) з ціною не більше 15000 грн. Виконаю запит до таблиці products, фільтруючи за категорією 'rim', брендом VAG/Volkswagen та ціною.\"}",
+      "latency": 2.205
+    },
+    {
+      "case": "AUTO-02",
+      "old_passed": false,
+      "tools": [],
+      "answer": "{'thought': 'Потрібно знайти всі диски Mansory у категорії rim, щоб отримати їхні ID та характеристики (PCD, center_bore) через EAV, а потім порівняти з даними про VW Golf. Поскольку даних про транспортні засоби немає, спочатку отримуємо інформацію про диски Mansory.'}",
+      "latency": 22.423
+    },
+    {
+      "case": "AUTO-03",
+      "old_passed": true,
+      "tools": [
+        "sql_query",
+        "sql_query",
+        "FinalSynthesisGate"
+      ],
+      "answer": "Знайдено маточину BMW F30 та кілька варіантів шин. Ось доступні товари:",
+      "latency": 11.886
+    },
+    {
+      "case": "MK-01",
+      "old_passed": true,
+      "tools": [
+        "sql_query",
+        "FinalSynthesisGate"
+      ],
+      "answer": "Знайшов у каталозі за вашим запитом:\n- ASUS Dual RTX 4070 Super (Rev 2) — 28592.70 грн\n- ASUS Dual RTX 4070 Super (Rev 3) — 24784.61 грн\n- ASUS Dual RTX 4070 Super (Rev 4) — 28896.33 грн",
+      "latency": 9.737
+    },
+    {
+      "case": "MK-02",
+      "old_passed": true,
+      "tools": [
+        "sql_query",
+        "FinalSynthesisGate"
+      ],
+      "answer": "Знайшов у каталозі за вашим запитом:\n- Seasonic Focus GX-1000 1000W (Rev 1) — 8465.21 грн\n- Seasonic Focus GX-1000 1000W (Rev 2) — 8400.00 грн\n- Seasonic Focus GX-1000 1000W (Rev 4) — 7948.65 грн",
+      "latency": 9.294
+    },
+    {
+      "case": "MK-03",
+      "old_passed": true,
+      "tools": [
+        "sql_query",
+        "sql_query",
+        "FinalSynthesisGate"
+      ],
+      "answer": "На жаль, у каталогу немає точних моделей RTX 4070 Ti. Однак доступні варіанти RTX 4070 Super, які можуть задовольнити ваші потреби. Ось найдешевші пропозиції:",
+      "latency": 12.869
+    },
+    {
+      "case": "OFF-01",
+      "old_passed": false,
+      "tools": [],
+      "answer": "ERROR: timed out",
+      "latency": 30.0
+    },
+    {
+      "case": "OFF-02",
+      "old_passed": false,
+      "tools": [],
+      "answer": "ERROR: timed out",
+      "latency": 30.001
+    }
+  ],
+  "source_sha256": {
+    "src/active_inference.py": "cad0a6ae9d6c085ff5fffc736ed4478b677f5bc08619bf9b67ed03b4a559e98a",
+    "src/attribute_algebra.py": "6867bf2ef046cc56880df42c1a398f36c105ca7dc3c78010a1d1524f52ac2bb6",
+    "src/baseline_rag.py": "45a1e40221dcc807f4724e5786be5726c59cdfee829882496cabd9556c02a6ee",
+    "src/benchmark.py": "9394e16c0ec5b4429d0a2e2cb46ae40d387f8889f2691404f03705176abb9924",
+    "src/benchmark_cases.py": "a44640013d5c96cd7e01988787090751d0218e2b4fe3722e248670ecafa4a57f",
+    "src/catalog_query.py": "650def18fff83641efe40f5dc0060ae75b8bcfaa6bd98997f6e48818ac34d6c2",
+    "src/cip_benchmark.py": "11b88ba27b028a1cae5884b905c2d63109c3cc24b1d376c41814328d125bcbd2",
+    "src/contract_inductor.py": "09d54f47151ae07ad3b1d934bfadd92430846fd727e39ddc4ab965c0fdb049b1",
+    "src/domain_catalog.py": "8b004b9084ed507906b2f8093ecdbd8fb7469963a249b558149e3c5d9ef8c881",
+    "src/entity_resolution.py": "053a62995c8c2f78f7cd5894c27ba29e194359664f1a8b7b8b75f43051a9a988",
+    "src/fast_router.py": "918de38eac53f9c50fc256edc0c0b6c49f7669407b94efb8af6249cb0fa4c915",
+    "src/fiduciary_audit.py": "f8d3758ff69c29c6e068e11b0cc847e58916d90b9aee1a5d08014a3abf296b86",
+    "src/fiduciary_experiment.py": "04a45ba91c7962fe125ef0ccd05245541d6e0a6b1a04a07529ef6d3d151f7397",
+    "src/fuzzy_ngram_router.py": "45ba1b1792144f05528940aa3a9761ba28bc417747a0935d8c380ceb8ab39fd5",
+    "src/gateways/base_gateway.py": "fec30214a574a7c16bb4b7eed69682fef9737de90f4e597dc67a2f0c0df0e2e0",
+    "src/gateways/discord_adapter.py": "2bb87c79b3a83fd58533cf10da0c998d438d628fd6eb32c86f2a410ff188a095",
+    "src/gateways/telegram_adapter.py": "65dd812dac303b02cc7ebb1f14e062c1948136432e1b5cedda6f222e954309da",
+    "src/hypergraph.py": "b8b707e5a648c1baec7926e631dd5e5898b3a464d0c44653a1520e953575a43d",
+    "src/key_unit_profiles.py": "8c964547c4b7ca0e10c306f1ed41cabff406c0751cb76f97bca0e769ce4fe9a5",
+    "src/live_agent.py": "098ead8216f35f1613cf47bbe80c8ad80f45d505b835f30fd45de45213a4e5a8",
+    "src/marketplace_normalizer.py": "987d8773b703ce0b1d74b8941d8a52a734bed3bff5257bb55ce7eab4f6a29187",
+    "src/metrics.py": "755bbd9441c9b26d5c53cd1b8fd06a5f121403b51e1e3762a8c9a66ee94bfc02",
+    "src/nvfg.py": "6e2223b75e0d72c31be6215636f9ceaa0f2491674b8f15b10ce9078f600a5aa9",
+    "src/offline_agent.py": "5ee2e44bb078a20e40c2329a54dfd55a9cbfb6dbb81cb3ad118534ced0047f42",
+    "src/ontograph.py": "73163d201a89969180c6852b1b9b871cd91dace001f42b2cfcc6869d9cb1d112",
+    "src/openrouter_client.py": "77e1a2b45544009a9e2f9ecf81b085198be6748c30ffb25827d4f8b6b6028e2a",
+    "src/pareto_relaxer.py": "3aff946ccc5d0d88dff1e6fb75e26cc657a5b4d0f072aa357516901ab7b26292",
+    "src/profiler.py": "55f2d76678e73027ccc2f444d054678df107f70641289b37fcc07d14c3b7f5e7",
+    "src/react_agent.py": "227710845870ee1d87e7a132c6c507ee96097749d07184b3745a1def4aeb4bb6",
+    "src/real_data_validation.py": "7c7871345fc674a6bb3d3a19e49f9232807be947093405b34d7c6ef04dd21f3d",
+    "src/relaxation_lattice.py": "f0c23ed30a9dd69b42ab932db3478471f1a748afdbaffa6d8cf9e1afbbea2aeb",
+    "src/router.py": "3fd88c41345943cc9c876392800385be3c77fe3567c3ed9d8e1c03fa4f2debca",
+    "src/runners/run_discord.py": "6db5f97679085ef6574d7b46d180939fa2f4403b6e7b600253131709026dcffe",
+    "src/runners/run_telegram.py": "349078c8ff0ae16ae060dabcded023801132ff325e34529cb0d1307b1d8b7d40",
+    "src/sanitizer.py": "98a9ac44178e938e00a466758a4cb6fb994f724d88f7660eb6b1a3105e0089f8",
+    "src/scope_overlap_sweep.py": "deaccab85c28fbfbd3156092a17f7ce1592d3c15bf2530d35102feeb0b90a8b1",
+    "src/server.py": "7b1a3729dae15711d129627e36aab6db2bce62a56050f55ef6290e066df90d99",
+    "src/session_store.py": "4b56b01d2eabfca4405d82bac84f662e3613cb312ae65ab7a370db1d9435e63d",
+    "src/taxonomy_fca.py": "c00ebad7bd3ad036b84ad6294cd3f3bb561cb5c544be04270fba0b2b699cbcfa",
+    "tests/test_active_inference.py": "a05c08689a7c0b44ba29f2c5ed276a116c4e1c21dba83c71067dc56e533f9bec",
+    "tests/test_adaptive_grounding_gate.py": "b506e872a07f90f12e1ed824d245626160d8c84224abf26d788bf5d014d0497b",
+    "tests/test_adaptive_query_recovery.py": "ae3956d09dff826e1e7c229ef70f2b055c8ceef3300d2c5bc81d0df4afb0014e",
+    "tests/test_adversarial_client_eval.py": "acb4b0a5c2a0bec7cdf04a6bc73735e8ccfb84be658216d8e99117dc3c789483",
+    "tests/test_attribute_algebra.py": "b90d2052a6e5b918e788307366c713998f2248af5ba6bc694ed02d609ebc2b77",
+    "tests/test_benchmark_cases.py": "b20046009273d81727bdc7937a916935f0c1473c9467db58c50f95f884f7e8e4",
+    "tests/test_benchmark_harness.py": "68781024c819c685d6338b2b36d37b719694825a890715666c88967c848608eb",
+    "tests/test_catalog_query.py": "33aff16109b1c2aadf171e263348432b92555ef8d1b9f23b61ed707cb8bf081c",
+    "tests/test_cip_benchmark.py": "01be82889f50857aead56e105c10a0e3cbaa11ea52e4fbb5af558f5a25e469fb",
+    "tests/test_degrade_polygon.py": "24ea1bf54b48e2e0e53318e8954320b29633892250279b58e22a0024278c8752",
+    "tests/test_dynamic_domain_isolation.py": "92f6a64c94312f4ef8baf924fc685ac33f6f160af39a4905cd52d1b837f91228",
+    "tests/test_entity_resolution.py": "2537776554f60354c846564f2c815d2df079059e256991eb16ec9d1a805ed96f",
+    "tests/test_fast_router.py": "58f998b6ecc6a84b4ac52bdf08d56cbde1b190835ccc5b102aa7f9a17857f48b",
+    "tests/test_fiduciary_audit.py": "48cdd3ce6ef6b0fb749c63494007fdc30ed2e6b167c75b4ae34c63567f4ceb69",
+    "tests/test_fuzzy_ngram_router.py": "77e404541b5e41e1f5c051cd2cac44e9eb28dc6a1de76ab58db56c8939916560",
+    "tests/test_gate_non_vacuous.py": "9488d8c1dd72707dd8281e8cf74634ff5e6a9dbc1ddb698df8294ff279ed45aa",
+    "tests/test_hypergraph_guarantees.py": "8c2b31b2870834647df29c8865160e209ed767ea9a17ead5667be987c27d8431",
+    "tests/test_invariants.py": "dbd42602e0b2f8ee2c0930b9cb7fdeeb573cf8a1ce15e48bdbae2d27b4e4ac16",
+    "tests/test_key_unit_profiles.py": "2355cf8a9ec3d9221d9a3346861c62211060ed9d7dfbd751e9471c54bdbb3f5f",
+    "tests/test_lazy_hypergraph_scale.py": "767afe2f89b57638daa214942054fe270a94f7f16f7fd5397344ccf292c9ec96",
+    "tests/test_live_arm.py": "feeb5eb1261f66a567b593f9a915dcb7bd2157cd53d6ac2c7f4d47adece5542e",
+    "tests/test_marketplace_eav.py": "1752cc4c51736ae940aaae9469872756bc195a5d0cdf5627070e2a1effb922e4",
+    "tests/test_metrics.py": "d951efc3432b2d0a5127ef307d600a735db3afad7e1dc46105a9c55f3cde856f",
+    "tests/test_nvfg.py": "477c8fc6bff716e1839ef94af76feb2074381cf7434647a969e0cf6860367600",
+    "tests/test_offline_agent_router.py": "9c48258a13ef0aef86547fad7719ea95bc1f8e47db67061684db41280ca59d24",
+    "tests/test_ontograph.py": "035758e885b9de10bc66f097ddaeb848aac6f9529c37fe36bd9342daf80c1d2b",
+    "tests/test_paper_claims.py": "2118f4b32f76170f3b3fc9e43918b4cbb29cb51aab3e1e3070f4898328f00398",
+    "tests/test_react_budget_synthesis.py": "8bc04b11f3c54cedbd97d9226ade26a0a3749d2d9cebf82a37d6053ce6dd5fe5",
+    "tests/test_real_data_validation.py": "ebe78ef0bafaa6f26f5950481049639319061812905c44a64a1a3ffed3ca3c4f",
+    "tests/test_relaxation_lattice.py": "8e74a49c336698911b4979c3bfbd1c43ce373ca99dd2d54f45f0063652431d58",
+    "tests/test_server_api.py": "08d26f1fc0b4718fb0f2a1da4ddcb8576d9a377bba0d9c5d372d8ca7013ac84d",
+    "tests/test_session_store.py": "e8c8a9b3e85c87ab77e78c36d74f96da7bfa34729b31d2f16925d9109197a94f",
+    "tests/test_taxonomy_fca.py": "8e8b5c2e21f6cf6e278dcfbecb11566ad76e99b7e50ff01c0e1f5d97a3556e74",
+    "tests/test_virtual_hypergraph_cross_domain.py": "542d58e82c7c43ae9a7cebe96716fc2be074c801394567884f263e46ee19ebbe",
+    "docs/architecture/00_ARCHITECTURE_INDEX.md": "1dab488cb766d0079e27584b505cf4525081eba35e3f3c35da3f2e6c01537ca1",
+    "docs/architecture/01_GLOBAL_ARCHITECTURE.md": "b47c948b0c6df60c5676c1ebb81c95daa0bab2f6c5de373afef76c439d317d96",
+    "docs/architecture/02_SYSTEM_KERNEL.md": "e1d706297f72275ec1b4da3ce956d25db551e7541185c90ab638648ada538d06",
+    "docs/architecture/03_SYMBOLIC_CORE_HYPERGRAPH_LATTICE.md": "344933e6a476489887ea51db177cbdd164799d7fa39c9da5858533c539372735",
+    "docs/architecture/04_FCA_AND_DYNAMIC_TAXONOMY.md": "f6855fe40517e2df3b1df339afd518cb5fdcc3c2c980b006fa4a8aed5cefbfbe",
+    "docs/architecture/05_DATA_FABRIC_AND_PROFILER.md": "8ef4b81605061fd2f88cd42405d99fa648ae24f21758fa4821ab44e4e88de34d",
+    "docs/architecture/06_API_OMNICHANNEL_AND_UI.md": "175fdcfa909ade6633e0a0d9976cb85d56d2a271aa649b054ba929fa66fd82c5"
+  }
+}
